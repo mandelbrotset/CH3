@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Pencil.Gaming;
-using Pencil.Gaming.Graphics;
-
+using Tao.FreeGlut;
+using OpenGL;
 
 namespace CH3
 {
     public class Game
     {
-        
-
-
-
         public HUD HUD
         {
             get
@@ -53,7 +48,8 @@ namespace CH3
 
         private Window gameWindow;
         private BasicShaderProgram shader;
-
+        private VBO<Vector3> triangle, square;
+        private VBO<int> triangleElements, squareElements;
 
         public Game()
         {
@@ -67,104 +63,60 @@ namespace CH3
             }
 
 
-            Glfw.SetErrorCallback((GlfwError error, String msg) => {
-                
-                Console.WriteLine("ERROR: " + msg);
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-            });
-            Glfw.SetWindowSizeCallback(gameWindow.window, (GlfwWindowPtr window, int width, int height) => {
-                GL.Viewport(0, 0, width, height);
-                
-            });
+            Glut.glutIdleFunc(render);
 
 
             shader = new BasicShaderProgram();
 
 
+            triangle = new VBO<Vector3>(new Vector3[] { new Vector3(0,1,0), new Vector3(-1,-1,0), new Vector3(1, -1,0) });
+            square = new VBO<Vector3>(new Vector3[] { new Vector3(-1, 1, 0), new Vector3(1,1,0), new Vector3(1,-1, 0), new Vector3(-1,1,0) });
+
+
+            triangleElements = new VBO<int>(new int[] { 0, 1, 2 }, BufferTarget.ElementArrayBuffer);
+            squareElements = new VBO<int>(new int[] { 0, 1, 2, 3 }, BufferTarget.ElementArrayBuffer);
+
+
 
         }
 
 
-        public unsafe void run(int fps)
+        public void run(int fps)
         {
-
-            int frameCounter = 0;
-            double beforeTime = Glfw.GetTime();
-
-            int vertexBuffer;
-            GL.GenBuffers(1, out vertexBuffer);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
-
-          //  GL.BufferData(BufferTarget.ArrayBuffer, 1, data, BufferUsageHint.StaticDraw);
-
-                
-            while (gameWindow.isRunning())
-            {
-                double currentTime = Glfw.GetTime();
-
-                handleEvents();
-                update();
-                render();
-                frameCounter++;
-
-                double afterTime = Glfw.GetTime();
-
-
-
-
-                if (afterTime - beforeTime >= 1) {
-                    Console.WriteLine(frameCounter + "FPS");
-                    frameCounter = 0;
-                    beforeTime = Glfw.GetTime();
-                }
-
-
-
-            }
-
+            Glut.glutMainLoop();
+   
         }
 
         private void handleEvents()
         {
-            Glfw.PollEvents();
-
-            if (Glfw.GetKey(gameWindow.window, Key.Escape))
-                Glfw.SetWindowShouldClose(gameWindow.window, true);
-            
         }
+
 
         private void render()
         {
 
-            int width;
-            int height;
-            float ratio;
-            double time = Glfw.GetTime();
 
-            Glfw.GetFramebufferSize(gameWindow.window, out width, out height);
+            Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
-            ratio = width / (float)height;
-
-            GL.Viewport(0, 0, width, height);
-
-
-            float alpha = 1.0f;
-            float red = (float)Math.Sin(Glfw.GetTime());
-            float green = 0.5f;
-            float blue = 0.5f;
-
-            GL.ClearColor(red, green, blue, alpha);
-                
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            float[] matrix = new float[16];
-
+            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             shader.useProgram();
 
 
-            Glfw.SwapBuffers(gameWindow.window);
+            shader.setProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / Window.HEIGHT), 0.1f, 1000f));
+            shader.setViewMatrix(Matrix4.LookAt(new Vector3(0, 0, 10), Vector3.Zero, -Vector3.Up));
+            shader.setModelMatrix(Matrix4.CreateTranslation(new Vector3(1.0f, 1.0f, -1.0)));
+
+            Gl.BindBuffer(triangle);
+
+            Gl.VertexAttribPointer(shader.vertexPositionIndex, triangle.Size, triangle.PointerType, true, 12, IntPtr.Zero);
+
+            Gl.BindBuffer(triangleElements);
+
+            Gl.DrawElements(BeginMode.Triangles, triangleElements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+
+
+            Glut.glutSwapBuffers();
 
         }
 

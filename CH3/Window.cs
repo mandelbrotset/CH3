@@ -1,7 +1,6 @@
 ﻿using System;
-using Pencil.Gaming;
-using Pencil.Gaming.Graphics;
-
+using Tao.FreeGlut;
+using OpenGL;
 
 namespace CH3
 {
@@ -14,54 +13,29 @@ namespace CH3
 
 
 
-        public GlfwWindowPtr window
+        public int window
         {
             get; private set;
 
         }
 
 
-        public bool isRunning()
-        {
-            if (!Glfw.WindowShouldClose(window))
-            {
-
-                return true;
-
-            }
-            destroyWindow();
-            Glfw.Terminate();
-            return false;
-        }
-
         public void destroyWindow()
         {
-            Glfw.DestroyWindow(window);
-
+            Glut.glutDestroyWindow(window);
         }
 
         public bool createWindow()
         {
 
-           
-            if (!Glfw.Init())
-            {
-
-                return false;
-            }
-
-            Glfw.WindowHint(WindowHint.ContextVersionMajor, 2);
-            Glfw.WindowHint(WindowHint.ContextVersionMinor, 0);
-
-
-            window = Glfw.CreateWindow(WIDTH, HEIGHT, TITLE, GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
-
-            Glfw.MakeContextCurrent(window);
-
-            Glfw.SwapInterval(1);
+            Glut.glutInit();
+            Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
+            Glut.glutInitWindowSize(WIDTH, HEIGHT);
+            window = Glut.glutCreateWindow(TITLE);
 
             return true;
-
         }
+
+
     }
 }

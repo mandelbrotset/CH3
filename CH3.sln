@@ -1,9 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CH3", "CH3\CH3.csproj", "{07AF8E0B-61C4-4F64-ADB2-2442A5871F55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7C3B503D-8212-499C-B0F4-31C93074E77D}"
+	ProjectSection(SolutionItems) = preProject
+		CH3\libs\freeglut.dll = CH3\libs\freeglut.dll
+		CH3\libs\OpenGL.dll = CH3\libs\OpenGL.dll
+		CH3\libs\Tao.FreeGlut.dll = CH3\libs\Tao.FreeGlut.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

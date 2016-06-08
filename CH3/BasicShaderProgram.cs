@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Pencil.Gaming.Graphics;
-
+using OpenGL;
 
 namespace CH3
 {
@@ -11,18 +10,52 @@ namespace CH3
     {
         public int colorLocation { get; private set; }
 
+        public uint vertexPositionIndex { get; private set; }
+
         public BasicShaderProgram()
         {
 
-            loadFragShader("../../shaders/basicVert.vert");
-            loadVertShader("../../ shaders / basicFrag.frag");
+            loadVertShader("../../shaders/basicVert.vert");
+            loadFragShader("../../shaders/basicFrag.frag");
             loadProgram();
 
-            colorLocation = GL.GetAttribLocation(program, "color");
+            
+            vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
+        }
 
-            GL.EnableVertexAttribArray(colorLocation);
-            GL.VertexAttribPointer(colorLocation, 3, VertexAttribPointerType.Float, false, sizeof(float) * 3, IntPtr.Zero);
+        public new void useProgram() {
+            base.useProgram();
+            Gl.EnableVertexAttribArray(vertexPositionIndex);
+
 
         }
+
+        
+
+
+        public void setProjectionMatrix(Matrix4 matrix)
+        {
+            program["projection_matrix"].SetValue(matrix);
+            
+        }
+
+        public void setViewMatrix(Matrix4 matrix)
+        {
+            program["view_matrix"].SetValue(matrix);
+
+        }
+
+        public void setModelMatrix(Matrix4 matrix)
+        {
+            program["model_matrix"].SetValue(matrix);
+
+        }
+
+
+
+
+
+
+        
     }
 }
