@@ -3,7 +3,7 @@
   <Class Name="CH3.Game">
     <Position X="2.5" Y="2" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAABAAAAAAAAAAAAAACCAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAgAAABAAABIAAAAAAAAADCAAAAAAAAAAAAAUAAE=</HashCode>
       <FileName>Game.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -20,7 +20,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.World">
-    <Position X="2.5" Y="4" Width="1.5" />
+    <Position X="5.75" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
       <FileName>World.cs</FileName>
@@ -48,7 +48,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.GameObject">
-    <Position X="5.25" Y="4" Width="1.5" />
+    <Position X="6" Y="6.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>GameObject.cs</FileName>
@@ -99,6 +99,27 @@
     <ShowAsAssociation>
       <Property Name="Drawable" />
     </ShowAsAssociation>
+  </Class>
+  <Class Name="CH3.Window">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAQAAAAAAEAAQAAAgIAAAAAABAAAg=</HashCode>
+      <FileName>Window.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CH3.ShaderProgram">
+    <Position X="8" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAgABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>ShaderProgram.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CH3.BasicShaderProgram" Collapsed="true">
+    <Position X="10.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BasicShaderProgram.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Interface Name="CH3.Drawable">
     <Position X="5.25" Y="2" Width="1.5" />
