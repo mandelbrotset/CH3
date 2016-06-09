@@ -132,11 +132,12 @@ namespace CH3
             }
 
 
-
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+            
+            camera.target = Vector3.Lerp(camera.target, teapots.First().position, 0.1f);
+            camera.position = Vector3.Lerp(camera.position, new Vector3(camera.target.x, camera.target.y - 10, 8), 0.004f);
 
 
             Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / Window.HEIGHT), 0.1f, 1000f);
@@ -145,9 +146,12 @@ namespace CH3
 
 
             //Render floor
+            for (int x = -10; x < 10; x += 2)
+                for (int y = -10; y < 10; y += 2)
+                    renderFloor(new Vector3(x, y, 0), projectionMatrix, viewMatrix);
 
 
-
+            //Render teapots
             foreach (Teapot t in teapots) {
 
                 t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
@@ -161,15 +165,6 @@ namespace CH3
 
                 t.render(time, projectionMatrix, viewMatrix);
             }
-
-            for (int x = -10; x < 10; x+=2)
-                for(int y = -10; y<10; y+=2)
-                    renderFloor(new Vector3(x, y, 0), projectionMatrix, viewMatrix);
-
-            camera.target = Vector3.Lerp(camera.target, teapots.First().position, 0.1f);
-
-
-            camera.position = Vector3.Lerp(camera.position, new Vector3(camera.target.x, camera.target.y - 10, 8), 0.004f);
 
 
             Glut.glutSwapBuffers();
