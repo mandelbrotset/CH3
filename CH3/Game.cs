@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tao.FreeGlut;
+
 using OpenGL;
 
 namespace CH3
@@ -46,10 +47,18 @@ namespace CH3
         }
 
 
+        private List<Teapot> teapots;
         private Window gameWindow;
         private BasicShaderProgram shader;
-        private VBO<Vector3> triangle, square;
-        private VBO<int> triangleElements, squareElements;
+        private VBO<Vector3> floor;
+        private VBO<int> floorElements;
+
+
+        private Camera camera;
+        private double fps;
+        private int frame = 0, timebase = 0;
+
+
 
         public Game()
         {
@@ -67,15 +76,15 @@ namespace CH3
 
 
             shader = new BasicShaderProgram();
+            camera = new Camera(new Vector3(0, 0, 100), Vector3.Zero);
+            teapots = new List<Teapot>();
 
 
-            triangle = new VBO<Vector3>(new Vector3[] { new Vector3(0,1,0), new Vector3(-1,-1,0), new Vector3(1, -1,0) });
-            square = new VBO<Vector3>(new Vector3[] { new Vector3(-1, 1, 0), new Vector3(1,1,0), new Vector3(1,-1, 0), new Vector3(-1,1,0) });
+            teapots.Add(new Teapot(new Vector3(-1, 0, 0), new Vector3(0.1, 0.1, 0.1), 0f, shader));
+            teapots.Add(new Teapot(new Vector3(1, 0, 0), new Vector3(0.4, 0.4, 0.4), 0f, shader));
 
-
-            triangleElements = new VBO<int>(new int[] { 0, 1, 2 }, BufferTarget.ElementArrayBuffer);
-            squareElements = new VBO<int>(new int[] { 0, 1, 2, 3 }, BufferTarget.ElementArrayBuffer);
-
+            floor = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
+            floorElements = new VBO<int>(new int[] { 3,0,1, 0, 1, 2, 0, 2, 1, 3}, BufferTarget.ElementArrayBuffer);
 
 
         }
@@ -89,31 +98,78 @@ namespace CH3
 
         private void handleEvents()
         {
+
+
         }
 
+        private void renderFloor(Vector3 position, Matrix4 projectionMatrix, Matrix4 viewMatrix) {
+            shader.useProgram();
+
+            shader.setProjectionMatrix(projectionMatrix);
+            shader.setViewMatrix(viewMatrix);
+            shader.setModelMatrix(Matrix4.CreateTranslation(position));
+
+            Gl.BindBuffer(floor);
+            Gl.VertexAttribPointer(shader.vertexPositionIndex, floor.Size, floor.PointerType, true, 12, IntPtr.Zero);
+            Gl.BindBuffer(floorElements);
+            Gl.DrawElements(BeginMode.Lines, floorElements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+
+        }
 
         private void render()
         {
+
+            frame++;
+            int time = Glut.glutGet(Glut.GLUT_ELAPSED_TIME);
+
+            if (time - timebase > 1000) {
+                fps = frame * 1000.0 / (time - timebase);
+                timebase = time;
+                frame = 0;
+
+                Console.WriteLine(fps + "FPS");
+
+            }
+
 
 
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            shader.useProgram();
 
 
-            shader.setProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / Window.HEIGHT), 0.1f, 1000f));
-            shader.setViewMatrix(Matrix4.LookAt(new Vector3(0, 0, 10), Vector3.Zero, -Vector3.Up));
-            shader.setModelMatrix(Matrix4.CreateTranslation(new Vector3(1.0f, 1.0f, -1.0)));
+            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / Window.HEIGHT), 0.1f, 1000f);
+            Matrix4 viewMatrix = camera.viewMatrix;
 
-            Gl.BindBuffer(triangle);
 
-            Gl.VertexAttribPointer(shader.vertexPositionIndex, triangle.Size, triangle.PointerType, true, 12, IntPtr.Zero);
 
-            Gl.BindBuffer(triangleElements);
+            //Render floor
 
-            Gl.DrawElements(BeginMode.Triangles, triangleElements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+
+
+            foreach (Teapot t in teapots) {
+
+                t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
+                t.rotation += (float)((-0.001));
+                if (t.rotation > 2*Math.PI)
+                    t.rotation -= (float)(2*Math.PI);
+                if (t.rotation < 0)
+                    t.rotation += (float)(2 * Math.PI);
+
+
+
+                t.render(time, projectionMatrix, viewMatrix);
+            }
+
+            for (int x = -10; x < 10; x+=2)
+                for(int y = -10; y<10; y+=2)
+                    renderFloor(new Vector3(x, y, 0), projectionMatrix, viewMatrix);
+
+            camera.target = Vector3.Lerp(camera.target, teapots.First().position, 0.1f);
+
+
+            camera.position = Vector3.Lerp(camera.position, new Vector3(camera.target.x, camera.target.y - 10, 8), 0.004f);
 
 
             Glut.glutSwapBuffers();

@@ -7,16 +7,6 @@ namespace CH3
 {
     public class Graphics
     {
-        public Drawable Drawable
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
 
-            set
-            {
-            }
-        }
     }
 }

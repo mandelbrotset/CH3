@@ -38,6 +38,10 @@ namespace CH3
             }
         }
 
+        public void unuseProgram() {
+            program.Dispose();
+        }
+
         private bool reloadFragShader() {
 
             string code = loadTextFile(fragmentShaderPath);

@@ -29,7 +29,7 @@ namespace CH3
         {
 
             Glut.glutInit();
-            Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
+            Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH | Glut.GLUT_RGBA);
             Glut.glutInitWindowSize(WIDTH, HEIGHT);
             window = Glut.glutCreateWindow(TITLE);
 

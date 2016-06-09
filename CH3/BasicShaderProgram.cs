@@ -11,6 +11,7 @@ namespace CH3
         public int colorLocation { get; private set; }
 
         public uint vertexPositionIndex { get; private set; }
+        
 
         public BasicShaderProgram()
         {
@@ -30,8 +31,11 @@ namespace CH3
 
         }
 
-        
 
+        public void setTime(int time)
+        {
+            program["time"].SetValue((float)time);
+        }
 
         public void setProjectionMatrix(Matrix4 matrix)
         {
