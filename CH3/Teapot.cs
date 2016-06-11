@@ -14,7 +14,7 @@ namespace CH3
 {
     class Teapot : GameObject
     {
-        public Teapot(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, rotation, shader)
+        public Teapot(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, 0,0, rotation, shader)
         {
         }
 
@@ -23,7 +23,7 @@ namespace CH3
 
 
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
-            Matrix4 rotation = Matrix4.CreateRotation(Vector3.UnitZ, this.rotation);
+            Matrix4 rotation = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
             Matrix4 translation = Matrix4.CreateTranslation(this.position);
 
             BasicShaderProgram shader = (BasicShaderProgram)this.shader;

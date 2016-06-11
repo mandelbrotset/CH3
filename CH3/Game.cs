@@ -133,7 +133,7 @@ namespace CH3
         {
             Console.WriteLine($"{button} : {state} : {x} : {y}");
         }
-        
+
         public void KeyUp(byte key, int x, int y)
         {
            activeKeys[key] = false;
@@ -152,7 +152,7 @@ namespace CH3
         private void Motion(int x, int y)
         {
             if (warped )
-            {
+        {
                 warped = false;
                 return;
             }
@@ -231,14 +231,14 @@ namespace CH3
             //Render teapots
             foreach (GameObject t in objects) {
 
-             //   t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
-              //  t.rotation += (float)((-0.001));
-               /* if (t.rotation > 2*Math.PI)
-                    t.rotation -= (float)(2*Math.PI);
-                if (t.rotation < 0)
-                    t.rotation += (float)(2 * Math.PI);
+                t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
+                /*t.rotationZ += (float)((-0.001));
+                if (t.rotationZ > 2*Math.PI)
+                    t.rotationZ -= (float)(2*Math.PI);
+                if (t.rotationZ < 0)
+                    t.rotationZ += (float)(2 * Math.PI);
+                    */
 
-    */
 
 
                 t.render(time, projectionMatrix, viewMatrix);
