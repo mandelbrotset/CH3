@@ -8,9 +8,9 @@ namespace CH3
 {
     public class BasicShaderProgram : ShaderProgram
     {
-        public int colorLocation { get; private set; }
+        public int colorLocation { get; protected set; }
 
-        public uint vertexPositionIndex { get; private set; }
+        public uint vertexPositionIndex { get; protected set; }
         
 
         public BasicShaderProgram()
@@ -60,6 +60,8 @@ namespace CH3
 
 
 
-        
+
+
+
     }
 }

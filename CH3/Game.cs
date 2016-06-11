@@ -48,9 +48,8 @@ namespace CH3
 
         private List<GameObject> objects;
         private Window gameWindow;
-        private BasicShaderProgram shader;
-        private VBO<Vector3> floor;
-        private VBO<int> floorElements;
+
+        private Floor floor;
 
         private Camera camera;
         private double fps;
@@ -69,15 +68,12 @@ namespace CH3
 
             Glut.glutIdleFunc(render);
 
-            shader = new BasicShaderProgram();
             camera = new Camera(new Vector3(0, 0, 100), Vector3.Zero);
             objects = new List<GameObject>();
 
-       //     objects.Add(new Teapot(new Vector3(-1, 0, 0), new Vector3(0.1, 0.1, 0.1), 0f, shader));
-            objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, shader));
+            objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new FloorShaderProgram());
 
-            floor = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
-            floorElements = new VBO<int>(new int[] { 3,0,1, 0, 1, 2, 0, 2, 1, 3}, BufferTarget.ElementArrayBuffer);
             setCallbackMethods();
         }
 
@@ -138,20 +134,6 @@ namespace CH3
 
         }
 
-        private void renderFloor(Vector3 position, Matrix4 projectionMatrix, Matrix4 viewMatrix) {
-            shader.useProgram();
-
-            shader.setProjectionMatrix(projectionMatrix);
-            shader.setViewMatrix(viewMatrix);
-            shader.setModelMatrix(Matrix4.CreateTranslation(position));
-
-            Gl.BindBuffer(floor);
-            Gl.VertexAttribPointer(shader.vertexPositionIndex, floor.Size, floor.PointerType, true, 12, IntPtr.Zero);
-            Gl.BindBuffer(floorElements);
-            Gl.DrawElements(BeginMode.Lines, floorElements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-
-        }
-
         private void render()
         {
 
@@ -182,21 +164,18 @@ namespace CH3
 
 
             //Render floor
-            for (int x = -10; x < 10; x += 2)
-                for (int y = -10; y < 10; y += 2)
-                    renderFloor(new Vector3(x, y, 0), projectionMatrix, viewMatrix);
-
+            floor.render(time, projectionMatrix, viewMatrix);
 
             //Render teapots
             foreach (GameObject t in objects) {
 
                 t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
-                /*t.rotationZ += (float)((-0.001));
+                t.rotationZ += (float)((-0.001));
                 if (t.rotationZ > 2*Math.PI)
                     t.rotationZ -= (float)(2*Math.PI);
                 if (t.rotationZ < 0)
                     t.rotationZ += (float)(2 * Math.PI);
-                    */
+                    
     
 
 

@@ -79,11 +79,6 @@ namespace CH3
 
         public void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix) {
 
-        //    vertices = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
-
-
-     //       faces = new VBO<int>(new int[] { 0, 2, 1, 0, 1, 3}, BufferTarget.ElementArrayBuffer);
-
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
             Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
             Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
@@ -95,19 +90,21 @@ namespace CH3
             BasicShaderProgram shader = (BasicShaderProgram)this.shader;
 
 
+            Gl.Enable(EnableCap.CullFace);
+            Gl.CullFace(CullFaceMode.Back);
 
             shader.useProgram();
             shader.setTime(time);
             shader.setProjectionMatrix(projectionMatrix);
             shader.setViewMatrix(viewMatrix);
-            shader.setModelMatrix((rotationZ * rotationX * rotationY) * scale * translation);
+            shader.setModelMatrix(( rotationX * rotationY* rotationZ) * scale * translation);
 
             Gl.BindBuffer(vertices);
 
             Gl.VertexAttribPointer(shader.vertexPositionIndex, vertices.Size, vertices.PointerType, true, 12, IntPtr.Zero);
             Gl.BindBuffer(faces);
 
-            Gl.DrawElements(BeginMode.Lines, faces.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Gl.DrawElements(BeginMode.Triangles, faces.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
     }
 }

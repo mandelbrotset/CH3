@@ -11,14 +11,14 @@ using ObjLoader.Loader.Data.VertexData;
 
 namespace CH3
 {
-    public class Building : GameObject
+    public class Floor : GameObject
     {
-        public Building(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 0.2f*scale, (float)-Math.PI / 2, 0, rotation, shader)
+        public Floor(Vector3 position, Vector3 scale, float rotation, FloorShaderProgram shader) : base(position, 100*scale, 0, 0, rotation, shader)
         {
 
             var objLoaderFactory = new ObjLoaderFactory();
             var objLoader = objLoaderFactory.Create();
-            var fileStream = new FileStream("../../models/klcc_lores.obj", FileMode.Open);
+            var fileStream = new FileStream("../../models/floor.obj", FileMode.Open);
 
             LoadResult result = objLoader.Load(fileStream);
 
@@ -31,7 +31,7 @@ namespace CH3
 
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)
         {
-
+            ((FloorShaderProgram)shader).setResolution(new Vector2(Window.WIDTH, Window.HEIGHT));
 
             base.render(time, projectionMatrix, viewMatrix);
         }
