@@ -22,9 +22,9 @@ namespace CH3
             loadFragShader("../../shaders/basicFrag.frag");
             loadProgram();
 
-            
-            vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
+
             vertexTexCoordIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "texCoord");
+            vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
 
 
         }
@@ -32,6 +32,7 @@ namespace CH3
         public new void useProgram() {
             base.useProgram();
             Gl.EnableVertexAttribArray(vertexPositionIndex);
+            Gl.EnableVertexAttribArray(vertexTexCoordIndex);
 
 
         }

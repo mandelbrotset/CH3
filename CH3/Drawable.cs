@@ -64,15 +64,25 @@ namespace CH3
                         list.Add(v2.VertexIndex - 1);
                         list.Add(v3.VertexIndex - 1);
 
+
                         if (tex != null && tex.Count > 0)
                         {
                             var tex1 = tex[v1.TextureIndex - 1];
                             var tex2 = tex[v2.TextureIndex - 1];
                             var tex3 = tex[v3.TextureIndex - 1];
-
+                            Console.WriteLine("TEXTURES:");
                             uvs[v1.VertexIndex - 1] = new Vector2(tex1.X, tex1.Y);
                             uvs[v2.VertexIndex - 1] = new Vector2(tex2.X, tex2.Y);
                             uvs[v3.VertexIndex - 1] = new Vector2(tex3.X, tex3.Y);
+
+                            Console.WriteLine("(" + tex1.X + ", " + tex1.Y + ") on index " + (v1.TextureIndex));
+                            Console.WriteLine("to index " + (v1.VertexIndex));
+                            Console.WriteLine("(" + tex2.X + ", " + tex2.Y + ") on index " + (v2.TextureIndex));
+                            Console.WriteLine("to index " + (v2.VertexIndex));
+                            Console.WriteLine("(" + tex3.X + ", " + tex3.Y + ") on index " + (v3.TextureIndex));
+                            Console.WriteLine("to index " + (v3.VertexIndex));
+                            
+
 
                         }
                         else {
@@ -88,8 +98,9 @@ namespace CH3
             }
 
             int[] array = list.ToArray();
-
+            Console.WriteLine("UVS: " + uvs.Length);
             texCoordinates = new VBO<Vector2>(uvs);
+            Console.WriteLine("TexCoord: " + texCoordinates.Count);
 
             faces = new VBO<int>(array, BufferTarget.ElementArrayBuffer);
 
@@ -115,7 +126,7 @@ namespace CH3
             Gl.CullFace(CullFaceMode.Back);
 
             if(texture != null)
-             Gl.BindTexture(texture);
+             Gl.BindTexture(TextureTarget.Texture2D, texture.TextureID);
 
             shader.useProgram();
             shader.setTime(time);
@@ -133,6 +144,9 @@ namespace CH3
             Gl.BindBuffer(faces);
 
             Gl.DrawElements(BeginMode.Triangles, faces.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
+
         }
     }
 }

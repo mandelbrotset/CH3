@@ -79,7 +79,7 @@ namespace CH3
             objects = new List<GameObject>();
 
             objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
-            floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new FloorShaderProgram());
+            floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram());
         }
 
         private void SetGlutMethods()
@@ -138,8 +138,9 @@ namespace CH3
                 fps = frame * 1000.0 / (time - timebase);
                 timebase = time;
                 frame = 0;
+                Console.WriteLine(Gl.GetError());
 
-             //   Console.WriteLine(fps + "FPS " + time);
+                //   Console.WriteLine(fps + "FPS " + time);
 
             }
 

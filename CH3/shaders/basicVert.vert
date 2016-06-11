@@ -1,5 +1,6 @@
-in vec3 vertexPosition;
 in vec2 texCoord;
+in vec3 vertexPosition;
+
 
 uniform mat4 projection_matrix;
 uniform mat4 view_matrix;

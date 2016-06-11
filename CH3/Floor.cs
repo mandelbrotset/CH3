@@ -13,7 +13,7 @@ namespace CH3
 {
     public class Floor : GameObject
     {
-        public Floor(Vector3 position, Vector3 scale, float rotation, FloorShaderProgram shader) : base(position, 1000*scale, 0, 0, rotation, shader)
+        public Floor(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 1000*scale, 0, 0, rotation, shader)
         {
 
             var objLoaderFactory = new ObjLoaderFactory();
@@ -24,6 +24,9 @@ namespace CH3
 
             fileStream.Close();
 
+            texture = new OpenGL.Texture("../../textures/grass.png");
+
+
             this.setVertices(result.Vertices);
 
             this.setFaces(result.Groups, result.Textures);
@@ -31,7 +34,7 @@ namespace CH3
 
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)
         {
-            ((FloorShaderProgram)shader).setResolution(new Vector2(Window.WIDTH, Window.HEIGHT));
+           // ((FloorShaderProgram)shader).setResolution(new Vector2(Window.WIDTH, Window.HEIGHT));
 
             base.render(time, projectionMatrix, viewMatrix);
         }
