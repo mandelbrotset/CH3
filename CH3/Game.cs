@@ -71,7 +71,7 @@ namespace CH3
 
             Glut.glutIdleFunc(render);
 
-            camera = new Camera(new Vector3(0, 0, 100), Vector3.Zero);
+            camera = new Camera(new Vector3(-20, 0, 10), Vector3.Zero);
             objects = new List<GameObject>();
 
             objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
@@ -104,22 +104,30 @@ namespace CH3
 
         private void handleMovement()
         {
-            float speed = 0.2f;
+            float speed = 0.4f;
             if (activeKeys[119])//w
-            {
-                camera.translation += new Vector3(0.0f, 0.0f, speed);
-            }
-            if (activeKeys[97])//a
             {
                 camera.translation += new Vector3(speed, 0.0f, 0.0f);
             }
+            if (activeKeys[97])//a
+            {
+                camera.translation += new Vector3(0.0f, speed, 0.0f);
+            }
             if (activeKeys[115])//s
             {
-                camera.translation += new Vector3(0.0f, 0.0f, -speed);
+                camera.translation += new Vector3(-speed, 0.0f, 0.0f);
             }
             if (activeKeys[100])//d
             {
-                camera.translation += new Vector3(-speed, 0.0f, 0.0f);
+                camera.translation += new Vector3(0.0f, -speed, 0.0f);
+            }
+            if (activeKeys[32])
+            {
+                camera.translation += new Vector3(0.0f, 0, speed);
+            }
+            if (activeKeys['c'])
+            {
+                camera.translation += new Vector3(0.0f, 0, -speed);
             }
         }
 
@@ -154,7 +162,7 @@ namespace CH3
             float dX = ((float)x - Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2);
             float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
             float sense = 0.001f;
-            camera.yaw += dX * sense;
+            camera.yaw -= dX * sense;
             camera.pitch += dY * sense;
             warped = true;
             Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);

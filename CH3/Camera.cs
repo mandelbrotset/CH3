@@ -28,7 +28,7 @@ namespace CH3
             position = Vector3.Zero;
             target = Vector3.Zero;
             translation = new Vector3(0.0f, 0.0f, 0.0f);
-            pitch = (float)-Math.PI / 2;
+            pitch = 0;//(float)-Math.PI / 2;
             yaw = 0;
         }
 
@@ -41,21 +41,10 @@ namespace CH3
 
         public void Update(int i)
         {
-            Matrix4 yawR = new Matrix4(
-                new Vector4(Math.Cos(yaw), 0, Math.Sin(yaw), 0),
-                new Vector4(0, 1, 0, 0),
-                new Vector4(-Math.Sin(yaw), 0, Math.Cos(yaw), 0),
-                new Vector4(0, 0, 0, 1)
-                );
+            Matrix4 yawR = Matrix4.CreateRotationZ(yaw);
+            Matrix4 pitchR = Matrix4.CreateRotationY(pitch);
 
-            Matrix4 pitchR = new Matrix4(
-               new Vector4(1, 0, 0, 0),
-               new Vector4(0, Math.Cos(pitch), -Math.Sin(pitch), 0),
-               new Vector4(0, Math.Sin(pitch), Math.Cos(pitch), 0),
-               new Vector4(0, 0, 0, 1)
-               );
-
-            Matrix4 rotation = yawR *pitchR;
+            Matrix4 rotation = yawR * pitchR;
 
             //position:
             translation = translation * rotation;
@@ -63,12 +52,14 @@ namespace CH3
             translation = new Vector3(0.0f, 0.0f, 0.0f);
 
             //target:
-            Vector3 temp = new Vector3(0.0f, 0.0f, 1.0f);
-            Vector3 forward =  temp * rotation;
-            this.up = rotation * Vector3.Up;
+            Vector3 forward = new Vector3(1.0f, 0.0f, 0.0f);
+            forward = forward * pitchR;
+            forward =  forward * yawR;
+
+            this.up = new Vector3(0, 0, 1);
+            up *= pitchR;
+            up *= yawR;
             this.target = this.position + forward;
-            
-            Console.WriteLine($"position: {position} target: {target} yaw: {yaw} pitch: {pitch} translation: {translation}");
         }
     }
 
