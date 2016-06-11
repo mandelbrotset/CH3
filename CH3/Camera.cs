@@ -28,6 +28,8 @@ namespace CH3
             position = Vector3.Zero;
             target = Vector3.Zero;
             translation = new Vector3(0.0f, 0.0f, 0.0f);
+            pitch = (float)-Math.PI / 2;
+            yaw = 0;
         }
 
         public Camera(Vector3 position, Vector3 target)
@@ -37,30 +39,36 @@ namespace CH3
             this.up = Vector3.Up;
         }
 
-        public void UpdateCamera(int i)
+        public void Update(int i)
         {
             Matrix4 yawR = new Matrix4(
-                new Vector4(Math.Cos(yaw*Math.PI/180), 0, Math.Sin(yaw * Math.PI / 180), 0),
+                new Vector4(Math.Cos(yaw), 0, Math.Sin(yaw), 0),
                 new Vector4(0, 1, 0, 0),
-                new Vector4(-Math.Sin(yaw * Math.PI / 180), 0, Math.Cos(yaw * Math.PI / 180), 0),
+                new Vector4(-Math.Sin(yaw), 0, Math.Cos(yaw), 0),
                 new Vector4(0, 0, 0, 1)
                 );
 
             Matrix4 pitchR = new Matrix4(
                new Vector4(1, 0, 0, 0),
-               new Vector4(0, Math.Cos(pitch * Math.PI / 180), -Math.Sin(pitch * Math.PI / 180), 0),
-               new Vector4(0, Math.Sin(pitch * Math.PI / 180), Math.Cos(yaw * Math.PI / 180), 0),
+               new Vector4(0, Math.Cos(pitch), -Math.Sin(pitch), 0),
+               new Vector4(0, Math.Sin(pitch), Math.Cos(yaw), 0),
                new Vector4(0, 0, 0, 1)
                );
 
-            Matrix4 rotation = yawR * pitchR;
-            translation = yawR * translation;
+            Matrix4 rotation = yawR *pitchR;
+
+            //position:
+            translation = translation * rotation;
             this.position += translation;
-            Vector3 temp = new Vector3(0.0f, 1.0f, 0.0f);
-            Vector3 forward = rotation * temp;
+            translation = new Vector3(0.0f, 0.0f, 0.0f);
+
+            //target:
+            Vector3 temp = new Vector3(0.0f, 0.0f, 1.0f);
+            Vector3 forward =  temp * rotation;
             this.up = rotation * Vector3.Up;
             this.target = this.position + forward;
-            translation = new Vector3(0.0f, 0.0f, 0.0f);
+            
+            Console.WriteLine($"position: {position} target: {target} yaw: {yaw} pitch: {pitch} translation: {translation}");
         }
     }
 

@@ -82,8 +82,9 @@ namespace CH3
             floor = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
             floorElements = new VBO<int>(new int[] { 3,0,1, 0, 1, 2, 0, 2, 1, 3}, BufferTarget.ElementArrayBuffer);
             SetCallbackMethods();
-            camera.target = Vector3.Lerp(camera.target, objects.First().position, 0.1f);
-            Glut.glutSetCursor(Glut.GLUT_CURSOR_NONE);
+            //camera.target = Vector3.Lerp(camera.target, objects.First().position, 0.1f);
+            //Glut.glutSetCursor(Glut.GLUT_CURSOR_NONE);
+            camera.position = new Vector3(0, 0, 1);
         }
 
         
@@ -96,36 +97,36 @@ namespace CH3
             Glut.glutKeyboardUpFunc(keyUpFunc);
             Glut.MouseCallback mouseFunc = MouseInput;
             Glut.glutMouseFunc(mouseFunc);
-            Glut.PassiveMotionCallback motionFunc = Motion;
-            Glut.glutPassiveMotionFunc(motionFunc);
+            Glut.MotionCallback motionFunc = Motion;
+            Glut.glutMotionFunc(motionFunc);
             Glut.glutTimerFunc(1, MoveCamera, 0); 
         }
 
         public void MoveCamera(int i)
         {
             handleMovement();
-            camera.UpdateCamera(i);
+            camera.Update(i);
             Glut.glutTimerFunc(1, MoveCamera, 0);
         }
 
         private void handleMovement()
         {
-            float speed = 1.1f;
+            float speed = 0.2f;
             if (activeKeys[119])//w
-            {
-                camera.translation += new Vector3(0.0f, 0.0f, -speed);
-            }
-            if (activeKeys[97])//a
-            {
-                camera.translation += new Vector3(-speed, 0.0f, 0.0f);
-            }
-            if (activeKeys[115])//s
             {
                 camera.translation += new Vector3(0.0f, 0.0f, speed);
             }
-            if (activeKeys[100])//d
+            if (activeKeys[97])//a
             {
                 camera.translation += new Vector3(speed, 0.0f, 0.0f);
+            }
+            if (activeKeys[115])//s
+            {
+                camera.translation += new Vector3(0.0f, 0.0f, -speed);
+            }
+            if (activeKeys[100])//d
+            {
+                camera.translation += new Vector3(-speed, 0.0f, 0.0f);
             }
         }
 
@@ -159,9 +160,9 @@ namespace CH3
             
             float dX = ((float)x - Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2);
             float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
-            float sense = 0.00001f;
+            float sense = 0.001f;
             camera.yaw += dX * sense;
-            camera.pitch += dY * sense;
+            camera.pitch -= dY * sense;
 
             Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
             warped = true;
