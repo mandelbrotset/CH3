@@ -56,6 +56,9 @@ namespace CH3
         private double fps;
         private int frame = 0, timebase = 0;
 
+        private bool[] activeKeys = new bool[255];
+        private bool warped = false;
+
         public Game()
         {
             gameWindow = new Window();
@@ -78,52 +81,90 @@ namespace CH3
 
             floor = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
             floorElements = new VBO<int>(new int[] { 3,0,1, 0, 1, 2, 0, 2, 1, 3}, BufferTarget.ElementArrayBuffer);
-
+            SetCallbackMethods();
+            camera.target = Vector3.Lerp(camera.target, objects.First().position, 0.1f);
+            Glut.glutSetCursor(Glut.GLUT_CURSOR_NONE);
         }
 
-        private void setCallbackMethods()
+        
+
+        private void SetCallbackMethods()
         {
-            Glut.KeyboardCallback keyboardFunc = KeyboardInput;
-            Glut.glutKeyboardFunc(keyboardFunc);
+            Glut.KeyboardCallback keyDownFunc = KeyDown;
+            Glut.glutKeyboardFunc(keyDownFunc);
+            Glut.KeyboardUpCallback keyUpFunc = KeyUp;
+            Glut.glutKeyboardUpFunc(keyUpFunc);
             Glut.MouseCallback mouseFunc = MouseInput;
             Glut.glutMouseFunc(mouseFunc);
+            Glut.PassiveMotionCallback motionFunc = Motion;
+            Glut.glutPassiveMotionFunc(motionFunc);
+            Glut.glutTimerFunc(1, MoveCamera, 0); 
+        }
+
+        public void MoveCamera(int i)
+        {
+            handleMovement();
+            camera.UpdateCamera(i);
+            Glut.glutTimerFunc(1, MoveCamera, 0);
+        }
+
+        private void handleMovement()
+        {
+            float speed = 1.1f;
+            if (activeKeys[119])//w
+            {
+                camera.translation += new Vector3(0.0f, 0.0f, -speed);
+            }
+            if (activeKeys[97])//a
+            {
+                camera.translation += new Vector3(-speed, 0.0f, 0.0f);
+            }
+            if (activeKeys[115])//s
+            {
+                camera.translation += new Vector3(0.0f, 0.0f, speed);
+            }
+            if (activeKeys[100])//d
+            {
+                camera.translation += new Vector3(speed, 0.0f, 0.0f);
+            }
         }
 
         public void MouseInput(int button, int state, int x, int y)
         {
             Console.WriteLine($"{button} : {state} : {x} : {y}");
         }
-
-        public void KeyboardInput(byte key, int x, int y)
+        
+        public void KeyUp(byte key, int x, int y)
         {
+           activeKeys[key] = false;
+        }
+
+        public void KeyDown(byte key, int x, int y)
+        {
+            activeKeys[key] = true;
             Console.WriteLine($"{key} : {x} : {y}");
-            float speed = 3.0f;
-            switch (key)
+            if (key == 27) //esc
             {
-                case 32://space
-                    moveCamera(new Vector3(0.0f, 0.0f, speed));
-                    break;
-                case 99://c
-                    moveCamera(new Vector3(0.0f, 0.0f, -speed));
-                    break;
-                case 97://a
-                    moveCamera(new Vector3(speed, 0.0f, 0));
-                    break;
-                case 100://d
-                    moveCamera(new Vector3(-speed, 0.0f, 0));
-                    break;
-                case 119://w
-                    moveCamera(new Vector3(0, speed, 0));
-                    break;
-                case 115://s
-                    moveCamera(new Vector3(0, -speed, 0));
-                    break;
+                Environment.Exit(0);
             }
         }
 
-        private void moveCamera(Vector3 delta)
+        private void Motion(int x, int y)
         {
-            camera.position = camera.position + delta;
+            if (warped )
+            {
+                warped = false;
+                return;
+            }
+            
+            float dX = ((float)x - Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2);
+            float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+            float sense = 0.00001f;
+            camera.yaw += dX * sense;
+            camera.pitch += dY * sense;
+
+            Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+            warped = true;
         }
 
         public void run(int fps)
@@ -172,11 +213,11 @@ namespace CH3
 
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
-            camera.target = Vector3.Lerp(camera.target, objects.First().position, 0.1f);
+            //camera.target = Vector3.Lerp(camera.target, objects.First().position, 0.1f);
          //   camera.position = Vector3.Lerp(camera.position, new Vector3(camera.target.x, camera.target.y - 10, 8), 0.004f);
 
 
-            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / Window.HEIGHT), 0.1f, 1000f);
+            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000f);
             Matrix4 viewMatrix = camera.viewMatrix;
 
 
