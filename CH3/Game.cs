@@ -69,71 +69,36 @@ namespace CH3
                 Environment.Exit(1);
             }
 
-            Glut.glutIdleFunc(render);
+            camera = new Camera(new Vector3(-20, 0, 10), Vector3.Zero, activeKeys);
+            CreateObjects();
+            SetGlutMethods();
+        }
 
-            camera = new Camera(new Vector3(-20, 0, 10), Vector3.Zero);
+        private void CreateObjects()
+        {
             objects = new List<GameObject>();
 
             objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new FloorShaderProgram());
-
-            SetCallbackMethods();
         }
 
-        
-
-        private void SetCallbackMethods()
+        private void SetGlutMethods()
         {
+            Glut.glutIdleFunc(render);
             Glut.KeyboardCallback keyDownFunc = KeyDown;
             Glut.glutKeyboardFunc(keyDownFunc);
             Glut.KeyboardUpCallback keyUpFunc = KeyUp;
             Glut.glutKeyboardUpFunc(keyUpFunc);
             Glut.MouseCallback mouseFunc = MouseInput;
             Glut.glutMouseFunc(mouseFunc);
-            Glut.MotionCallback motionFunc = Motion;
+            Glut.MotionCallback motionFunc = camera.Motion;
             Glut.glutMotionFunc(motionFunc);
-            Glut.glutTimerFunc(1, MoveCamera, 0); 
-        }
-
-        public void MoveCamera(int i)
-        {
-            handleMovement();
-            camera.Update(i);
-            Glut.glutTimerFunc(1, MoveCamera, 0);
-        }
-
-        private void handleMovement()
-        {
-            float speed = 0.04f;
-            if (activeKeys[119])//w
-            {
-                camera.translation += new Vector3(speed, 0.0f, 0.0f);
-            }
-            if (activeKeys[97])//a
-            {
-                camera.translation += new Vector3(0.0f, speed, 0.0f);
-            }
-            if (activeKeys[115])//s
-            {
-                camera.translation += new Vector3(-speed, 0.0f, 0.0f);
-            }
-            if (activeKeys[100])//d
-            {
-                camera.translation += new Vector3(0.0f, -speed, 0.0f);
-            }
-            if (activeKeys[32])
-            {
-                camera.translation += new Vector3(0.0f, 0, speed);
-            }
-            if (activeKeys['c'])
-            {
-                camera.translation += new Vector3(0.0f, 0, -speed);
-            }
+            Glut.glutTimerFunc(1, camera.MoveCamera, 0); 
         }
 
         public void MouseInput(int button, int state, int x, int y)
         {
-            Console.WriteLine($"{button} : {state} : {x} : {y}");
+            //Console.WriteLine($"{button} : {state} : {x} : {y}");
         }
 
         public void KeyUp(byte key, int x, int y)
@@ -144,29 +109,11 @@ namespace CH3
         public void KeyDown(byte key, int x, int y)
         {
             activeKeys[key] = true;
-            Console.WriteLine($"{key} : {x} : {y}");
+            //Console.WriteLine($"{key} : {x} : {y}");
             if (key == 27) //esc
             {
                 Environment.Exit(0);
             }
-        }
-
-        private void Motion(int x, int y)
-        {
-            if (warped )
-        {
-                warped = false;
-                return;
-            }
-            
-            float dX = ((float)x - Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2);
-            float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
-            float sense = 0.001f;
-            camera.yaw -= dX * sense;
-            camera.pitch += dY * sense;
-            warped = true;
-            Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
-            
         }
 
         public void run(int fps)
@@ -192,10 +139,9 @@ namespace CH3
                 timebase = time;
                 frame = 0;
 
-              //  Console.WriteLine(fps + "FPS");
+                Console.WriteLine(fps + "FPS " + time);
 
             }
-
 
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
@@ -207,8 +153,6 @@ namespace CH3
 
             Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000f);
             Matrix4 viewMatrix = camera.viewMatrix;
-
-
 
             //Render floor
             floor.render(time, projectionMatrix, viewMatrix);
@@ -223,15 +167,10 @@ namespace CH3
                 if (t.rotationZ < 0)
                     t.rotationZ += (float)(2 * Math.PI);*/
 
-    
-
-
                 t.render(time, projectionMatrix, viewMatrix);
             }
 
-
             Glut.glutSwapBuffers();
-
         }
 
         private void update()

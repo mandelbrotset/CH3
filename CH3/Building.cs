@@ -18,14 +18,14 @@ namespace CH3
 
             var objLoaderFactory = new ObjLoaderFactory();
             var objLoader = objLoaderFactory.Create();
-            var fileStream = new FileStream("../../models/klcc_lores.obj", FileMode.Open);
+            var fileStream = new FileStream("../../models/house.obj", FileMode.Open);
 
             LoadResult result = objLoader.Load(fileStream);
 
             fileStream.Close();
 
             this.setVertices(result.Vertices);
-
+           
             this.setFaces(result.Groups);
         }
 

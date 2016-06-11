@@ -79,8 +79,9 @@ namespace CH3
             Matrix4 translation = Matrix4.CreateTranslation(this.position);
 
             BasicShaderProgram shader = (BasicShaderProgram)this.shader;
-
-
+            Gl.Enable(EnableCap.Blend);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.Enable(EnableCap.Texture2D);
             Gl.Enable(EnableCap.CullFace);
             Gl.CullFace(CullFaceMode.Back);
 

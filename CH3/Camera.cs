@@ -16,6 +16,8 @@ namespace CH3
         public float yaw { get; set; }
         public float pitch { get; set; }
         public Vector3 translation { get; set; }
+        private bool warped = false;
+        private bool[] activeKeys;
 
         public Matrix4 viewMatrix {
             get {
@@ -23,8 +25,45 @@ namespace CH3
             }
         }
 
-        public Camera()
+        public void MoveCamera(int i)
         {
+            handleMovement();
+            Update(i);
+            Glut.glutTimerFunc(1, MoveCamera, 0);
+        }
+
+        private void handleMovement()
+        {
+            float speed = 0.04f;
+            if (activeKeys[119])//w
+            {
+                translation += new Vector3(speed, 0.0f, 0.0f);
+            }
+            if (activeKeys[97])//a
+            {
+                translation += new Vector3(0.0f, speed, 0.0f);
+            }
+            if (activeKeys[115])//s
+            {
+                translation += new Vector3(-speed, 0.0f, 0.0f);
+            }
+            if (activeKeys[100])//d
+            {
+                translation += new Vector3(0.0f, -speed, 0.0f);
+            }
+            if (activeKeys[32])
+            {
+                translation += new Vector3(0.0f, 0, speed);
+            }
+            if (activeKeys['c'])
+            {
+                translation += new Vector3(0.0f, 0, -speed);
+            }
+        }
+
+        public Camera(bool[] keys)
+        {
+            activeKeys = keys;
             position = Vector3.Zero;
             target = Vector3.Zero;
             translation = new Vector3(0.0f, 0.0f, 0.0f);
@@ -32,8 +71,9 @@ namespace CH3
             yaw = 0;
         }
 
-        public Camera(Vector3 position, Vector3 target)
+        public Camera(Vector3 position, Vector3 target, bool[] keys)
         {
+            activeKeys = keys;
             this.position = position;
             this.target = target;
             this.up = Vector3.Up;
@@ -61,6 +101,24 @@ namespace CH3
             up *= pitchR;
             up *= yawR;
             this.target = this.position + forward;
+        }
+
+        public void Motion(int x, int y)
+        {
+            if (warped)
+            {
+                warped = false;
+                return;
+            }
+
+            float dX = ((float)x - Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2);
+            float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+            float sense = 0.001f;
+            yaw -= dX * sense;
+            pitch += dY * sense;
+            warped = true;
+            Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+
         }
     }
 
