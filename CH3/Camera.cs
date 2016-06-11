@@ -47,7 +47,8 @@ namespace CH3
             Matrix4 rotation = yawR * pitchR;
 
             //position:
-            translation = translation * rotation;
+            translation = translation * pitchR;
+            translation = translation * yawR;
             this.position += translation;
             translation = new Vector3(0.0f, 0.0f, 0.0f);
 
