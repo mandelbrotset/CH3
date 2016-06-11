@@ -46,32 +46,35 @@ namespace CH3
                 foreach (Face f in g.Faces) {
 
                     FaceVertex v1 = f[0];
+                    FaceVertex v2 = f[1];
+                    FaceVertex v3 = f[2];
 
+
+                    //ANTAR BARA ATT DET ÄR TRIANGLAR FÖR TILLFÄLLET
+                    list.Add(v1.VertexIndex);
+                    list.Add(v2.VertexIndex);
+                    list.Add(v3.VertexIndex);
+                    Console.WriteLine("ADDING FACE: (" + v1.VertexIndex + ", " + v2.VertexIndex + "," + v3.VertexIndex + ")");
+                    /*
                     for (int i = 1; i < (f.Count-1); i++) {
                         FaceVertex v2 = f[i];
                         FaceVertex v3 = f[i + 1];
 
 
-                        list.Add(v1.VertexIndex);
-                        list.Add(v2.VertexIndex);
-                        list.Add(v3.VertexIndex);
 
                     //    Console.WriteLine("ADDING FACE: (" + v1.VertexIndex + ", " + v2.VertexIndex + "," + v3.VertexIndex + ")");
     
 
-                    }
+                    }*/
                 }
 
 
             }
+            Console.ReadKey();
 
             int[] array = list.ToArray();
 
             faces = new VBO<int>(array, BufferTarget.ElementArrayBuffer);
-
-
-     
-
 
 
         }

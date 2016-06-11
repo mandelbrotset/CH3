@@ -104,7 +104,7 @@ namespace CH3
 
         private void handleMovement()
         {
-            float speed = 0.4f;
+            float speed = 0.04f;
             if (activeKeys[119])//w
             {
                 camera.translation += new Vector3(speed, 0.0f, 0.0f);
@@ -215,13 +215,13 @@ namespace CH3
 
             //Render teapots
             foreach (GameObject t in objects) {
-
+                /*
                 t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
                 t.rotationZ += (float)((-0.001));
                 if (t.rotationZ > 2*Math.PI)
                     t.rotationZ -= (float)(2*Math.PI);
                 if (t.rotationZ < 0)
-                    t.rotationZ += (float)(2 * Math.PI);
+                    t.rotationZ += (float)(2 * Math.PI);*/
 
     
 
