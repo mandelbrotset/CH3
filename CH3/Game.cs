@@ -46,19 +46,15 @@ namespace CH3
             }
         }
 
-
         private List<GameObject> objects;
         private Window gameWindow;
         private BasicShaderProgram shader;
         private VBO<Vector3> floor;
         private VBO<int> floorElements;
 
-
         private Camera camera;
         private double fps;
         private int frame = 0, timebase = 0;
-
-
 
         public Game()
         {
@@ -71,14 +67,11 @@ namespace CH3
                 Environment.Exit(1);
             }
 
-
             Glut.glutIdleFunc(render);
-
 
             shader = new BasicShaderProgram();
             camera = new Camera(new Vector3(0, 0, 100), Vector3.Zero);
             objects = new List<GameObject>();
-
 
        //     objects.Add(new Teapot(new Vector3(-1, 0, 0), new Vector3(0.1, 0.1, 0.1), 0f, shader));
             objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, shader));
@@ -86,9 +79,52 @@ namespace CH3
             floor = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
             floorElements = new VBO<int>(new int[] { 3,0,1, 0, 1, 2, 0, 2, 1, 3}, BufferTarget.ElementArrayBuffer);
 
-
         }
 
+        private void setCallbackMethods()
+        {
+            Glut.KeyboardCallback keyboardFunc = KeyboardInput;
+            Glut.glutKeyboardFunc(keyboardFunc);
+            Glut.MouseCallback mouseFunc = MouseInput;
+            Glut.glutMouseFunc(mouseFunc);
+        }
+
+        public void MouseInput(int button, int state, int x, int y)
+        {
+            Console.WriteLine($"{button} : {state} : {x} : {y}");
+        }
+
+        public void KeyboardInput(byte key, int x, int y)
+        {
+            Console.WriteLine($"{key} : {x} : {y}");
+            float speed = 3.0f;
+            switch (key)
+            {
+                case 32://space
+                    moveCamera(new Vector3(0.0f, 0.0f, speed));
+                    break;
+                case 99://c
+                    moveCamera(new Vector3(0.0f, 0.0f, -speed));
+                    break;
+                case 97://a
+                    moveCamera(new Vector3(speed, 0.0f, 0));
+                    break;
+                case 100://d
+                    moveCamera(new Vector3(-speed, 0.0f, 0));
+                    break;
+                case 119://w
+                    moveCamera(new Vector3(0, speed, 0));
+                    break;
+                case 115://s
+                    moveCamera(new Vector3(0, -speed, 0));
+                    break;
+            }
+        }
+
+        private void moveCamera(Vector3 delta)
+        {
+            camera.position = camera.position + delta;
+        }
 
         public void run(int fps)
         {
