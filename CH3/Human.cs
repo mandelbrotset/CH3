@@ -8,7 +8,7 @@ namespace CH3
 {
     public class Human : Player
     {
-        public Human(Vector3 position, Vector3 scale, float rotation, ShaderProgram shader) : base(position, scale, rotation, shader)
+        public Human(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, rotation, shader)
         {
         }
     }

@@ -47,7 +47,7 @@ namespace CH3
         }
 
 
-        private List<Teapot> teapots;
+        private List<GameObject> objects;
         private Window gameWindow;
         private BasicShaderProgram shader;
         private VBO<Vector3> floor;
@@ -65,7 +65,7 @@ namespace CH3
             gameWindow = new Window();
 
             if (!gameWindow.createWindow()) {
-                Console.WriteLine("ERROR: Could not initialize GLFW");
+                Console.WriteLine("ERROR: Could not initialize GLUT");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 Environment.Exit(1);
@@ -77,11 +77,11 @@ namespace CH3
 
             shader = new BasicShaderProgram();
             camera = new Camera(new Vector3(0, 0, 100), Vector3.Zero);
-            teapots = new List<Teapot>();
+            objects = new List<GameObject>();
 
 
-            teapots.Add(new Teapot(new Vector3(-1, 0, 0), new Vector3(0.1, 0.1, 0.1), 0f, shader));
-            teapots.Add(new Teapot(new Vector3(1, 0, 0), new Vector3(0.4, 0.4, 0.4), 0f, shader));
+       //     objects.Add(new Teapot(new Vector3(-1, 0, 0), new Vector3(0.1, 0.1, 0.1), 0f, shader));
+            objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, shader));
 
             floor = new VBO<Vector3>(new Vector3[] { new Vector3(1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0), new Vector3(-1, -1, 0) });
             floorElements = new VBO<int>(new int[] { 3,0,1, 0, 1, 2, 0, 2, 1, 3}, BufferTarget.ElementArrayBuffer);
@@ -127,7 +127,7 @@ namespace CH3
                 timebase = time;
                 frame = 0;
 
-                Console.WriteLine(fps + "FPS");
+              //  Console.WriteLine(fps + "FPS");
 
             }
 
@@ -136,8 +136,8 @@ namespace CH3
 
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
-            camera.target = Vector3.Lerp(camera.target, teapots.First().position, 0.1f);
-            camera.position = Vector3.Lerp(camera.position, new Vector3(camera.target.x, camera.target.y - 10, 8), 0.004f);
+            camera.target = Vector3.Lerp(camera.target, objects.First().position, 0.1f);
+         //   camera.position = Vector3.Lerp(camera.position, new Vector3(camera.target.x, camera.target.y - 10, 8), 0.004f);
 
 
             Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / Window.HEIGHT), 0.1f, 1000f);
@@ -152,15 +152,16 @@ namespace CH3
 
 
             //Render teapots
-            foreach (Teapot t in teapots) {
+            foreach (GameObject t in objects) {
 
-                t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
-                t.rotation += (float)((-0.001));
-                if (t.rotation > 2*Math.PI)
+             //   t.position = t.position + new Vector3(Math.Sin(time*0.001)*0.005, Math.Sin(-time * 0.001)* Math.Cos(time * 0.001) * 0.005, 0);
+              //  t.rotation += (float)((-0.001));
+               /* if (t.rotation > 2*Math.PI)
                     t.rotation -= (float)(2*Math.PI);
                 if (t.rotation < 0)
                     t.rotation += (float)(2 * Math.PI);
 
+    */
 
 
                 t.render(time, projectionMatrix, viewMatrix);

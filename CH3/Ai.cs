@@ -12,7 +12,7 @@ namespace CH3
 
     public class AI : Player
     {
-        public AI(Vector3 position, Vector3 scale, float rotation, ShaderProgram shader) : base(position, scale, rotation, shader)
+        public AI(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, rotation, shader)
         {
         }
     }

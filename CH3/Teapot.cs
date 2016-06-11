@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using OpenGL;
 using Tao.FreeGlut;
+using ObjLoader.Loader.Loaders;
+using ObjLoader.Loader.Data.Elements;
+
 
 namespace CH3
 {
@@ -14,7 +18,7 @@ namespace CH3
         {
         }
 
-        public override void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)
+        public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)
         {
 
 
@@ -34,5 +38,7 @@ namespace CH3
 
 
         }
+
+
     }
 }
