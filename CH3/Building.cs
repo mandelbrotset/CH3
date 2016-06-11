@@ -13,7 +13,7 @@ namespace CH3
 {
     public class Building : GameObject
     {
-        public Building(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, rotation, shader)
+        public Building(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 0.09f*scale, (float)-Math.PI / 2, 0, rotation, shader)
         {
 
             var objLoaderFactory = new ObjLoaderFactory();

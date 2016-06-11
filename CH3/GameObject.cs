@@ -16,10 +16,12 @@ namespace CH3
         
 
 
-        public GameObject(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) {
+        public GameObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, BasicShaderProgram shader) {
             this.position = position;
             this.scale = scale;
-            this.rotation = rotation;
+            this.rotationX = rotationX;
+            this.rotationY = rotationY;
+            this.rotationZ = rotationZ;
 
             this.shader = shader;
         }

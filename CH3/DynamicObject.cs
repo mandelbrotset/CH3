@@ -8,7 +8,7 @@ namespace CH3
 {
     public abstract class DynamicObject : GameObject
     {
-        public DynamicObject(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, rotation, shader)
+        public DynamicObject(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale,0,0, rotation, shader)
         {
         }
     }
