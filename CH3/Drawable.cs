@@ -11,9 +11,14 @@ namespace CH3
     public abstract class Drawable
     {
 
+
         private VBO<Vector3> vertices;
+        private VBO<Vector2> texCoordinates;
+
         private VBO<int> faces;
+
         public BasicShaderProgram shader { protected get; set; }
+        public OpenGL.Texture texture { get; protected set; }
         public Vector3 position { get; set; }
         public Vector3 scale { get; set; }
         public float rotationX { get; set; }
@@ -37,9 +42,14 @@ namespace CH3
 
         }
 
-        public void setFaces(IList<Group> groups) {
+
+        public void setFaces(IList<Group> groups, IList<ObjLoader.Loader.Data.VertexData.Texture> tex) {
 
             List<int> list = new List<int>();
+            List<int> texs = new List<int>();
+            Vector2[] uvs = new Vector2[vertices.Count];
+
+
 
             foreach (Group g in groups) {
                 foreach (Face f in g.Faces) {
@@ -53,7 +63,24 @@ namespace CH3
                         list.Add(v1.VertexIndex - 1);
                         list.Add(v2.VertexIndex - 1);
                         list.Add(v3.VertexIndex - 1);
-    
+
+                        if (tex != null && tex.Count > 0)
+                        {
+                            var tex1 = tex[v1.TextureIndex - 1];
+                            var tex2 = tex[v2.TextureIndex - 1];
+                            var tex3 = tex[v3.TextureIndex - 1];
+
+                            uvs[v1.VertexIndex - 1] = new Vector2(tex1.X, tex1.Y);
+                            uvs[v2.VertexIndex - 1] = new Vector2(tex2.X, tex2.Y);
+                            uvs[v3.VertexIndex - 1] = new Vector2(tex3.X, tex3.Y);
+
+                        }
+                        else {
+                            uvs[v1.VertexIndex - 1] = new Vector2(1.0, 1.0);
+                            uvs[v2.VertexIndex - 1] = new Vector2(1.0, 1.0);
+                            uvs[v3.VertexIndex - 1] = new Vector2(1.0, 1.0);
+                        }
+
                     }
                 }
 
@@ -61,6 +88,8 @@ namespace CH3
             }
 
             int[] array = list.ToArray();
+
+            texCoordinates = new VBO<Vector2>(uvs);
 
             faces = new VBO<int>(array, BufferTarget.ElementArrayBuffer);
 
@@ -85,14 +114,21 @@ namespace CH3
             Gl.Enable(EnableCap.CullFace);
             Gl.CullFace(CullFaceMode.Back);
 
+            if(texture != null)
+             Gl.BindTexture(texture);
+
             shader.useProgram();
             shader.setTime(time);
             shader.setProjectionMatrix(projectionMatrix);
             shader.setViewMatrix(viewMatrix);
             shader.setModelMatrix(( rotationX * rotationY* rotationZ) * scale * translation);
 
-            Gl.BindBuffer(vertices);
 
+
+            Gl.BindBuffer(texCoordinates);
+            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, texCoordinates.Size, texCoordinates.PointerType, true, 8, IntPtr.Zero);
+
+            Gl.BindBuffer(vertices);
             Gl.VertexAttribPointer(shader.vertexPositionIndex, vertices.Size, vertices.PointerType, false, 12, IntPtr.Zero);
             Gl.BindBuffer(faces);
 

@@ -139,7 +139,7 @@ namespace CH3
                 timebase = time;
                 frame = 0;
 
-                Console.WriteLine(fps + "FPS " + time);
+             //   Console.WriteLine(fps + "FPS " + time);
 
             }
 

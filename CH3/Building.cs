@@ -26,7 +26,10 @@ namespace CH3
 
             this.setVertices(result.Vertices);
            
-            this.setFaces(result.Groups);
+            this.setFaces(result.Groups, result.Textures);
+
+            texture = new OpenGL.Texture("../../textures/house.png");
+
         }
 
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)

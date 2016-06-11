@@ -11,7 +11,9 @@ namespace CH3
         public int colorLocation { get; protected set; }
 
         public uint vertexPositionIndex { get; protected set; }
-        
+        public uint vertexTexCoordIndex { get; protected set; }
+
+
 
         public BasicShaderProgram()
         {
@@ -22,6 +24,9 @@ namespace CH3
 
             
             vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
+            vertexTexCoordIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "texCoord");
+
+
         }
 
         public new void useProgram() {
