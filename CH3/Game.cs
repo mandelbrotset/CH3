@@ -77,7 +77,7 @@ namespace CH3
             objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new FloorShaderProgram());
 
-            setCallbackMethods();
+            SetCallbackMethods();
         }
 
         
@@ -155,10 +155,10 @@ namespace CH3
             float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
             float sense = 0.001f;
             camera.yaw += dX * sense;
-            camera.pitch -= dY * sense;
-
-            Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+            camera.pitch += dY * sense;
             warped = true;
+            Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+            
         }
 
         public void run(int fps)

@@ -51,7 +51,7 @@ namespace CH3
             Matrix4 pitchR = new Matrix4(
                new Vector4(1, 0, 0, 0),
                new Vector4(0, Math.Cos(pitch), -Math.Sin(pitch), 0),
-               new Vector4(0, Math.Sin(pitch), Math.Cos(yaw), 0),
+               new Vector4(0, Math.Sin(pitch), Math.Cos(pitch), 0),
                new Vector4(0, 0, 0, 1)
                );
 
