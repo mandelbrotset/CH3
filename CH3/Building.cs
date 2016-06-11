@@ -13,12 +13,12 @@ namespace CH3
 {
     public class Building : GameObject
     {
-        public Building(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 0.2f*scale, (float)-Math.PI / 2, 0, rotation, shader)
+        public Building(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 1.0f*scale, -(float)Math.PI/2, 0, rotation, shader)
         {
 
             var objLoaderFactory = new ObjLoaderFactory();
             var objLoader = objLoaderFactory.Create();
-            var fileStream = new FileStream("../../models/house.obj", FileMode.Open);
+            var fileStream = new FileStream("../../models/klcc_lores.obj", FileMode.Open);
 
             LoadResult result = objLoader.Load(fileStream);
 

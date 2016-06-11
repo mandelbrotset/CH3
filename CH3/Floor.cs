@@ -13,7 +13,7 @@ namespace CH3
 {
     public class Floor : GameObject
     {
-        public Floor(Vector3 position, Vector3 scale, float rotation, FloorShaderProgram shader) : base(position, 100*scale, 0, 0, rotation, shader)
+        public Floor(Vector3 position, Vector3 scale, float rotation, FloorShaderProgram shader) : base(position, 1000*scale, 0, 0, rotation, shader)
         {
 
             var objLoaderFactory = new ObjLoaderFactory();
