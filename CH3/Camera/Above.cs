@@ -19,7 +19,7 @@ namespace CH3.Camera
             up = Vector3.Up;
             if (!fixedRotation)
             {
-                up *= Matrix4.CreateRotationZ(follow.rotationZ);
+                up *= Matrix4.CreateRotationZ(-follow.rotationZ);
             }
         }
     }

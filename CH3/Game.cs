@@ -51,7 +51,7 @@ namespace CH3
         {
             FPS, PLAYER
         }
-        private CameraMode cameraMode = CameraMode.FPS;
+        private CameraMode cameraMode = CameraMode.PLAYER;
         private List<GameObject> objects;
         private Window gameWindow;
         private DirectionalLight light;
@@ -81,6 +81,7 @@ namespace CH3
             Input.Init();
             Input.SubscribeKeyDown(KeyDown);
             SetGlutMethods();
+            Glut.glutSetCursor(Glut.GLUT_CURSOR_NONE);
         }
 
         private void KeyDown(byte key, int x, int y)

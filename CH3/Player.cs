@@ -21,7 +21,13 @@ namespace CH3
             SetControls();
             CH3.Input.SubscribeKeyDown(KeyDown);
             CH3.Input.SubscribeKeyUp(KeyUp);
+            CH3.Input.SubscribeMouseMovement(MouseMovement);
             LoadModel("../../models/house.obj", "../../textures/house.png");
+        }
+
+        private void MouseMovement(float pitch, float yaw)
+        {
+            rotationZ = -yaw;
         }
 
         private void SetControls()
@@ -55,22 +61,22 @@ namespace CH3
             float y = 0;
             if (inputs[Input.FORWARD])
             {
-                x = 1;
+                y = 1;
             }
             else if (inputs[Input.BACKWARD])
             {
-                x = -1;
+                y = -1;
             }
             if (inputs[Input.LEFT])
             {
-                y = 1;
+                x = -1;
             }
             else if (inputs[Input.RIGHT])
             {
-                y = -1;
+                x = 1;
             }
             Vector3 translation = new Vector3(x, y, 0);
-            translation *= Matrix4.CreateRotationZ(rotationZ);
+            translation *= Matrix4.CreateRotationZ(-rotationZ);
             velocity = translation;
             //Console.WriteLine(translation + " : " + position);
         }
