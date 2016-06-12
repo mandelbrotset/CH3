@@ -2,8 +2,15 @@
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="CH3.Game">
     <Position X="2.5" Y="2" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="CH3.Game.CameraMode" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Game.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>BACQEgABAhAAgBIAAAgAAAAACSKAEAAABBAAAQAUAAA=</HashCode>
+      <HashCode>AAGQEoABABAAABIAAQAAAAAACSKAEAABDBAAAQAUAAA=</HashCode>
       <FileName>Game.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -49,15 +56,29 @@
   </Class>
   <Class Name="CH3.GameObject">
     <Position X="9" Y="5" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="CH3.GameObject.Input" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GameObject.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAgAAAAAAAAAIBEAAAAAAAAAAEA=</HashCode>
       <FileName>GameObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.DynamicObject">
     <Position X="9" Y="7" Width="1.5" />
+    <NestedTypes>
+      <Delegate Name="CH3.DynamicObject.UpdateCamera" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DynamicObject.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAACAAAAAAgAAAAQAAAAAAAA=</HashCode>
       <FileName>DynamicObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -69,21 +90,21 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.Player">
-    <Position X="9" Y="8.75" Width="1.5" />
+    <Position X="9" Y="10.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAABAAgAAAAAgAAAAAAAAAICAAAAAAAABAAEA=</HashCode>
       <FileName>Player.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.AI">
-    <Position X="11" Y="8.75" Width="1.5" />
+    <Position X="11.5" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Ai.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.Human">
-    <Position X="7" Y="8.75" Width="1.5" />
+    <Position X="6.5" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Human.cs</FileName>

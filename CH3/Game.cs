@@ -47,33 +47,48 @@ namespace CH3
             }
         }
 
+        public enum CameraMode
+        {
+            FPS, PLAYER
+        }
+        private CameraMode cameraMode = CameraMode.FPS;
         private List<GameObject> objects;
         private Window gameWindow;
         private DirectionalLight light;
-
+        private Player player;
         private Soil soil;
 
-        private FPSCamera camera;
+        private Above aboveCamera;
+        private FPSCamera fpsCamera;
         private double fps;
         private int frame = 0, timebase = 0;
-
-        private bool[] activeKeys = new bool[255];
 
         public Game()
         {
             gameWindow = new Window();
-
             if (!gameWindow.createWindow()) {
                 Console.WriteLine("ERROR: Could not initialize GLUT");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 Environment.Exit(1);
             }
-
-            camera = new FPSCamera(new Vector3(-20, 0, 10), Vector3.Zero, activeKeys);
-            CreateObjects();
             CreateLight();
+            fpsCamera = new FPSCamera(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
+            aboveCamera = new Above();
+            aboveCamera.height = 100;
+            CreateObjects();
+            aboveCamera.follow = player;
+            Input.Init();
+            Input.SubscribeKeyDown(KeyDown);
             SetGlutMethods();
+        }
+
+        private void KeyDown(byte key, int x, int y)
+        {
+            if (key == 27) //esc
+            {
+                Environment.Exit(0);
+            }
         }
 
         private void CreateLight()
@@ -87,6 +102,9 @@ namespace CH3
             objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             objects.Add(new Tower(new Vector3(150, 150, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            player = new Player(new Vector3(10, 10, 0), new Vector3(0.1f, 0.1f, 0.1f), 0, new BasicShaderProgram());
+            player.SetUpdateCamera(aboveCamera.UpdateCamera);
+            objects.Add(player);
             //  objects.Add(new Grass(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, 0f, 0f, new BasicShaderProgram()));
             CreateSoil();
         }
@@ -109,35 +127,13 @@ namespace CH3
         private void SetGlutMethods()
         {
             Glut.glutIdleFunc(render);
-            Glut.KeyboardCallback keyDownFunc = KeyDown;
-            Glut.glutKeyboardFunc(keyDownFunc);
-            Glut.KeyboardUpCallback keyUpFunc = KeyUp;
-            Glut.glutKeyboardUpFunc(keyUpFunc);
-            Glut.MouseCallback mouseFunc = MouseInput;
-            Glut.glutMouseFunc(mouseFunc);
-            Glut.MotionCallback motionFunc = camera.Motion;
-            Glut.glutMotionFunc(motionFunc);
-            Glut.glutTimerFunc(1, camera.MoveCamera, 0); 
+            Glut.glutTimerFunc(1, GameLoop, 0);         
         }
 
-        public void MouseInput(int button, int state, int x, int y)
+        public void GameLoop(int i)
         {
-            //Console.WriteLine($"{button} : {state} : {x} : {y}");
-        }
-
-        public void KeyUp(byte key, int x, int y)
-        {
-           activeKeys[key] = false;
-        }
-
-        public void KeyDown(byte key, int x, int y)
-        {
-            activeKeys[key] = true;
-            //Console.WriteLine($"{key} : {x} : {y}");
-            if (key == 27) //esc
-            {
-                Environment.Exit(0);
-            }
+            player.Move();
+            Glut.glutTimerFunc(1, GameLoop, 0);
         }
 
         public void run(int fps)
@@ -177,7 +173,15 @@ namespace CH3
 
 
             Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000f);
-            Matrix4 viewMatrix = camera.viewMatrix;
+            Matrix4 viewMatrix;
+            if (cameraMode == CameraMode.FPS)
+            {
+                viewMatrix = fpsCamera.viewMatrix;
+            } else
+            {
+                viewMatrix = aboveCamera.viewMatrix;
+            }
+            
 
             //Render floor
             soil.render(time, projectionMatrix, viewMatrix, light);
@@ -201,5 +205,7 @@ namespace CH3
         private void update()
         {
         }
+
+        
     }
 }

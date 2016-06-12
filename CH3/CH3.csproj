@@ -76,8 +76,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ai.cs" />
+    <Compile Include="Camera\Above.cs" />
     <Compile Include="Camera\Camera.cs" />
+    <Compile Include="Camera\ThirdPerson.cs" />
     <Compile Include="DirectionalLight.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Soil.cs" />
     <Compile Include="FloorShaderProgram.cs" />
     <Compile Include="BasicShaderProgram.cs" />
