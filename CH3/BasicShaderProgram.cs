@@ -50,6 +50,12 @@ namespace CH3
             program["time"].SetValue((float)time);
         }
 
+        public void setLightDirection(Vector3 lightDir)
+        {
+            program["light_direction"].SetValue(lightDir);
+
+        }
+
         public void setProjectionMatrix(Matrix4 matrix)
         {
             program["projection_matrix"].SetValue(matrix);
@@ -67,6 +73,8 @@ namespace CH3
             program["model_matrix"].SetValue(matrix);
 
         }
+
+
 
 
 

@@ -43,7 +43,7 @@ namespace CH3
 
             fileStream.Close();
 
-            this.setFaces(result.Groups, result.Vertices, result.Textures);
+            this.setFaces(result.Groups, result.Vertices, result.Textures, result.Normals);
 
             texture = new OpenGL.Texture(textureFile);
         }
@@ -234,12 +234,13 @@ namespace CH3
         }
 
 
-        public void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix) {
+        public void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light) {
 
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
             Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
             Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
             Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+
 
 
             Matrix4 translation = Matrix4.CreateTranslation(this.position);
@@ -259,6 +260,7 @@ namespace CH3
             shader.setProjectionMatrix(projectionMatrix);
             shader.setViewMatrix(viewMatrix);
             shader.setModelMatrix(( rotationX * rotationY* rotationZ) * scale * translation);
+            shader.setLightDirection(light.direction);
 
             Gl.BindBuffer(vertices);
             Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);

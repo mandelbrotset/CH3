@@ -20,21 +20,21 @@ namespace CH3
             LoadModel("../../models/grass.obj", "../../textures/grass.png");
         }
 
-        public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)
+        public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light)
         {
             // ((FloorShaderProgram)shader).setResolution(new Vector2(Window.WIDTH, Window.HEIGHT));
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 11);
+        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
+        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
+        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 11);
             //Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMa, 16);
-            Gl.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
+         //   Gl.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
+        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
 
             foreach (Vector3 pos in positions)
             {
                 position = pos;
-                base.render(time, projectionMatrix, viewMatrix);
+                base.render(time, projectionMatrix, viewMatrix, light);
             }
         }
 

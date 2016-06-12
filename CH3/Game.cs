@@ -48,6 +48,7 @@ namespace CH3
 
         private List<GameObject> objects;
         private Window gameWindow;
+        private DirectionalLight light;
 
         private Soil soil;
 
@@ -70,7 +71,13 @@ namespace CH3
 
             camera = new Camera(new Vector3(-20, 0, 10), Vector3.Zero, activeKeys);
             CreateObjects();
+            CreateLight();
             SetGlutMethods();
+        }
+
+        private void CreateLight()
+        {
+            light = new DirectionalLight(new Vector3(0, 0, -1).Normalize());
         }
 
         private void CreateObjects()
@@ -86,7 +93,7 @@ namespace CH3
         private void CreateSoil()
         {
             int soilSize = 10;
-            int soils = 100;
+            int soils = 1;
             Vector3[] positions = new Vector3[soils * soils];
             
             for (int y = 0; y < soils; y++)
@@ -156,7 +163,7 @@ namespace CH3
                 frame = 0;
                 Console.WriteLine(Gl.GetError());
 
-                //   Console.WriteLine(fps + "FPS " + time);
+                Console.WriteLine(fps + "FPS " + time);
 
             }
 
@@ -172,7 +179,7 @@ namespace CH3
             Matrix4 viewMatrix = camera.viewMatrix;
 
             //Render floor
-            soil.render(time, projectionMatrix, viewMatrix);
+            soil.render(time, projectionMatrix, viewMatrix, light);
 
             //Render teapots
             foreach (GameObject t in objects) {
@@ -184,7 +191,7 @@ namespace CH3
                 if (t.rotationZ < 0)
                     t.rotationZ += (float)(2 * Math.PI);*/
 
-                t.render(time, projectionMatrix, viewMatrix);
+                t.render(time, projectionMatrix, viewMatrix, light);
             }
 
             Glut.glutSwapBuffers();
