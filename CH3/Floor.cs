@@ -27,9 +27,7 @@ namespace CH3
             texture = new OpenGL.Texture("../../textures/grass.png");
 
 
-            this.setVertices(result.Vertices);
-
-            this.setFaces(result.Groups, result.Textures);
+            this.setFaces(result.Groups, result.Vertices, result.Textures);
         }
 
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)

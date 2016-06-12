@@ -11,11 +11,11 @@ namespace CH3
     public abstract class Drawable
     {
 
-
         private VBO<Vector3> vertices;
-        private VBO<Vector2> texCoordinates;
+        private VBO<Vector2> texCoords;
+        private VBO<int> indices;
 
-        private VBO<int> faces;
+
 
         public BasicShaderProgram shader { protected get; set; }
         public OpenGL.Texture texture { get; protected set; }
@@ -28,68 +28,88 @@ namespace CH3
 
 
 
-        public void setVertices(IList<Vertex> vs) {
+        public void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex) {
 
-            Vector3[] array = new Vector3[vs.Count];
-            int i = 0;
-            foreach (Vertex vertex in vs) {
-                array[i++] = new Vector3(vertex.X, vertex.Y, vertex.Z);
+            Dictionary<string, int> elementMapping = new Dictionary<string, int>();
+            List<Vector3> pos = new List<Vector3>();
+            List<Vector2> uvs = new List<Vector2>();
+            List<int> inds = new List<int>();
+
+            Vector3[] positions = new Vector3[vs.Count];
+            Vector2[] textures = new Vector2[tex.Count];
+
+            int j = 0;
+            foreach (Vertex vertex in vs)
+            {
+                positions[j++] = new Vector3(vertex.X, vertex.Y, vertex.Z);
             }
 
+            j = 0;
+            foreach (var uv in tex)
+            {
+                textures[j++] = new Vector2(uv.X, uv.Y);
+            }
 
-
-            vertices = new VBO<Vector3>(array);
-
-        }
-
-
-        public void setFaces(IList<Group> groups, IList<ObjLoader.Loader.Data.VertexData.Texture> tex) {
-
-            List<int> list = new List<int>();
-            List<int> texs = new List<int>();
-            Vector2[] uvs = new Vector2[vertices.Count];
-
+            int totalIndex = 0;
 
 
             foreach (Group g in groups) {
                 foreach (Face f in g.Faces) {
 
                     FaceVertex v1 = f[0];
+
                     
                     for (int i = 1; i < (f.Count-1); i++) {
                         FaceVertex v2 = f[i];
                         FaceVertex v3 = f[i + 1];
 
-                        list.Add(v1.VertexIndex - 1);
-                        list.Add(v2.VertexIndex - 1);
-                        list.Add(v3.VertexIndex - 1);
+                        Vector3 pos1 = positions[v1.VertexIndex - 1];
+                        Vector3 pos2 = positions[v2.VertexIndex - 1];
+                        Vector3 pos3 = positions[v3.VertexIndex - 1];
+
+                        Vector2 tex1 = textures[v1.TextureIndex - 1];
+                        Vector2 tex2 = textures[v2.TextureIndex - 1];
+                        Vector2 tex3 = textures[v3.TextureIndex - 1];
+
+                        string str1 = pos1.ToString() + ":" + tex1.ToString();
+                        string str2 = pos2.ToString() + ":" + tex2.ToString();
+                        string str3 = pos3.ToString() + ":" + tex3.ToString();
 
 
-                        if (tex != null && tex.Count > 0)
+                        int index = 0;
+                        if (!elementMapping.TryGetValue(str1, out index))
                         {
-                            var tex1 = tex[v1.TextureIndex - 1];
-                            var tex2 = tex[v2.TextureIndex - 1];
-                            var tex3 = tex[v3.TextureIndex - 1];
-                            Console.WriteLine("TEXTURES:");
-                            uvs[v1.VertexIndex - 1] = new Vector2(tex1.X, tex1.Y);
-                            uvs[v2.VertexIndex - 1] = new Vector2(tex2.X, tex2.Y);
-                            uvs[v3.VertexIndex - 1] = new Vector2(tex3.X, tex3.Y);
-
-                            Console.WriteLine("(" + tex1.X + ", " + tex1.Y + ") on index " + (v1.TextureIndex));
-                            Console.WriteLine("to index " + (v1.VertexIndex));
-                            Console.WriteLine("(" + tex2.X + ", " + tex2.Y + ") on index " + (v2.TextureIndex));
-                            Console.WriteLine("to index " + (v2.VertexIndex));
-                            Console.WriteLine("(" + tex3.X + ", " + tex3.Y + ") on index " + (v3.TextureIndex));
-                            Console.WriteLine("to index " + (v3.VertexIndex));
-                            
-
-
+                            pos.Add(pos1);
+                            uvs.Add(tex1);
+                            index = totalIndex++;
+                            elementMapping.Add(str1, index);
                         }
-                        else {
-                            uvs[v1.VertexIndex - 1] = new Vector2(1.0, 1.0);
-                            uvs[v2.VertexIndex - 1] = new Vector2(1.0, 1.0);
-                            uvs[v3.VertexIndex - 1] = new Vector2(1.0, 1.0);
+
+                        inds.Add(index);
+
+
+                        if (!elementMapping.TryGetValue(str2, out index))
+                        {
+                            pos.Add(pos2);
+                            uvs.Add(tex2);
+                            index = totalIndex++;
+                            elementMapping.Add(str2, index);
                         }
+
+                        inds.Add(index);
+
+
+                        if (!elementMapping.TryGetValue(str3, out index))
+                        {
+                            pos.Add(pos3);
+                            uvs.Add(tex3);
+                            index = totalIndex++;
+                            elementMapping.Add(str3, index);
+                        }
+
+                        inds.Add(index);
+
+       
 
                     }
                 }
@@ -97,12 +117,14 @@ namespace CH3
 
             }
 
-            int[] array = list.ToArray();
-            Console.WriteLine("UVS: " + uvs.Length);
-            texCoordinates = new VBO<Vector2>(uvs);
-            Console.WriteLine("TexCoord: " + texCoordinates.Count);
 
-            faces = new VBO<int>(array, BufferTarget.ElementArrayBuffer);
+
+            vertices = new VBO<Vector3>(pos.ToArray());
+            texCoords=  new VBO<Vector2>(uvs.ToArray());
+
+            indices = new VBO<int>(inds.ToArray(), BufferTarget.ElementArrayBuffer);
+
+
 
 
         }
@@ -125,8 +147,8 @@ namespace CH3
             Gl.Enable(EnableCap.CullFace);
             Gl.CullFace(CullFaceMode.Back);
 
-            if(texture != null)
-             Gl.BindTexture(TextureTarget.Texture2D, texture.TextureID);
+           if(texture != null)
+              Gl.BindTexture(TextureTarget.Texture2D, texture.TextureID);
 
             shader.useProgram();
             shader.setTime(time);
@@ -134,18 +156,18 @@ namespace CH3
             shader.setViewMatrix(viewMatrix);
             shader.setModelMatrix(( rotationX * rotationY* rotationZ) * scale * translation);
 
-
-
-            Gl.BindBuffer(texCoordinates);
-            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, texCoordinates.Size, texCoordinates.PointerType, true, 8, IntPtr.Zero);
-
             Gl.BindBuffer(vertices);
-            Gl.VertexAttribPointer(shader.vertexPositionIndex, vertices.Size, vertices.PointerType, false, 12, IntPtr.Zero);
-            Gl.BindBuffer(faces);
+            
+            Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+            Gl.BindBuffer(texCoords);
+            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, false, 8, IntPtr.Zero);
 
-            Gl.DrawElements(BeginMode.Triangles, faces.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Gl.BindBuffer(indices);
 
-            Gl.BindTexture(TextureTarget.Texture2D, 0);
+
+            Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+
+           Gl.BindTexture(TextureTarget.Texture2D, 0);
 
         }
     }

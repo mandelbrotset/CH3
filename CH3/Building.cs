@@ -23,10 +23,8 @@ namespace CH3
             LoadResult result = objLoader.Load(fileStream);
 
             fileStream.Close();
-
-            this.setVertices(result.Vertices);
            
-            this.setFaces(result.Groups, result.Textures);
+            this.setFaces(result.Groups, result.Vertices, result.Textures);
 
             texture = new OpenGL.Texture("../../textures/house.png");
 
