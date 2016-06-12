@@ -12,6 +12,9 @@ namespace CH3
 
         public uint vertexPositionIndex { get; protected set; }
         public uint vertexTexCoordIndex { get; protected set; }
+        public uint vertexNormalIndex { get; protected set; }
+
+
 
 
 
@@ -25,6 +28,8 @@ namespace CH3
 
             vertexTexCoordIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "texCoord");
             vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
+            vertexNormalIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexNormal");
+
 
 
         }
@@ -33,6 +38,8 @@ namespace CH3
             base.useProgram();
             Gl.EnableVertexAttribArray(vertexPositionIndex);
             Gl.EnableVertexAttribArray(vertexTexCoordIndex);
+            Gl.EnableVertexAttribArray(vertexNormalIndex);
+
 
 
         }

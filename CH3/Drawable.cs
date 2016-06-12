@@ -15,7 +15,9 @@ namespace CH3
     {
 
         private VBO<Vector3> vertices;
+        private VBO<Vector3> normals;
         private VBO<Vector2> texCoords;
+
         private VBO<int> indices;
 
 
@@ -46,15 +48,20 @@ namespace CH3
             texture = new OpenGL.Texture(textureFile);
         }
 
-        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex) {
+        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns) {
 
             Dictionary<string, int> elementMapping = new Dictionary<string, int>();
             List<Vector3> pos = new List<Vector3>();
             List<Vector2> uvs = new List<Vector2>();
+            List<Vector3> nss = new List<Vector3>();
+
             List<int> inds = new List<int>();
 
             Vector3[] positions = new Vector3[vs.Count];
+            Vector3[] normalArray = new Vector3[ns.Count];
             Vector2[] textures = new Vector2[tex.Count];
+
+            
 
 
             Console.WriteLine("Number of Textures:" + tex.Count);
@@ -71,12 +78,20 @@ namespace CH3
                 textures[j++] = new Vector2(uv.X, uv.Y);
             }
 
+            j = 0;
+            foreach (var n in ns)
+            {
+                normalArray[j++] = new Vector3(n.X, n.Y, n.Z);
+            }
+
             int totalIndex = 0;
             int texCount = 0;
+            int normalCount = 0;
 
             foreach (Group g in groups) {
                 foreach (Face f in g.Faces) {
                     texCount += f.Count;
+                    normalCount += f.Count;
                     FaceVertex v1 = f[0];
 
                     
@@ -91,6 +106,10 @@ namespace CH3
                         Vector2 tex1;
                         Vector2 tex2;
                         Vector2 tex3;
+
+                        Vector3 normal1;
+                        Vector3 normal2;
+                        Vector3 normal3;
 
 
                         if (v1.TextureIndex < 0)
@@ -124,9 +143,35 @@ namespace CH3
                         }
 
 
-                        string str1 = pos1.ToString() + ":" + tex1.ToString();
-                        string str2 = pos2.ToString() + ":" + tex2.ToString();
-                        string str3 = pos3.ToString() + ":" + tex3.ToString();
+                        if (v1.NormalIndex < 0)
+                        {
+                  
+                            normal1 = normalArray[normalCount + v1.NormalIndex];
+                            normal2 = normalArray[normalCount + v2.NormalIndex];
+                            normal3 = normalArray[normalCount + v3.NormalIndex];
+
+                        }
+                        else if (ns.Count > 0)
+                        {
+
+                            normal1 = normalArray[v1.NormalIndex - 1];
+                            normal2 = normalArray[v2.NormalIndex - 1];
+                            normal3 = normalArray[v3.NormalIndex - 1];
+                        }
+                        else
+                        {
+
+                            normal1 = new Vector3(0, 0, 0);
+                            normal2 = new Vector3(0, 0, 0);
+                            normal3 = new Vector3(0, 0, 0);
+                        }
+
+
+
+
+                        string str1 = pos1.ToString() + ":" + tex1.ToString() + ":" + normal1.ToString();
+                        string str2 = pos2.ToString() + ":" + tex2.ToString() + ":" + normal2.ToString();
+                        string str3 = pos3.ToString() + ":" + tex3.ToString() + ":" + normal3.ToString();
 
 
                         int index = 0;
@@ -134,6 +179,7 @@ namespace CH3
                         {
                             pos.Add(pos1);
                             uvs.Add(tex1);
+                            nss.Add(normal1);
                             index = totalIndex++;
                             elementMapping.Add(str1, index);
                         }
@@ -145,6 +191,8 @@ namespace CH3
                         {
                             pos.Add(pos2);
                             uvs.Add(tex2);
+                            nss.Add(normal2);
+
                             index = totalIndex++;
                             elementMapping.Add(str2, index);
                         }
@@ -156,6 +204,8 @@ namespace CH3
                         {
                             pos.Add(pos3);
                             uvs.Add(tex3);
+                            nss.Add(normal3);
+
                             index = totalIndex++;
                             elementMapping.Add(str3, index);
                         }
@@ -174,6 +224,7 @@ namespace CH3
 
             vertices = new VBO<Vector3>(pos.ToArray());
             texCoords=  new VBO<Vector2>(uvs.ToArray());
+            normals = new VBO<Vector3>(nss.ToArray());
 
             indices = new VBO<int>(inds.ToArray(), BufferTarget.ElementArrayBuffer);
 
@@ -210,10 +261,13 @@ namespace CH3
             shader.setModelMatrix(( rotationX * rotationY* rotationZ) * scale * translation);
 
             Gl.BindBuffer(vertices);
-            
             Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+
+            Gl.BindBuffer(normals);
+            Gl.VertexAttribPointer(shader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+
             Gl.BindBuffer(texCoords);
-            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, false, 8, IntPtr.Zero);
+            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
 
             Gl.BindBuffer(indices);
 

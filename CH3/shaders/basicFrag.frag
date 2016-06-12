@@ -1,5 +1,8 @@
 uniform float time;
+
 uniform sampler2D tex;
+uniform vec3 light_direction;
+
 
 void main()
 {
