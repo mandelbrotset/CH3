@@ -76,8 +76,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ai.cs" />
-    <Compile Include="DirectionalLight.cs" />
-    <Compile Include="Floor.cs" />
+	<Compile Include="DirectionalLight.cs" />
+	 <Compile Include="Soil.cs" />
     <Compile Include="FloorShaderProgram.cs" />
     <Compile Include="BasicShaderProgram.cs" />
     <Compile Include="Building.cs" />

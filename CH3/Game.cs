@@ -49,7 +49,7 @@ namespace CH3
         private List<GameObject> objects;
         private Window gameWindow;
 
-        private Floor floor;
+        private Soil soil;
 
         private Camera camera;
         private double fps;
@@ -79,10 +79,25 @@ namespace CH3
             objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             objects.Add(new Tower(new Vector3(150, 150, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
-          //  objects.Add(new Grass(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, 0f, 0f, new BasicShaderProgram()));
-            floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram());
+            //  objects.Add(new Grass(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, 0f, 0f, new BasicShaderProgram()));
+            CreateSoil();
         }
 
+        private void CreateSoil()
+        {
+            int soilSize = 10;
+            int soils = 100;
+            Vector3[] positions = new Vector3[soils * soils];
+            
+            for (int y = 0; y < soils; y++)
+            {
+                for (int x = 0; x < soils; x++)
+                {
+                    positions[y * soils + x] = new Vector3(x * soilSize, y * soilSize, 0);
+                }
+            }
+            soil = new Soil(positions, new Vector3(1, 1, 1), 0f, new BasicShaderProgram());
+        }
         private void SetGlutMethods()
         {
             Glut.glutIdleFunc(render);
@@ -157,7 +172,7 @@ namespace CH3
             Matrix4 viewMatrix = camera.viewMatrix;
 
             //Render floor
-            floor.render(time, projectionMatrix, viewMatrix);
+            soil.render(time, projectionMatrix, viewMatrix);
 
             //Render teapots
             foreach (GameObject t in objects) {
