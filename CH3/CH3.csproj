@@ -76,12 +76,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ai.cs" />
-	<Compile Include="DirectionalLight.cs" />
-	 <Compile Include="Soil.cs" />
+    <Compile Include="Camera\Camera.cs" />
+    <Compile Include="DirectionalLight.cs" />
+    <Compile Include="Soil.cs" />
     <Compile Include="FloorShaderProgram.cs" />
     <Compile Include="BasicShaderProgram.cs" />
     <Compile Include="Building.cs" />
-    <Compile Include="Camera.cs" />
+    <Compile Include="Camera\FPSCamera.cs" />
     <Compile Include="Drawable.cs" />
     <Compile Include="DynamicObject.cs" />
     <Compile Include="Game.cs" />

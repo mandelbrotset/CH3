@@ -3,7 +3,7 @@
   <Class Name="CH3.Game">
     <Position X="2.5" Y="2" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAgAAABAAABIAAAAAAAAADCAAAAAAAAAAAAAUAAE=</HashCode>
+      <HashCode>BACQEgABAhAAgBIAAAgAAAAACSKAEAAABBAAAQAUAAA=</HashCode>
       <FileName>Game.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -48,15 +48,14 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.GameObject">
-    <Position X="6" Y="6.5" Width="1.5" />
+    <Position X="9" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>GameObject.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.2" />
   </Class>
   <Class Name="CH3.DynamicObject">
-    <Position X="9" Y="3.5" Width="1.5" />
+    <Position X="9" Y="7" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DynamicObject.cs</FileName>
@@ -70,21 +69,21 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.Player">
-    <Position X="9" Y="5" Width="1.5" />
+    <Position X="9" Y="8.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Player.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.AI">
-    <Position X="10.25" Y="6.75" Width="1.5" />
+    <Position X="11" Y="8.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Ai.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.Human">
-    <Position X="7.75" Y="6.75" Width="1.5" />
+    <Position X="7" Y="8.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Human.cs</FileName>
@@ -93,31 +92,28 @@
   <Class Name="CH3.Graphics">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Graphics.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Drawable" />
-    </ShowAsAssociation>
   </Class>
   <Class Name="CH3.Window">
     <Position X="0.5" Y="2" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAABAQAAAAAAEAAQAAAgIAAAAAABAAAg=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAEAAQAAAgIAAAAAABAAAg=</HashCode>
       <FileName>Window.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.ShaderProgram">
-    <Position X="8" Y="0.5" Width="1.5" />
+    <Position X="11" Y="1" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>gAAAAAAAgABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <HashCode>gCgAAAAAoUBIAAABAAAAAIQCSAAAAAAAAAAAAYAAQAE=</HashCode>
       <FileName>ShaderProgram.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.BasicShaderProgram" Collapsed="true">
-    <Position X="10.5" Y="0.75" Width="1.5" />
+    <Position X="8.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AgAAAAIAAAAAAAABAQgAAAAAAAACAAAAAAIAAgAUAAA=</HashCode>
       <FileName>BasicShaderProgram.cs</FileName>
     </TypeIdentifier>
   </Class>

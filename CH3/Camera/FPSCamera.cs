@@ -6,24 +6,15 @@ using System.Threading.Tasks;
 using Tao.FreeGlut;
 using OpenGL;
 
-namespace CH3
+namespace CH3.Camera
 {
-    class Camera
+    class FPSCamera : Camera
     {
-        public Vector3 target { get; set; }
-        public Vector3 position { get; set; }
-        public Vector3 up { get; set; }
         public float yaw { get; set; }
         public float pitch { get; set; }
         public Vector3 translation { get; set; }
         private bool warped = false;
         private bool[] activeKeys;
-
-        public Matrix4 viewMatrix {
-            get {
-                return Matrix4.LookAt(position, target, up);
-            }
-        }
 
         public void MoveCamera(int i)
         {
@@ -61,7 +52,7 @@ namespace CH3
             }
         }
 
-        public Camera(bool[] keys)
+        public FPSCamera(bool[] keys)
         {
             activeKeys = keys;
             position = Vector3.Zero;
@@ -71,7 +62,7 @@ namespace CH3
             yaw = 0;
         }
 
-        public Camera(Vector3 position, Vector3 target, bool[] keys)
+        public FPSCamera(Vector3 position, Vector3 target, bool[] keys)
         {
             activeKeys = keys;
             this.position = position;

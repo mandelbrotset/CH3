@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tao.FreeGlut;
+using CH3.Camera;
 
 using OpenGL;
 
@@ -52,7 +53,7 @@ namespace CH3
 
         private Soil soil;
 
-        private Camera camera;
+        private FPSCamera camera;
         private double fps;
         private int frame = 0, timebase = 0;
 
@@ -69,7 +70,7 @@ namespace CH3
                 Environment.Exit(1);
             }
 
-            camera = new Camera(new Vector3(-20, 0, 10), Vector3.Zero, activeKeys);
+            camera = new FPSCamera(new Vector3(-20, 0, 10), Vector3.Zero, activeKeys);
             CreateObjects();
             CreateLight();
             SetGlutMethods();
