@@ -5,6 +5,9 @@ using System.Text;
 using OpenGL;
 using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.Data.VertexData;
+using ObjLoader.Loader.Loaders;
+using System.IO;
+
 
 namespace CH3
 {
@@ -27,8 +30,23 @@ namespace CH3
 
 
 
+        protected void LoadModel(string modelFile, string textureFile) {
 
-        public void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex) {
+
+            var objLoaderFactory = new ObjLoaderFactory();
+            var objLoader = objLoaderFactory.Create();
+            var fileStream = new FileStream(modelFile, FileMode.Open);
+
+            LoadResult result = objLoader.Load(fileStream);
+
+            fileStream.Close();
+
+            this.setFaces(result.Groups, result.Vertices, result.Textures);
+
+            texture = new OpenGL.Texture(textureFile);
+        }
+
+        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex) {
 
             Dictionary<string, int> elementMapping = new Dictionary<string, int>();
             List<Vector3> pos = new List<Vector3>();
@@ -37,6 +55,9 @@ namespace CH3
 
             Vector3[] positions = new Vector3[vs.Count];
             Vector2[] textures = new Vector2[tex.Count];
+
+
+            Console.WriteLine("Number of Textures:" + tex.Count);
 
             int j = 0;
             foreach (Vertex vertex in vs)
@@ -51,11 +72,11 @@ namespace CH3
             }
 
             int totalIndex = 0;
-
+            int texCount = 0;
 
             foreach (Group g in groups) {
                 foreach (Face f in g.Faces) {
-
+                    texCount += f.Count;
                     FaceVertex v1 = f[0];
 
                     
@@ -67,9 +88,41 @@ namespace CH3
                         Vector3 pos2 = positions[v2.VertexIndex - 1];
                         Vector3 pos3 = positions[v3.VertexIndex - 1];
 
-                        Vector2 tex1 = textures[v1.TextureIndex - 1];
-                        Vector2 tex2 = textures[v2.TextureIndex - 1];
-                        Vector2 tex3 = textures[v3.TextureIndex - 1];
+                        Vector2 tex1;
+                        Vector2 tex2;
+                        Vector2 tex3;
+
+
+                        if (v1.TextureIndex < 0)
+                        {
+                            if (texCount + v1.TextureIndex > (textures.Length - 1))
+                            {
+                                Console.WriteLine("Getting texture index: " + texCount);
+                                Console.WriteLine("Getting v1 index: " + v1.TextureIndex);
+
+
+                            }
+
+                            tex1 = textures[texCount + v1.TextureIndex];
+                            tex2 = textures[texCount + v2.TextureIndex];
+                            tex3 = textures[texCount + v3.TextureIndex];
+
+                        }
+                        else if (tex.Count > 0)
+                        {
+
+                            tex1 = textures[v1.TextureIndex - 1];
+                            tex2 = textures[v2.TextureIndex - 1];
+                            tex3 = textures[v3.TextureIndex - 1];
+                        }
+                        else
+                        {
+
+                            tex1 = new Vector2(0, 0);
+                            tex2 = new Vector2(0, 0);
+                            tex3 = new Vector2(0, 0);
+                        }
+
 
                         string str1 = pos1.ToString() + ":" + tex1.ToString();
                         string str2 = pos2.ToString() + ":" + tex2.ToString();

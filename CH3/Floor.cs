@@ -15,19 +15,7 @@ namespace CH3
     {
         public Floor(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 1000*scale, 0, 0, rotation, shader)
         {
-
-            var objLoaderFactory = new ObjLoaderFactory();
-            var objLoader = objLoaderFactory.Create();
-            var fileStream = new FileStream("../../models/floor.obj", FileMode.Open);
-
-            LoadResult result = objLoader.Load(fileStream);
-
-            fileStream.Close();
-
-            texture = new OpenGL.Texture("../../textures/grass.png");
-
-
-            this.setFaces(result.Groups, result.Vertices, result.Textures);
+            LoadModel("../../models/floor.obj", "../../textures/grass.png");
         }
 
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix)

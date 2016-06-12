@@ -56,7 +56,6 @@ namespace CH3
         private int frame = 0, timebase = 0;
 
         private bool[] activeKeys = new bool[255];
-        private bool warped = false;
 
         public Game()
         {
@@ -77,8 +76,10 @@ namespace CH3
         private void CreateObjects()
         {
             objects = new List<GameObject>();
-
-            objects.Add(new Building(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            objects.Add(new Tower(new Vector3(150, 150, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+          //  objects.Add(new Grass(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, 0f, 0f, new BasicShaderProgram()));
             floor = new Floor(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram());
         }
 
