@@ -34,7 +34,7 @@ namespace CH3
 
         private void handleMovement()
         {
-            float speed = 0.04f;
+            float speed = 0.4f;
             if (activeKeys[119])//w
             {
                 translation += new Vector3(speed, 0.0f, 0.0f);
