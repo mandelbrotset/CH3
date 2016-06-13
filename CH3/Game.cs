@@ -146,6 +146,15 @@ namespace CH3
             {
                 Environment.Exit(0);
             }
+            if (key == 110) //Toggle cel, normal and depth shading
+            {
+                if (renderMode == Drawable.RENDER_MODE_CEL)
+                    renderMode = Drawable.RENDER_MODE_NORMAL;
+                else if (renderMode == Drawable.RENDER_MODE_NORMAL)
+                    renderMode = Drawable.RENDER_MODE_DEPTH;
+                else
+                    renderMode = Drawable.RENDER_MODE_CEL;
+            }
         }
 
         private void CreateLight()
@@ -202,7 +211,7 @@ namespace CH3
         public void GameLoop(int i)
         {
             player.Move();
-            Glut.glutTimerFunc(1, GameLoop, 0);
+         //   Glut.glutTimerFunc(1, GameLoop, 0);
         }
 
 
@@ -368,14 +377,14 @@ namespace CH3
 
 
             Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000f);
-            Matrix4 viewMatrix;
+            Matrix4 viewMatrix = fpsCamera.viewMatrix;
             if (cameraMode == CameraMode.FPS)
             {
                 viewMatrix = fpsCamera.viewMatrix;
             }
             else
             {
-                viewMatrix = aboveCamera.viewMatrix;
+           //     viewMatrix = aboveCamera.viewMatrix;
             }
 
             //Render soid

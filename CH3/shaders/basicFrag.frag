@@ -34,19 +34,54 @@ vec3 sobel(float stepx, float stepy, vec2 center)
     return vec3(color);
 }
 
+vec4 edgeDetect(float stepx, float stepy, vec2 center, vec4 color)
+{
+
+	vec4 tleft = texture2D(tex,center + vec2(-stepx,stepy));
+	if(tleft != color)
+		return vec4(vec3(0.0), 1.0);
+	vec4 left = texture2D(tex,center + vec2(-stepx,0));
+	if(left != color)
+		return vec4(vec3(0.0), 1.0);
+	
+	vec4 bleft = texture2D(tex,center + vec2(-stepx, -stepy));
+	if(bleft != color)
+		return vec4(vec3(0.0), 1.0);
+	
+	vec4 top = texture2D(tex,center + vec2(0, stepy));
+	if(top != color)
+		return vec4(vec3(0.0), 1.0);
+	
+	vec4 bottom = texture2D(tex,center + vec2(0, -stepy));
+	if(bottom != color)
+		return vec4(vec3(0.0), 1.0);
+
+	vec4 tright = texture2D(tex,center + vec2(stepx,stepy));
+	if(tright != color)
+		return vec4(vec3(0.0), 1.0);
+
+	vec4 right = texture2D(tex,center + vec2(stepx,0));
+	if(right != color)
+		return vec4(vec3(0.0), 1.0);
+
+	vec4 bright = texture2D(tex,center + vec2(stepx, -stepy));
+	if(bright != color)
+		return vec4(vec3(0.0), 1.0);
+
+		return vec4(0.0);
+}
+
 
 void main()
 {
-	float step = 1.7;
+	float step = 3;
 	float width = 1280;
 	float height = 720;
 	vec2 uv = gl_TexCoord[0].xy;
 
 
 	vec4 texColor = texture2D(tex,gl_TexCoord[0].xy);
-	texColor = vec4(1-sobel(step/width, step/height, uv), 1.0);
-	if(texColor.x > 0.9999)
-	 	gl_FragColor = vec4(0.0);
-	 else
-	 	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+ 	gl_FragColor = edgeDetect(step/width, step/height, uv, texColor);
+
+
 }
