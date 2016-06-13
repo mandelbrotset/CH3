@@ -13,7 +13,7 @@ namespace CH3
 {
     public class Soil : GameObject
     {
-        public Soil(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, float texScale) : base(position, 5 * scale, 0, 0, rotation, shader)
+        public Soil(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, CelShader celShader, NormalShader normalShader, DepthShader depthShader, float texScale) : base(position, 5 * scale, 0, 0, rotation, shader, celShader, normalShader, depthShader)
         {
             LoadModel("../../models/grass.obj", "../../textures/grass.png", texScale);
         }
@@ -21,7 +21,7 @@ namespace CH3
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, int renderMode)
         {
 
-            base.render(time, projectionMatrix, viewMatrix, light);
+            base.render(time, projectionMatrix, viewMatrix, light, renderMode);
         }
 
     }

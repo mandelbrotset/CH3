@@ -63,6 +63,7 @@ namespace CH3
         private PostProcessedImage normalTexture;
         private PostProcessedImage depthTexture;
         private Soil soil;
+        private Player player;
 
         private Above aboveCamera;
         private FPSCamera fpsCamera;
@@ -103,16 +104,19 @@ namespace CH3
                 Console.ReadKey();
                 Environment.Exit(1);
             }
-            CreateShaders();
-            CreateObjects();
-            CreateLight();
+
 
             fpsCamera = new FPSCamera(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
             aboveCamera = new Above();
             aboveCamera.height = 100;
-            aboveCamera.follow = player;
             Input.Init();
             Input.SubscribeKeyDown(KeyDown);
+
+            CreateShaders();
+            CreateObjects();
+            aboveCamera.follow = player;
+
+            CreateLight();
 
             SetGlutMethods();
 
@@ -168,9 +172,9 @@ namespace CH3
 
 
             objects = new List<GameObject>();
-            objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
-            objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
-            player = new Player(new Vector3(10, 10, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, new BasicShaderProgram());
+            objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader));
+            objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader));
+            player = new Player(new Vector3(10, 10, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, basicShader, normalShader, celShader, depthShader);
             player.SetUpdateCamera(aboveCamera.UpdateCamera);
             objects.Add(player);
             CreateSoil();
@@ -186,7 +190,7 @@ namespace CH3
         private void CreateSoil()
         {
             float scale = 10.0f;
-            soil = new Soil(new Vector3(0, 0, 0), new Vector3(scale, scale, scale), 0f, basicShader, scale);
+            soil = new Soil(new Vector3(0, 0, 0), new Vector3(scale, scale, scale), 0f, basicShader, celShader, normalShader, depthShader, scale);
 
         }
         private void SetGlutMethods()
