@@ -8,6 +8,50 @@ float intensity(in vec4 color){
 	return sqrt((color.x*color.x)+(color.y*color.y)+(color.z*color.z));
 }
 
+
+vec4 edgeDetect2(float stepx, float stepy, vec2 center, vec4 color)
+{
+	float sense = 0.0001;
+	float i = intensity(color);
+
+	float tleft = intensity(texture2D(tex,center + vec2(-stepx,stepy)));
+
+	if(abs(tleft - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	float left = intensity(texture2D(tex,center + vec2(-stepx,0)));
+	if(abs(left - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	float bleft = intensity(texture2D(tex,center + vec2(-stepx, -stepy)));
+	if(abs(bleft - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	float top = intensity(texture2D(tex,center + vec2(0, stepy)));
+	if(abs(top - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	float bottom = intensity(texture2D(tex,center + vec2(0, -stepy)));
+	if(abs(bottom - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	float tright = intensity(texture2D(tex,center + vec2(stepx,stepy)));
+	if(abs(tright - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+	float right = intensity(texture2D(tex,center + vec2(stepx,0)));
+	if(abs(right - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	float bright = intensity(texture2D(tex,center + vec2(stepx, -stepy)));
+	if(abs(bright - i) > sense)
+		return vec4(vec3(0.0), 1.0);
+
+	return vec4(0.0);
+
+}
+
+
+
 vec3 sobel(float stepx, float stepy, vec2 center)
 {
 
@@ -34,47 +78,60 @@ vec3 sobel(float stepx, float stepy, vec2 center)
     return vec3(color);
 }
 
+
+
 vec4 edgeDetect(float stepx, float stepy, vec2 center, vec4 color)
 {
+	float diff = 0;
+	float sense = 0.14;
 
 	vec4 tleft = texture2D(tex,center + vec2(-stepx,stepy));
-	if(tleft != color)
-		return vec4(vec3(0.0), 1.0);
-	vec4 left = texture2D(tex,center + vec2(-stepx,0));
-	if(left != color)
+	diff = abs(tleft - color);
+	if(diff > sense || (diff == 0.0 && tleft != color))
 		return vec4(vec3(0.0), 1.0);
 	
+	vec4 left = texture2D(tex,center + vec2(-stepx,0));
+	diff = abs(left - color);
+	if(diff > sense || (diff == 0.0 && left != color))
+			return vec4(vec3(0.0), 1.0);
+	
 	vec4 bleft = texture2D(tex,center + vec2(-stepx, -stepy));
-	if(bleft != color)
+	diff = abs(bleft - color);
+	if(diff > sense || (diff == 0.0 && bleft != color))
 		return vec4(vec3(0.0), 1.0);
 	
 	vec4 top = texture2D(tex,center + vec2(0, stepy));
-	if(top != color)
-		return vec4(vec3(0.0), 1.0);
+	diff = abs(top - color);
+	if(diff > sense || (diff == 0.0 && top != color))
+			return vec4(vec3(0.0), 1.0);
 	
 	vec4 bottom = texture2D(tex,center + vec2(0, -stepy));
-	if(bottom != color)
+	diff = abs(bottom - color);
+	if(diff > sense || (diff == 0.0 && bottom != color))		
 		return vec4(vec3(0.0), 1.0);
 
 	vec4 tright = texture2D(tex,center + vec2(stepx,stepy));
-	if(tright != color)
+		diff = abs(tright - color);
+	if(diff > sense || (diff == 0.0 && tright != color))
 		return vec4(vec3(0.0), 1.0);
 
 	vec4 right = texture2D(tex,center + vec2(stepx,0));
-	if(right != color)
+	diff = abs(right - color);
+	if(diff > sense || (diff == 0.0 && right != color))
 		return vec4(vec3(0.0), 1.0);
 
 	vec4 bright = texture2D(tex,center + vec2(stepx, -stepy));
-	if(bright != color)
+	diff = abs(bright - color);
+	if(diff > sense || (diff == 0.0 && bright != color))
 		return vec4(vec3(0.0), 1.0);
 
-		return vec4(0.0);
+	return vec4(0.0);
 }
 
 
 void main()
 {
-	float step = 3;
+	float step = 2;
 	float width = 1280;
 	float height = 720;
 	vec2 uv = gl_TexCoord[0].xy;
