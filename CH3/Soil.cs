@@ -14,13 +14,13 @@ namespace CH3
     public class Soil : GameObject
     {
         Vector3[] positions;
-        public Soil(Vector3[] positions, Vector3 scale, float rotation, BasicShaderProgram shader) : base(positions[0], 5 * scale, 0, 0, rotation, shader)
+        public Soil(Vector3[] positions, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(positions[0], 500 * scale, 0, 0, rotation, shader, celShader, normalShader, depthShader)
         {
             this.positions = positions;
             LoadModel("../../models/grass.obj", "../../textures/grass.png");
         }
 
-        public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light)
+        public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, int renderMode)
         {
             // ((FloorShaderProgram)shader).setResolution(new Vector2(Window.WIDTH, Window.HEIGHT));
         //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
@@ -34,7 +34,8 @@ namespace CH3
             foreach (Vector3 pos in positions)
             {
                 position = pos;
-                base.render(time, projectionMatrix, viewMatrix, light);
+                base.render(time, projectionMatrix, viewMatrix, light, renderMode);
+                break;
             }
         }
 

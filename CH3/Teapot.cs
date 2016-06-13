@@ -14,7 +14,7 @@ namespace CH3
 {
     class Teapot : GameObject
     {
-        public Teapot(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, 0,0, rotation, shader)
+        public Teapot(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, scale, 0,0, rotation, shader, celShader, normalShader,depthShader)
         {
         }
 

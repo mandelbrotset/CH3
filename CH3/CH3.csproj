@@ -77,7 +77,11 @@
   <ItemGroup>
     <Compile Include="Ai.cs" />
     <Compile Include="Camera\Camera.cs" />
+    <Compile Include="DepthShader.cs" />
+    <Compile Include="NormalShader.cs" />
+    <Compile Include="CelShader.cs" />
     <Compile Include="DirectionalLight.cs" />
+    <Compile Include="PostProcessedImage.cs" />
     <Compile Include="Soil.cs" />
     <Compile Include="FloorShaderProgram.cs" />
     <Compile Include="BasicShaderProgram.cs" />

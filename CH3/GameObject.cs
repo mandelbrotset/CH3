@@ -16,7 +16,7 @@ namespace CH3
         
 
 
-        public GameObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, BasicShaderProgram shader) {
+        public GameObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, BasicShaderProgram shader, CelShader celShader, NormalShader normalShader, DepthShader depthShader) {
             this.position = position;
             this.scale = scale;
             this.rotationX = rotationX;
@@ -24,6 +24,9 @@ namespace CH3
             this.rotationZ = rotationZ;
 
             this.shader = shader;
+            this.normalShader = normalShader;
+            this.celShader = celShader;
+            this.depthShader = depthShader;
         }
 
         
