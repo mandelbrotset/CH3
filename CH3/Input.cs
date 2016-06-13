@@ -23,8 +23,8 @@ namespace CH3
 
         public static void Init()
         {
-            Glut.MotionCallback motionFunc = Motion;
-            Glut.glutMotionFunc(motionFunc);
+            Glut.PassiveMotionCallback motionFunc = Motion;
+            Glut.glutPassiveMotionFunc(motionFunc);
             Glut.KeyboardCallback keyDownFunc = KeyDownEvent;
             Glut.glutKeyboardFunc(keyDownFunc);
             Glut.KeyboardUpCallback keyUpFunc = KeyUpEvent;

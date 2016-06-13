@@ -51,7 +51,7 @@ namespace CH3
         {
             FPS, PLAYER
         }
-        private CameraMode cameraMode = CameraMode.PLAYER;
+        private CameraMode cameraMode = CameraMode.FPS;
         private List<GameObject> objects;
         private Window gameWindow;
         private DirectionalLight light;
@@ -103,7 +103,7 @@ namespace CH3
             objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
             objects.Add(new Tower(new Vector3(150, 150, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
-            player = new Player(new Vector3(10, 10, 0), new Vector3(0.1f, 0.1f, 0.1f), 0, new BasicShaderProgram());
+            player = new Player(new Vector3(10, 10, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, new BasicShaderProgram());
             player.SetUpdateCamera(aboveCamera.UpdateCamera);
             objects.Add(player);
             //  objects.Add(new Grass(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, 0f, 0f, new BasicShaderProgram()));

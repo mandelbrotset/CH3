@@ -13,7 +13,6 @@ namespace CH3
 {
     public class Soil : GameObject
     {
-        Vector3[] positions;
         public Soil(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, float texScale) : base(position, 5 * scale, 0, 0, rotation, shader)
         {
             LoadModel("../../models/grass.obj", "../../textures/grass.png", texScale);

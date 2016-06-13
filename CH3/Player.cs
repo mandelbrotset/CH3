@@ -32,10 +32,10 @@ namespace CH3
 
         private void SetControls()
         {
-            controls.Add(119, GameObject.Input.FORWARD);
-            controls.Add(115, GameObject.Input.BACKWARD);
-            controls.Add(97, GameObject.Input.LEFT);
-            controls.Add(100, GameObject.Input.RIGHT);
+            controls.Add(119, GameObject.Input.FORWARD);//w
+            controls.Add(115, GameObject.Input.BACKWARD);//s
+            controls.Add(97, GameObject.Input.LEFT);//a
+            controls.Add(100, GameObject.Input.RIGHT);//d
         }
         private void KeyDown(byte key, int x, int y)
         {

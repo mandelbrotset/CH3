@@ -12,6 +12,25 @@ namespace CH3.Camera
         public float height { get; set; }
         public bool fixedRotation { get; set; }
 
+        public Above() : base()
+        {
+            Input.SubscribeKeyDown(KeyDown);
+            fixedRotation = true;
+        }
+
+        private void KeyDown(byte key, int x, int y)
+        {
+            switch(key)
+            {
+                case 32:
+                    height += 5;
+                    break;
+                case 99:
+                    height -= 5;
+                    break;
+            }
+        }
+
         public override void UpdateCamera()
         {
             position = new Vector3(follow.position.x, follow.position.y, height);
