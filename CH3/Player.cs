@@ -22,7 +22,7 @@ namespace CH3
             CH3.Input.SubscribeKeyDown(KeyDown);
             CH3.Input.SubscribeKeyUp(KeyUp);
             CH3.Input.SubscribeMouseMovement(MouseMovement);
-            LoadModel("../../models/house.obj", "../../textures/house.png");
+            LoadModel("../../models/house.obj", "../../textures/house.png", 1);
         }
 
         private void MouseMovement(float pitch, float yaw)

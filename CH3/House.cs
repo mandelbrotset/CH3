@@ -11,7 +11,7 @@ namespace CH3
     {
         public House(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 10*scale, rotation, shader)
         {
-            LoadModel("../../models/house.obj", "../../textures/house.png");
+            LoadModel("../../models/house.obj", "../../textures/house.png", 1);
         }
     }
 }

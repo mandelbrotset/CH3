@@ -112,18 +112,8 @@ namespace CH3
 
         private void CreateSoil()
         {
-            int soilSize = 10;
-            int soils = 1;
-            Vector3[] positions = new Vector3[soils * soils];
-            
-            for (int y = 0; y < soils; y++)
-            {
-                for (int x = 0; x < soils; x++)
-                {
-                    positions[y * soils + x] = new Vector3(x * soilSize, y * soilSize, 0);
-                }
-            }
-            soil = new Soil(positions, new Vector3(1, 1, 1), 0f, new BasicShaderProgram());
+            float scale = 10.0f;
+            soil = new Soil(new Vector3(0,0,0), new Vector3(scale, scale, scale), 0f, new BasicShaderProgram(), scale);
         }
         private void SetGlutMethods()
         {

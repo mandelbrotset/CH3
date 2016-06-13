@@ -10,7 +10,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAGQEoABABAAABIAAQAAAAAACSKAEAABDBAAAQAUAAA=</HashCode>
+      <HashCode>AAGQAoABABAAgBIAAQAAAAAACSKAEAABDBAAAQAUAAA=</HashCode>
       <FileName>Game.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -42,16 +42,6 @@
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Map.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Road" />
-    </ShowAsAssociation>
-  </Class>
-  <Class Name="CH3.Road">
-    <Position X="2.5" Y="7.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Road.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CH3.GameObject">
@@ -92,7 +82,7 @@
   <Class Name="CH3.Player">
     <Position X="9" Y="10.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAABAAgAAAAAgAAAAAAAAAICAAAAAAAABAAEA=</HashCode>
+      <HashCode>AAAAAAAAABAAgAAAgAgAAAAAAAAAICAAAAAAAABAAEA=</HashCode>
       <FileName>Player.cs</FileName>
     </TypeIdentifier>
   </Class>

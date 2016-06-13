@@ -7,16 +7,6 @@ namespace CH3
 {
     public class Map
     {
-        public Road Road
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-
-            set
-            {
-            }
-        }
+        
     }
 }

@@ -11,7 +11,7 @@ namespace CH3
     {
         public FarmHouse(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, 1*scale, rotation, shader)
         {
-            LoadModel("../../models/farmhouse.obj", "../../textures/farmhouse.jpg");
+            LoadModel("../../models/farmhouse.obj", "../../textures/farmhouse.jpg", 1);
         }
     }
 }
