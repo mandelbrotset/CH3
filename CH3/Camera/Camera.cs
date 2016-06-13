@@ -19,5 +19,6 @@ namespace CH3.Camera
                 return Matrix4.LookAt(position, target, up);
             }
         }
+
     }
 }

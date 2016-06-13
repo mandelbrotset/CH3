@@ -76,12 +76,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ai.cs" />
+    <Compile Include="Camera\Above.cs" />
     <Compile Include="Camera\Camera.cs" />
-    <Compile Include="DepthShader.cs" />
-    <Compile Include="NormalShader.cs" />
+	<Compile Include="NormalShader.cs" />
     <Compile Include="CelShader.cs" />
+	<Compile Include="Camera\ThirdPerson.cs" />
     <Compile Include="DirectionalLight.cs" />
+	<Compile Include="Extensions.cs" />
+    <Compile Include="Map\Road.cs" />
+    <Compile Include="Map\RoadNode.cs" />
     <Compile Include="PostProcessedImage.cs" />
+
     <Compile Include="Soil.cs" />
     <Compile Include="FloorShaderProgram.cs" />
     <Compile Include="BasicShaderProgram.cs" />
@@ -98,7 +103,7 @@
     <Compile Include="HUD.cs" />
     <Compile Include="Human.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="Map.cs" />
+    <Compile Include="Map\Map.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,6 +134,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

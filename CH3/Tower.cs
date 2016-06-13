@@ -11,7 +11,7 @@ namespace CH3
     {
         public Tower(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, 2*scale, rotation, shader, normalShader, celShader, depthShader)
         {
-            LoadModel("../../models/klcc_lores.obj", "../../textures/klccbake.jpg");
+            LoadModel("../../models/klcc_lores.obj", "../../textures/klccbake.jpg", 1);
 
         }
     }

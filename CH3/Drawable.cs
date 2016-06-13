@@ -41,10 +41,7 @@ namespace CH3
 
 
 
-
-        protected void LoadModel(string modelFile, string textureFile) {
-
-            Console.WriteLine("LOAD MODEL");
+        protected void LoadModel(string modelFile, string textureFile, float texCoordsMultiplier) {
 
             var objLoaderFactory = new ObjLoaderFactory();
             var objLoader = objLoaderFactory.Create();
@@ -54,7 +51,7 @@ namespace CH3
 
             fileStream.Close();
 
-            this.setFaces(result.Groups, result.Vertices, result.Textures, result.Normals);
+            this.setFaces(result.Groups, result.Vertices, result.Textures, result.Normals, texCoordsMultiplier);
 
             texture = new OpenGL.Texture(textureFile).TextureID;
 
@@ -73,7 +70,7 @@ namespace CH3
 
         }
 
-        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns) {
+        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns, float texCoordsMultiplier) {
 
             Dictionary<string, int> elementMapping = new Dictionary<string, int>();
             List<Vector3> pos = new List<Vector3>();
@@ -98,7 +95,7 @@ namespace CH3
             j = 0;
             foreach (var uv in tex)
             {
-                textures[j++] = new Vector2(uv.X, uv.Y);
+                textures[j++] = new Vector2(uv.X * texCoordsMultiplier, uv.Y * texCoordsMultiplier);
             }
 
             j = 0;

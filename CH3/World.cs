@@ -7,7 +7,7 @@ namespace CH3
 {
     public class World
     {
-        public Map Map
+        public Map.Map Map
         {
             get
             {

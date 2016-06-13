@@ -47,10 +47,14 @@ namespace CH3
             }
         }
 
+        public enum CameraMode
+        {
+            FPS, PLAYER
+        }
+        private CameraMode cameraMode = CameraMode.FPS;
         private List<GameObject> objects;
         private Window gameWindow;
         private DirectionalLight light;
-
         private CelShader celShader;
         private BasicShaderProgram basicShader;
         private NormalShader normalShader;
@@ -58,25 +62,21 @@ namespace CH3
 
         private PostProcessedImage normalTexture;
         private PostProcessedImage depthTexture;
-
         private Soil soil;
 
-        private FPSCamera camera;
+        private Above aboveCamera;
+        private FPSCamera fpsCamera;
         private double fps;
         private int frame = 0, timebase = 0;
 
-        private int renderMode;
-
         private bool[] activeKeys = new bool[255];
+        private int renderMode;
         VBO<float> verticesVbo;
         VBO<int> indicesVbo;
 
         public Game()
         {
             gameWindow = new Window();
-
-
-
             float[] vertices = { -Window.WIDTH/2, -Window.HEIGHT/2,
                               -Window.WIDTH/2, Window.HEIGHT/2,
                              Window.WIDTH/2, Window.HEIGHT/2,
@@ -97,25 +97,27 @@ namespace CH3
 
 
             renderMode = Drawable.RENDER_MODE_CEL;
-
             if (!gameWindow.createWindow()) {
                 Console.WriteLine("ERROR: Could not initialize GLUT");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 Environment.Exit(1);
             }
-
-            camera = new FPSCamera(new Vector3(-20, 0, 10), Vector3.Zero, activeKeys);
             CreateShaders();
             CreateObjects();
             CreateLight();
 
-
+            fpsCamera = new FPSCamera(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
+            aboveCamera = new Above();
+            aboveCamera.height = 100;
+            aboveCamera.follow = player;
+            Input.Init();
+            Input.SubscribeKeyDown(KeyDown);
 
             SetGlutMethods();
-            
-           Console.WriteLine("INIT DEPTH TEXTURE: " + depthTex);
-           bool success = initDepthTexture();
+
+            Console.WriteLine("INIT DEPTH TEXTURE: " + depthTex);
+            bool success = initDepthTexture();
             Console.WriteLine(success);
             Console.WriteLine("AFTER DEPTH TEXTURE: " + depthTex);
 
@@ -131,6 +133,15 @@ namespace CH3
             verticesVbo = new VBO<float>(vertices);
             indicesVbo = new VBO<int>(indices, BufferTarget.ElementArrayBuffer);
 
+
+        }
+
+        private void KeyDown(byte key, int x, int y)
+        {
+            if (key == 27) //esc
+            {
+                Environment.Exit(0);
+            }
         }
 
         private void CreateLight()
@@ -157,10 +168,11 @@ namespace CH3
 
 
             objects = new List<GameObject>();
-            objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader));
-            objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader));
-
-
+            objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, new BasicShaderProgram()));
+            player = new Player(new Vector3(10, 10, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, new BasicShaderProgram());
+            player.SetUpdateCamera(aboveCamera.UpdateCamera);
+            objects.Add(player);
             CreateSoil();
         }
 
@@ -173,69 +185,22 @@ namespace CH3
 
         private void CreateSoil()
         {
+            float scale = 10.0f;
+            soil = new Soil(new Vector3(0, 0, 0), new Vector3(scale, scale, scale), 0f, basicShader, scale);
 
-            int soilSize = 10;
-            int soils = 1;
-            Vector3[] positions = new Vector3[soils * soils];
-            
-            for (int y = 0; y < soils; y++)
-            {
-                for (int x = 0; x < soils; x++)
-                {
-                    positions[y * soils + x] = new Vector3(x * soilSize, y * soilSize, 0);
-                }
-            }
-            soil = new Soil(positions, new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader);
         }
         private void SetGlutMethods()
         {
             Glut.glutIdleFunc(render);
-            Glut.KeyboardCallback keyDownFunc = KeyDown;
-            Glut.glutKeyboardFunc(keyDownFunc);
-            Glut.KeyboardUpCallback keyUpFunc = KeyUp;
-            Glut.glutKeyboardUpFunc(keyUpFunc);
-            Glut.MouseCallback mouseFunc = MouseInput;
-            Glut.glutMouseFunc(mouseFunc);
-            Glut.MotionCallback motionFunc = camera.Motion;
-            Glut.glutMotionFunc(motionFunc);
-            Glut.glutTimerFunc(1, camera.MoveCamera, 0); 
+            Glut.glutTimerFunc(1, GameLoop, 0);         
         }
 
-        public void MouseInput(int button, int state, int x, int y)
+        public void GameLoop(int i)
         {
-            //Console.WriteLine($"{button} : {state} : {x} : {y}");
+            player.Move();
+            Glut.glutTimerFunc(1, GameLoop, 0);
         }
 
-        public void KeyUp(byte key, int x, int y)
-        {
-           activeKeys[key] = false;
-        }
-
-        public void KeyDown(byte key, int x, int y)
-        {
-            activeKeys[key] = true;
-            Console.WriteLine($"{key} : {x} : {y}");
-            if (key == 27) //esc
-            {
-                Environment.Exit(0);
-            }
-
-            if (key == 110)
-            {
-                if (this.renderMode == Drawable.RENDER_MODE_CEL)
-                {
-                    this.renderMode = Drawable.RENDER_MODE_NORMAL;
-                }
-                else if (this.renderMode == Drawable.RENDER_MODE_NORMAL)
-                {
-                    this.renderMode = Drawable.RENDER_MODE_DEPTH;
-                }
-                else
-                {
-                    this.renderMode = Drawable.RENDER_MODE_CEL;        
-                }
-            }
-        }
 
         public void run(int fps)
         {
@@ -398,58 +363,29 @@ namespace CH3
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
 
-            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000000f);
-            Matrix4 viewMatrix = camera.viewMatrix;
+            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000f);
+            Matrix4 viewMatrix;
+            if (cameraMode == CameraMode.FPS)
+            {
+                viewMatrix = fpsCamera.viewMatrix;
+            }
+            else
+            {
+                viewMatrix = aboveCamera.viewMatrix;
+            }
 
-            //Render floor
+            //Render soid
             soil.render(time, projectionMatrix, viewMatrix, light, renderMode);
 
-            //Render teapots
+            //Render gameobjects
             foreach (GameObject t in objects)
             {
 
                 t.render(time, projectionMatrix, viewMatrix, light, renderMode);
             }
 
-            //      soil.render(time, Matrix4.CreateOrthographic(100, 100, -1, 1), Matrix4.Identity, light, Drawable.RENDER_MODE_BASIC);
-
         }
 
 
-        public void drawFullscreenTexture(uint tex) {
-    /*        Gl.Viewport(3*Window.WIDTH / 4, 0, Window.WIDTH/4, Window.HEIGHT/4);
-
-
-        //   Gl.Enable(EnableCap.Texture2D);
-         //   Gl.Enable(EnableCap.DepthTest);
-           // Gl.Enable(EnableCap.Blend);
-         //   Gl.DepthMask(false);  // disable writes to Z-Buffer
-          //  Gl.Disable(EnableCap.DepthTest);  // disable depth-testing
-
-            //     Gl.BindTexture(TextureTarget.Texture2D, tex);
-
-
-            texShader.useProgram();
-
-
-
-            Gl.BindBuffer(verticesVbo);
-            Gl.VertexAttribPointer(texShader.vertexPositionIndex, 2, verticesVbo.PointerType, false, 8, IntPtr.Zero);
-
-
-
-        //    Gl.BindBuffer(texCoordsVbo);
-         //   Gl.VertexAttribPointer(texShader.vertexTexCoordIndex, 2, texCoordsVbo.PointerType, true, 8, IntPtr.Zero);
-
-
-            Gl.BindBuffer(indicesVbo);
-
-
-            Gl.DrawElements(BeginMode.Triangles, indicesVbo.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-
-
-          //  Gl.BindTexture(TextureTarget.Texture2D, 0);
-          */
-        }
     }
 }

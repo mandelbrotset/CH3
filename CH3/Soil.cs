@@ -13,30 +13,15 @@ namespace CH3
 {
     public class Soil : GameObject
     {
-        Vector3[] positions;
-        public Soil(Vector3[] positions, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(positions[0], 500 * scale, 0, 0, rotation, shader, celShader, normalShader, depthShader)
+        public Soil(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, float texScale) : base(position, 5 * scale, 0, 0, rotation, shader)
         {
-            this.positions = positions;
-            LoadModel("../../models/grass.obj", "../../textures/grass.png");
+            LoadModel("../../models/grass.obj", "../../textures/grass.png", texScale);
         }
 
         public new void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, int renderMode)
         {
-            // ((FloorShaderProgram)shader).setResolution(new Vector2(Window.WIDTH, Window.HEIGHT));
-        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
-        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
-        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
-        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 11);
-            //Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMa, 16);
-         //   Gl.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-        //    Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
 
-            foreach (Vector3 pos in positions)
-            {
-                position = pos;
-                base.render(time, projectionMatrix, viewMatrix, light, renderMode);
-                break;
-            }
+            base.render(time, projectionMatrix, viewMatrix, light);
         }
 
     }
