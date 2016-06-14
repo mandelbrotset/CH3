@@ -52,7 +52,7 @@ namespace CH3
             FPS, PLAYER
         }
         private CameraMode cameraMode = CameraMode.FPS;
-        private List<GameObject> objects;
+        public List<GameObject> objects { get; private set; }
         private Window gameWindow;
         private DirectionalLight light;
         private CelShader celShader;

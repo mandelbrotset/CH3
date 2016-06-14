@@ -19,10 +19,6 @@ namespace CH3
         public GameObject inside { get; private set; }
         protected Dictionary<Input, bool> inputs;
 
-
-
-
-
         public GameObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, BasicShaderProgram shader, CelShader celShader, NormalShader normalShader, DepthShader depthShader)
         {
             this.position = position;
@@ -36,6 +32,11 @@ namespace CH3
             this.depthShader = depthShader;
 
             inputs = new Dictionary<Input, bool>();
+        }
+
+        public float GetRadius()
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual void Act(Input input) { }

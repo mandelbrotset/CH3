@@ -86,6 +86,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Map\Road.cs" />
     <Compile Include="Map\RoadNode.cs" />
+    <Compile Include="CollisionHandler.cs" />
     <Compile Include="PostProcessedImage.cs" />
     <Compile Include="Soil.cs" />
     <Compile Include="FloorShaderProgram.cs" />
