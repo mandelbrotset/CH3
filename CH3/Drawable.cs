@@ -13,17 +13,26 @@ namespace CH3
 {
     public abstract class Drawable
     {
+        public static int RENDER_MODE_BASIC = 0;
+        public static int RENDER_MODE_CEL = 2;
+        public static int RENDER_MODE_NORMAL = 1;
+        public static int RENDER_MODE_DEPTH = 3;
 
-        private VBO<Vector3> vertices;
-        private VBO<Vector3> normals;
-        private VBO<Vector2> texCoords;
 
-        private VBO<int> indices;
 
+        protected VBO<Vector3> vertices;
+        protected VBO<Vector3> normals;
+        protected VBO<Vector2> texCoords;
+
+        protected VBO<int> indices;
 
 
         public BasicShaderProgram shader { protected get; set; }
-        public OpenGL.Texture texture { get; protected set; }
+        public CelShader celShader { protected get; set; }
+        public NormalShader normalShader { protected get; set; }
+        public DepthShader depthShader { protected get; set; }
+
+        public uint texture { get; protected set; }
         public Vector3 position { get; set; }
         public Vector3 scale { get; set; }
         public float rotationX { get; set; }
@@ -33,7 +42,6 @@ namespace CH3
 
 
         protected void LoadModel(string modelFile, string textureFile, float texCoordsMultiplier) {
-
 
             var objLoaderFactory = new ObjLoaderFactory();
             var objLoader = objLoaderFactory.Create();
@@ -45,7 +53,21 @@ namespace CH3
 
             this.setFaces(result.Groups, result.Vertices, result.Textures, result.Normals, texCoordsMultiplier);
 
-            texture = new OpenGL.Texture(textureFile);
+            texture = new OpenGL.Texture(textureFile).TextureID;
+
+
+
+        }
+
+        protected void LoadModel(Vector3[] vertices, Vector3[] normals, Vector2[] texCoords, int[] indices)
+        {
+
+            this.vertices = new VBO<Vector3>(vertices);
+            this.texCoords = new VBO<Vector2>(texCoords);
+            this.normals = new VBO<Vector3>(normals);
+
+            this.indices = new VBO<int>(indices, BufferTarget.ElementArrayBuffer);
+
         }
 
         private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns, float texCoordsMultiplier) {
@@ -60,8 +82,6 @@ namespace CH3
             Vector3[] positions = new Vector3[vs.Count];
             Vector3[] normalArray = new Vector3[ns.Count];
             Vector2[] textures = new Vector2[tex.Count];
-
-            
 
 
             Console.WriteLine("Number of Textures:" + tex.Count);
@@ -166,9 +186,6 @@ namespace CH3
                             normal3 = new Vector3(0, 0, 0);
                         }
 
-
-
-
                         string str1 = pos1.ToString() + ":" + tex1.ToString() + ":" + normal1.ToString();
                         string str2 = pos2.ToString() + ":" + tex2.ToString() + ":" + normal2.ToString();
                         string str3 = pos3.ToString() + ":" + tex3.ToString() + ":" + normal3.ToString();
@@ -216,67 +233,76 @@ namespace CH3
 
                     }
                 }
-
-
             }
-
-
 
             vertices = new VBO<Vector3>(pos.ToArray());
             texCoords=  new VBO<Vector2>(uvs.ToArray());
             normals = new VBO<Vector3>(nss.ToArray());
 
             indices = new VBO<int>(inds.ToArray(), BufferTarget.ElementArrayBuffer);
-
-
-
-
         }
 
 
-        public void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light) {
+
+
+
+        public void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, int renderMode) {
 
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
             Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
             Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
             Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
 
-
-
             Matrix4 translation = Matrix4.CreateTranslation(this.position);
 
-            BasicShaderProgram shader = (BasicShaderProgram)this.shader;
-            Gl.Enable(EnableCap.Blend);
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.Enable(EnableCap.Texture2D);
-            Gl.Enable(EnableCap.CullFace);
-            Gl.CullFace(CullFaceMode.Back);
+            Matrix4 modelMatrix = (rotationX * rotationY * rotationZ) * scale * translation;
 
-           if(texture != null)
-              Gl.BindTexture(TextureTarget.Texture2D, texture.TextureID);
 
-            shader.useProgram();
-            shader.setTime(time);
-            shader.setProjectionMatrix(projectionMatrix);
-            shader.setViewMatrix(viewMatrix);
-            shader.setModelMatrix(( rotationX * rotationY* rotationZ) * scale * translation);
-            shader.setLightDirection(light.direction);
+
+            
+            BasicShaderProgram currentShader = this.celShader;
+            if (renderMode == RENDER_MODE_NORMAL)
+                currentShader = this.normalShader;
+            if (renderMode == RENDER_MODE_BASIC)
+                currentShader = this.shader;
+            if (renderMode == RENDER_MODE_DEPTH)
+                currentShader = this.depthShader;
+
+
+
+            currentShader.useProgram();
+            currentShader.setProjectionMatrix(projectionMatrix);
+            currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
+            currentShader.setViewMatrix(viewMatrix);
+            currentShader.setModelMatrix(modelMatrix);
 
             Gl.BindBuffer(vertices);
-            Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+            Gl.VertexAttribPointer(currentShader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
 
             Gl.BindBuffer(normals);
-            Gl.VertexAttribPointer(shader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+            Gl.VertexAttribPointer(currentShader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+
+            currentShader.setLightDirection(light.direction);
+            currentShader.setTime(time);
+
+
+            Gl.Enable(EnableCap.Texture2D);
+
+
+                Gl.BindTexture(TextureTarget.Texture2D, texture);
 
             Gl.BindBuffer(texCoords);
-            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
+            Gl.VertexAttribPointer(currentShader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
+
+            
 
             Gl.BindBuffer(indices);
 
 
             Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
 
-           Gl.BindTexture(TextureTarget.Texture2D, 0);
+ 
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
 
         }
     }

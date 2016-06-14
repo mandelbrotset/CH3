@@ -21,6 +21,14 @@ namespace CH3
         public BasicShaderProgram()
         {
 
+           // initShader();
+
+
+        }
+
+        public void initShader() {
+            Console.WriteLine("BASIC SHADER CONSTRUCTOR");
+
             loadVertShader("../../shaders/basicVert.vert");
             loadFragShader("../../shaders/basicFrag.frag");
             loadProgram();
@@ -29,9 +37,6 @@ namespace CH3
             vertexTexCoordIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "texCoord");
             vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
             vertexNormalIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexNormal");
-
-
-
         }
 
         public new void useProgram() {
@@ -53,6 +58,12 @@ namespace CH3
         public void setLightDirection(Vector3 lightDir)
         {
             program["light_direction"].SetValue(lightDir);
+
+        }
+
+        public void setRotationMatrix(Matrix4 matrix)
+        {
+            program["rotation_matrix"].SetValue(matrix);
 
         }
 

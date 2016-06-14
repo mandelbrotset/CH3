@@ -8,10 +8,9 @@ namespace CH3
 {
     public class Player : DynamicObject
     {
-
         private Dictionary<byte, GameObject.Input> controls;
 
-        public Player(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader) : base(position, scale, rotation, shader)
+        public Player(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, scale, rotation, shader, normalShader, celShader, depthShader)
         {
             inputs.Add(Input.FORWARD, false);
             inputs.Add(Input.BACKWARD, false);
