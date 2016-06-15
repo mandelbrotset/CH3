@@ -67,7 +67,8 @@ namespace CH3
             renderMode = RenderMode.CEL;
             gameWindow = new Window();
 
-            if (!gameWindow.createWindow()) {
+            if (!gameWindow.createWindow())
+            {
                 Console.WriteLine("ERROR: Could not initialize GLUT");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
@@ -160,12 +161,12 @@ namespace CH3
         private void SetGlutMethods()
         {
             Glut.glutIdleFunc(render);
-         //   Glut.glutTimerFunc(1, GameLoop, 0);         
+            //   Glut.glutTimerFunc(1, GameLoop, 0);         
         }
 
         public void GameLoop(int i)
         {
-          //  player.Move();
+            //  player.Move();
 
         }
 
@@ -173,7 +174,7 @@ namespace CH3
         public void run(int fps)
         {
             Glut.glutMainLoop();
-   
+
         }
 
         private void handleEvents()
@@ -185,7 +186,7 @@ namespace CH3
         private void render()
         {
             graphics.Render(renderMode);
-        
+
 
         }
 

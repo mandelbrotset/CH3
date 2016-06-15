@@ -25,11 +25,11 @@ void main()
 	if (intensity > 0.95)
 		color = texColor;
 	else if (intensity > 0.5)
-		color = 0.8*texColor;
+		color = 0.6*texColor;
 	else if (intensity > 0.25)
-		color = 0.5*texColor;
+		color = 0.4*texColor;
 	else 
-		color = 0.3 * texColor;
+		color = 0.2 * texColor;
 
 	gl_FragColor = vec4(color, 1.0);
 
