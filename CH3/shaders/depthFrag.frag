@@ -1,5 +1,7 @@
 #version 130
 
+#version 130
+
 in float z;
 
 uniform float time;

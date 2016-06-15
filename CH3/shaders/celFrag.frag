@@ -1,7 +1,4 @@
-
 #version 130
-
-in float z;
 
 uniform float time;
 
@@ -13,8 +10,6 @@ void main()
 {
 	
 	float intensity = 1.0;
-	//float zIntensity = (z / 10000);
-
 	
 
 	vec3 texColor = texture2D(tex , gl_TexCoord[0].xy).xyz;
@@ -25,11 +20,11 @@ void main()
 	if (intensity > 0.95)
 		color = texColor;
 	else if (intensity > 0.5)
-		color = 0.6*texColor;
+		color = 0.8*texColor;
 	else if (intensity > 0.25)
-		color = 0.4*texColor;
+		color = 0.5*texColor;
 	else 
-		color = 0.2 * texColor;
+		color = 0.3 * texColor;
 
 	gl_FragColor = vec4(color, 1.0);
 
