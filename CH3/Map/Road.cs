@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,13 +9,16 @@ namespace CH3.Map
 {
     public class Road
     {
-        public RoadNode n1 { get; private set; }
-        public RoadNode n2 { get; private set; }
+        public RoadNode fromNode { get; private set; }
+        public RoadNode toNode { get; private set; }
+        public int id { get; private set; }
 
-        public Road(RoadNode n1, RoadNode n2)
+        public Road(int id, RoadNode fromNode, RoadNode toNode)
         {
-            this.n1 = n1;
-            this.n2 = n2;
+            this.id = id;
+            this.fromNode = fromNode;
+            this.toNode = toNode;
         }
+      
     }
 }

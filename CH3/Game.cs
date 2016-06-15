@@ -51,7 +51,7 @@ namespace CH3
         {
             FPS, PLAYER
         }
-        private CameraMode cameraMode = CameraMode.FPS;
+        private CameraMode cameraMode = CameraMode.PLAYER;
         public List<GameObject> objects { get; private set; }
         private Window gameWindow;
         private DirectionalLight light;
@@ -77,6 +77,9 @@ namespace CH3
 
         public Game()
         {
+            Map.Map map = new Map.Map();
+            map.LoadMap("C:\\Users\\isak\\Desktop\\map2.xml");
+            map.WriteMap("C:\\Users\\isak\\Desktop\\map.xml");
             gameWindow = new Window();
             float[] vertices = { -Window.WIDTH/2, -Window.HEIGHT/2,
                               -Window.WIDTH/2, Window.HEIGHT/2,
@@ -155,6 +158,14 @@ namespace CH3
                 else
                     renderMode = Drawable.RENDER_MODE_CEL;
             }
+            if (key == 'p')
+            {
+                cameraMode = CameraMode.PLAYER;
+            }
+            if (key == 'f')
+            {
+                cameraMode = CameraMode.FPS;
+            }
         }
 
         private void CreateLight()
@@ -178,12 +189,10 @@ namespace CH3
 
         private void CreateObjects()
         {
-
-
             objects = new List<GameObject>();
             objects.Add(new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader));
             objects.Add(new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, basicShader, normalShader, celShader, depthShader));
-            player = new Player(new Vector3(10, 10, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, basicShader, normalShader, celShader, depthShader);
+            player = new Human(new Vector3(10, 10, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, basicShader, normalShader, celShader, depthShader);
             player.SetUpdateCamera(aboveCamera.UpdateCamera);
             objects.Add(player);
             CreateSoil();
@@ -204,14 +213,14 @@ namespace CH3
         }
         private void SetGlutMethods()
         {
-            Glut.glutIdleFunc(render);
+            Glut.glutIdleFunc(Render);
             Glut.glutTimerFunc(1, GameLoop, 0);         
         }
 
         public void GameLoop(int i)
         {
             player.Move();
-         //   Glut.glutTimerFunc(1, GameLoop, 0);
+            Glut.glutTimerFunc(1, GameLoop, 0);
         }
 
 
@@ -227,9 +236,8 @@ namespace CH3
 
         }
 
-        private void render()
+        private void Render()
         {
-
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             Gl.Enable(EnableCap.DepthTest);
@@ -377,14 +385,14 @@ namespace CH3
 
 
             Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT)), 0.1f, 1000f);
-            Matrix4 viewMatrix = fpsCamera.viewMatrix;
+            Matrix4 viewMatrix;
             if (cameraMode == CameraMode.FPS)
             {
                 viewMatrix = fpsCamera.viewMatrix;
             }
             else
             {
-           //     viewMatrix = aboveCamera.viewMatrix;
+                viewMatrix = aboveCamera.viewMatrix;
             }
 
             //Render soid
