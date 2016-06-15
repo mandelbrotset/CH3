@@ -103,11 +103,13 @@ namespace CH3
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             Gl.Enable(EnableCap.DepthTest);
-           // Gl.Enable(EnableCap.CullFace);
-         //   Gl.CullFace(CullFaceMode.Back);
+            Gl.Enable(EnableCap.CullFace);
+            Gl.CullFace(CullFaceMode.Back);
             Gl.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderModelTexture(time, world.allObjects);
+
+            renderSky(time);
             renderStaticObjects(time, renderMode);
 
 
@@ -144,6 +146,41 @@ namespace CH3
 
         }
 
+        private void renderSky(int time) {
+            Gl.Disable(EnableCap.CullFace);
+            renderObject(time, RenderMode.BASIC, world.sky, true);
+            Gl.Enable(EnableCap.CullFace);
+
+        }
+
+
+        private void renderObject(int time, RenderMode renderMode, GameObject obj, bool mipmap)
+        {
+            Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
+
+
+            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / (float)Window.HEIGHT), 0.1f, 500000f);
+            Matrix4 viewMatrix = fpsCamera.viewMatrix;
+
+            if (cameraMode == CameraMode.FPS)
+            {
+                viewMatrix = fpsCamera.viewMatrix;
+            }
+            else
+            {
+                viewMatrix = aboveCamera.viewMatrix;
+            }
+
+            //Render drawable
+
+                if (obj != null)
+                {
+                    obj.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap);
+                }
+            
+        }
+
+
         private void renderObjects(int time, RenderMode renderMode, List<GameObject> objects, bool mipmap)
         {
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
@@ -164,8 +201,10 @@ namespace CH3
             //Render drawable
             foreach (Drawable d in objects)
             {
-                if(d != null)
+                if (d != null) {
                     d.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap);
+
+                }
             }
 
         }

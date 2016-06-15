@@ -12,6 +12,7 @@ namespace CH3
         public List<GameObject> staticObjects { get; private set; }
         public List<GameObject> dynamicObjects { get; private set; }
         public List<GameObject> allObjects { get; private set; }
+        public Sky sky { get; set; }
 
 
         public World(Map.Map map)
