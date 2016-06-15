@@ -103,8 +103,8 @@ namespace CH3
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             Gl.Enable(EnableCap.DepthTest);
-            Gl.Enable(EnableCap.CullFace);
-            Gl.CullFace(CullFaceMode.Back);
+           // Gl.Enable(EnableCap.CullFace);
+         //   Gl.CullFace(CullFaceMode.Back);
             Gl.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderModelTexture(time, world.allObjects);
@@ -149,7 +149,7 @@ namespace CH3
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
 
-            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / (float)Window.HEIGHT), 0.1f, 1000f);
+            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.45f, ((float)Window.WIDTH / (float)Window.HEIGHT), 0.1f, 500000f);
             Matrix4 viewMatrix = fpsCamera.viewMatrix;
 
             if (cameraMode == CameraMode.FPS)

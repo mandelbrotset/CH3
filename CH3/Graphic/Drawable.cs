@@ -313,9 +313,9 @@ namespace CH3
             Gl.BindTexture(TextureTarget.Texture2D, texture);
 
             if (mipmap) { 
-                  Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                  Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
-                  Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapLinear);
+                Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+              //  Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapNearest);
+                Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
             }
 
 

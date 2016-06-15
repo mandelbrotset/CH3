@@ -117,7 +117,7 @@ namespace CH3
 
             CreateSky();
             CreateSoil();
-
+       
             StaticObject house = new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, graphics);
             StaticObject farmHouse = new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, graphics);
             StaticObject farmHouse1 = new FarmHouse(new Vector3(0, 100, 0), new Vector3(1, 1, 1), 0f, graphics);
@@ -141,13 +141,13 @@ namespace CH3
             //     world.staticObjects.Add(farmHouse3);
 
             world.AddObject(player);
-
+            
         }
 
         private void CreateSky()
         {
             
-            sky = new Sky(new Vector3(0, 0, 0), new Vector3(100.0, 100.0, 100.0), 0f, 0f, 0f, graphics);
+            sky = new Sky(new Vector3(0, 0, -1000), new Vector3(0.01, 0.01, 0.01), -(float)Math.PI/2, 0f, 0f, graphics);
             world.AddObject(sky);
         }
 
