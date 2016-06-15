@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CH3.Camera
 {
-    abstract class Camera
+    public abstract class Camera
     {
         public Vector3 target { get; set; }
         public Vector3 up { get; set; }

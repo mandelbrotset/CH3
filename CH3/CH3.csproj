@@ -76,43 +76,44 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ai.cs" />
-    <Compile Include="Camera\Above.cs" />
+    <Compile Include="Camera\AboveCamera.cs" />
     <Compile Include="Camera\Camera.cs" />
-    <Compile Include="DepthShader.cs" />
-    <Compile Include="NormalShader.cs" />
-    <Compile Include="CelShader.cs" />
-    <Compile Include="Camera\ThirdPerson.cs" />
-    <Compile Include="DirectionalLight.cs" />
+    <Compile Include="ShaderProrgams\DepthShader.cs" />
+    <Compile Include="ShaderProrgams\SimpleEdgeShader.cs" />
+    <Compile Include="ShaderProrgams\EdgeShader.cs" />
+    <Compile Include="ShaderProrgams\ModelShader.cs" />
+    <Compile Include="ShaderProrgams\NormalShader.cs" />
+    <Compile Include="ShaderProrgams\CelShader.cs" />
+    <Compile Include="Camera\ThirdPersonCamera.cs" />
+    <Compile Include="Lights\DirectionalLight.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Map\Road.cs" />
     <Compile Include="Map\RoadNode.cs" />
-    <Compile Include="CollisionHandler.cs" />
-    <Compile Include="PostProcessedImage.cs" />
-    <Compile Include="Soil.cs" />
-    <Compile Include="FloorShaderProgram.cs" />
-    <Compile Include="BasicShaderProgram.cs" />
-    <Compile Include="Building.cs" />
+    <Compile Include="Utils\ModelIdGenerator.cs" />
+    <Compile Include="Utils\CollisionHandler.cs" />
+    <Compile Include="Graphic\PostProcessedImage.cs" />
+    <Compile Include="GameObjects\StaticObjects\Soil.cs" />
+    <Compile Include="ShaderProrgams\FloorShaderProgram.cs" />
+    <Compile Include="ShaderProrgams\BasicShaderProgram.cs" />
+    <Compile Include="GameObjects\StaticObjects\Building.cs" />
     <Compile Include="Camera\FPSCamera.cs" />
-    <Compile Include="Drawable.cs" />
-    <Compile Include="DynamicObject.cs" />
+    <Compile Include="Graphic\Drawable.cs" />
+    <Compile Include="GameObjects\DynamicObject.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="GameObject.cs" />
-    <Compile Include="Graphics.cs" />
-    <Compile Include="FarmHouse.cs" />
-    <Compile Include="Grass.cs" />
-    <Compile Include="House.cs" />
-    <Compile Include="HUD.cs" />
-    <Compile Include="Human.cs" />
-    <Compile Include="Input.cs" />
+    <Compile Include="GameObjects\GameObject.cs" />
+    <Compile Include="Graphic\Graphics.cs" />
+    <Compile Include="GameObjects\StaticObjects\Buildings\FarmHouse.cs" />
+    <Compile Include="GameObjects\StaticObjects\Buildings\House.cs" />
+    <Compile Include="Graphic\HUD.cs" />
+    <Compile Include="GameObjects\DynamicObjects\Human.cs" />
+    <Compile Include="Utils\Input.cs" />
     <Compile Include="Map\Map.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="GameObjects\DynamicObjects\Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Road.cs" />
-    <Compile Include="ShaderProgram.cs" />
-    <Compile Include="StaticObject.cs" />
-    <Compile Include="Teapot.cs" />
-    <Compile Include="Tower.cs" />
+    <Compile Include="GameObjects\StaticObjects\Road.cs" />
+    <Compile Include="ShaderProrgams\ShaderProgram.cs" />
+    <Compile Include="GameObjects\StaticObject.cs" />
     <Compile Include="Window.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
@@ -135,7 +136,9 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="GameObjects\DynamicObjects\Vehicles\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace CH3.Camera
 {
-    class Above : ThirdPerson
+    public class AboveCamera : ThirdPersonCamera
     {
         public float height { get; set; }
         public bool fixedRotation { get; set; }
 
-        public Above() : base()
+        public AboveCamera() : base()
         {
             Input.SubscribeKeyDown(KeyDown);
             fixedRotation = true;

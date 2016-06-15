@@ -19,20 +19,13 @@ namespace CH3
         public GameObject inside { get; private set; }
         protected Dictionary<Input, bool> inputs;
 
-        public GameObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, BasicShaderProgram shader, CelShader celShader, NormalShader normalShader, DepthShader depthShader)
+        public GameObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, Graphics graphics) : base(position, scale, rotationX, rotationY, rotationZ, graphics)
         {
-            this.position = position;
-            this.scale = scale;
-            this.rotationX = rotationX;
-            this.rotationY = rotationY;
-            this.rotationZ = rotationZ;
-            this.shader = shader;
-            this.normalShader = normalShader;
-            this.celShader = celShader;
-            this.depthShader = depthShader;
 
             inputs = new Dictionary<Input, bool>();
         }
+
+
 
         public float GetRadius()
         {

@@ -7,11 +7,11 @@ using OpenGL;
 
 namespace CH3
 {
-    public class NormalShader : BasicShaderProgram
+    public class EdgeShader : BasicShaderProgram
     {
 
 
-        public NormalShader ()
+        public EdgeShader ()
         {
 
 
@@ -19,10 +19,10 @@ namespace CH3
 
         public new void initShader()
         {
-            Console.WriteLine("INIT CEL");
+            Console.WriteLine("INIT MODEL");
 
-            loadVertShader("../../shaders/normalVert.vert");
-            loadFragShader("../../shaders/normalFrag.frag");
+            loadVertShader("../../shaders/edgeVert.vert");
+            loadFragShader("../../shaders/edgeFrag.frag");
             loadProgram();
 
 
@@ -30,6 +30,8 @@ namespace CH3
             vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
             vertexNormalIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexNormal");
         }
+
+
 
     }
 }
