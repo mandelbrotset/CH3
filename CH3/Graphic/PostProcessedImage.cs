@@ -47,7 +47,7 @@ namespace CH3
         {
             Matrix4 ortho = Matrix4.CreateOrthographic(Window.WIDTH, Window.HEIGHT, -1, 1);
 
-            base.Render(0, ortho, Matrix4.Identity, new DirectionalLight(Vector3.Zero), renderMode);
+            base.Render(0, ortho, Matrix4.Identity, new DirectionalLight(Vector3.Zero), renderMode, false);
         }
 
     }

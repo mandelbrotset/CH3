@@ -123,12 +123,12 @@ namespace CH3
 
 
         private void renderStaticObjects(int time, RenderMode renderMode) {
-            renderObjects(time, renderMode, world.staticObjects);
+            renderObjects(time, renderMode, world.staticObjects, true);
         }
 
 
         private void renderDynamicObjects(int time, RenderMode renderMode) {
-            renderObjects(time, renderMode, world.dynamicObjects);
+            renderObjects(time, renderMode, world.dynamicObjects, true);
         }
 
         private void renderSimpleContours(int time) {
@@ -144,7 +144,7 @@ namespace CH3
 
         }
 
-        private void renderObjects(int time, RenderMode renderMode, List<GameObject> objects)
+        private void renderObjects(int time, RenderMode renderMode, List<GameObject> objects, bool mipmap)
         {
             Gl.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
@@ -165,7 +165,7 @@ namespace CH3
             foreach (Drawable d in objects)
             {
                 if(d != null)
-                    d.Render(time, projectionMatrix, viewMatrix, light, renderMode);
+                    d.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap);
             }
 
         }
@@ -193,7 +193,7 @@ namespace CH3
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 
-            renderObjects(time, RenderMode.NORMAL, objects);
+            renderObjects(time, RenderMode.NORMAL, objects, false);
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
@@ -207,7 +207,7 @@ namespace CH3
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 
-            renderObjects(time, RenderMode.MODEL, objects);
+            renderObjects(time, RenderMode.MODEL, objects, false);
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
@@ -222,7 +222,7 @@ namespace CH3
             Gl.ReadBuffer(ReadBufferMode.None);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            renderObjects(time, RenderMode.BASIC, objects);
+            renderObjects(time, RenderMode.BASIC, objects, false);
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             Gl.DrawBuffer(DrawBufferMode.Back);
