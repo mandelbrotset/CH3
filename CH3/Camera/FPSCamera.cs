@@ -8,7 +8,7 @@ using OpenGL;
 
 namespace CH3.Camera
 {
-    class FPSCamera : Camera
+    public class FPSCamera : Camera
     {
         
         public Vector3 translation { get; set; }

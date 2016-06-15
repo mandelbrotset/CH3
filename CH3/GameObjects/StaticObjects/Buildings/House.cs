@@ -9,7 +9,7 @@ namespace CH3
 {
     public class House : Building
     {
-        public House(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, 10*scale, rotation, shader, normalShader, celShader, depthShader)
+        public House(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position, 10 * scale, -((float)Math.PI / 2), 0, rotation, graphics)
         {
             LoadModel("../../models/house.obj", "../../textures/house.png", 1);
         }

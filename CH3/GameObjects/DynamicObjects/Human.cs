@@ -9,7 +9,7 @@ namespace CH3
     public class Human : Player
     {
         private Dictionary<byte, GameObject.Input> controls;
-        public Human(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, scale, rotation, shader, normalShader, celShader, depthShader)
+        public Human(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position, scale, rotation, graphics)
         {
             SetControls();
             CH3.Input.SubscribeKeyDown(KeyDown);

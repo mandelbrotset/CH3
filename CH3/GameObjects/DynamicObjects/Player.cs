@@ -9,13 +9,13 @@ namespace CH3
     public class Player : DynamicObject
     {
 
-        public Player(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, scale, rotation, shader, normalShader, celShader, depthShader)
+        public Player(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position, 10*scale, -((float)Math.PI/2),0, rotation, graphics)
         {
             inputs.Add(Input.FORWARD, false);
             inputs.Add(Input.BACKWARD, false);
             inputs.Add(Input.LEFT, false);
             inputs.Add(Input.RIGHT, false);
-            LoadModel("../../models/house.obj", "../../textures/house.png", 1);//borde ändra detta sen
+            LoadModel("../../models/Joda.obj", "../../textures/Joda_D.png", 1);//borde ändra detta sen
         }
 
         protected override void Act(Input input)

@@ -12,7 +12,7 @@ namespace CH3
         public delegate void UpdateCamera();
         private UpdateCamera updateCamera;
 
-        public DynamicObject(Vector3 position, Vector3 scale, float rotation, BasicShaderProgram shader, NormalShader normalShader, CelShader celShader, DepthShader depthShader) : base(position, scale,0,0, rotation, shader, celShader, normalShader, depthShader)
+        public DynamicObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, Graphics graphics) : base(position, scale,rotationX,rotationY, rotationZ, graphics)
         {
         }
 
@@ -21,7 +21,7 @@ namespace CH3
             updateCamera = updCam;
         }
 
-        public void Move()
+        public void Tick()
         {
             position += velocity;
             if (updateCamera != null)

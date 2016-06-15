@@ -7,16 +7,14 @@ using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.Data.VertexData;
 using ObjLoader.Loader.Loaders;
 using System.IO;
-
+using static CH3.Graphics;
+using CH3.Utils;
 
 namespace CH3
 {
     public abstract class Drawable
     {
-        public static int RENDER_MODE_BASIC = 0;
-        public static int RENDER_MODE_CEL = 2;
-        public static int RENDER_MODE_NORMAL = 1;
-        public static int RENDER_MODE_DEPTH = 3;
+
 
 
 
@@ -26,18 +24,32 @@ namespace CH3
 
         protected VBO<int> indices;
 
-
-        public BasicShaderProgram shader { protected get; set; }
-        public CelShader celShader { protected get; set; }
-        public NormalShader normalShader { protected get; set; }
-        public DepthShader depthShader { protected get; set; }
+        protected Graphics graphics;
 
         public uint texture { get; protected set; }
+
         public Vector3 position { get; set; }
         public Vector3 scale { get; set; }
         public float rotationX { get; set; }
         public float rotationY { get; set; }
         public float rotationZ { get; set; }
+
+        private int modelId;
+
+
+
+        public Drawable(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, Graphics graphics) {
+            this.position = position;
+            this.scale = scale;
+            this.rotationX = rotationX;
+            this.rotationY = rotationY;
+            this.rotationZ = rotationZ;
+
+            this.graphics = graphics;
+
+            this.modelId = ModelIDGenerator.GetInstance().GetId();
+            Console.WriteLine("CREATED model id. " + this.modelId);
+        }
 
 
 
@@ -246,7 +258,7 @@ namespace CH3
 
 
 
-        public void render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, int renderMode) {
+        public void Render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, RenderMode renderMode) {
 
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
             Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
@@ -260,14 +272,20 @@ namespace CH3
 
 
             
-            BasicShaderProgram currentShader = this.celShader;
-            if (renderMode == RENDER_MODE_NORMAL)
-                currentShader = this.normalShader;
-            if (renderMode == RENDER_MODE_BASIC)
-                currentShader = this.shader;
-            if (renderMode == RENDER_MODE_DEPTH)
-                currentShader = this.depthShader;
-
+            BasicShaderProgram currentShader = graphics.celShader;
+            if (renderMode == RenderMode.NORMAL)
+                currentShader = graphics.normalShader;
+            if (renderMode == RenderMode.BASIC)
+                currentShader = graphics.basicShader;
+            if (renderMode == RenderMode.DEPTH)
+                currentShader = graphics.depthShader;
+            if (renderMode == RenderMode.EDGE)
+                currentShader = graphics.edgeShader;
+            if (renderMode == RenderMode.SIMPLE_EDGE)
+                currentShader = graphics.simpleEdgeShader;
+            if (renderMode == RenderMode.MODEL)
+                currentShader = graphics.modelShader;
+        
 
 
             currentShader.useProgram();
@@ -275,6 +293,11 @@ namespace CH3
             currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
             currentShader.setViewMatrix(viewMatrix);
             currentShader.setModelMatrix(modelMatrix);
+
+            if (renderMode == RenderMode.MODEL) {
+                float id = ((float)modelId / 255);
+                graphics.modelShader.setModelId(id);
+            }
 
             Gl.BindBuffer(vertices);
             Gl.VertexAttribPointer(currentShader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
@@ -287,9 +310,17 @@ namespace CH3
 
 
             Gl.Enable(EnableCap.Texture2D);
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+
+            Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
 
-                Gl.BindTexture(TextureTarget.Texture2D, texture);
+           Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.NearestMipMapLinear);
+
+           Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapLinear);
+
+
+
 
             Gl.BindBuffer(texCoords);
             Gl.VertexAttribPointer(currentShader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
@@ -297,7 +328,6 @@ namespace CH3
             
 
             Gl.BindBuffer(indices);
-
 
             Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
 

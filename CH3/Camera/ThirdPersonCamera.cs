@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CH3.Camera
 {
-    abstract class ThirdPerson : Camera
+    public abstract class ThirdPersonCamera : Camera
     {
         public GameObject follow { get; set; }
         public abstract void UpdateCamera();
