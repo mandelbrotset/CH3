@@ -32,6 +32,7 @@ namespace CH3
             Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH | Glut.GLUT_RGBA);
             Glut.glutInitWindowSize(WIDTH, HEIGHT);
             window = Glut.glutCreateWindow(TITLE);
+            Glut.glutSetCursor(Glut.GLUT_CURSOR_NONE);
 
             return true;
         }

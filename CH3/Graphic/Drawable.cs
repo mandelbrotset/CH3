@@ -310,9 +310,17 @@ namespace CH3
 
 
             Gl.Enable(EnableCap.Texture2D);
-
-
             Gl.BindTexture(TextureTarget.Texture2D, texture);
+
+            Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+
+           Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.NearestMipMapLinear);
+
+           Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapLinear);
+
+
+
 
             Gl.BindBuffer(texCoords);
             Gl.VertexAttribPointer(currentShader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
