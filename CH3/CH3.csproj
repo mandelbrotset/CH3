@@ -78,6 +78,7 @@
     <Compile Include="Ai.cs" />
     <Compile Include="Camera\AboveCamera.cs" />
     <Compile Include="Camera\Camera.cs" />
+    <Compile Include="GameObjects\StaticObjects\Sky.cs" />
     <Compile Include="ShaderProrgams\DepthShader.cs" />
     <Compile Include="ShaderProrgams\SimpleEdgeShader.cs" />
     <Compile Include="ShaderProrgams\EdgeShader.cs" />

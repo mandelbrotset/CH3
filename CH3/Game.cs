@@ -53,7 +53,7 @@ namespace CH3
         private World world;
         private Map.Map map;
         private Graphics graphics;
-
+        private Sky sky;
         private Soil soil;
         private Player player;
 
@@ -114,7 +114,7 @@ namespace CH3
         {
             world.staticObjects.Add(null);
 
-
+            CreateSky();
             CreateSoil();
 
             StaticObject house = new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, graphics);
@@ -143,7 +143,12 @@ namespace CH3
 
         }
 
-
+        private void CreateSky()
+        {
+            
+            sky = new Sky(new Vector3(0, 0, 0), new Vector3(100.0, 100.0, 100.0), 0f, 0f, 0f, graphics);
+            world.AddObject(sky);
+        }
 
         private void CreateSoil()
         {
