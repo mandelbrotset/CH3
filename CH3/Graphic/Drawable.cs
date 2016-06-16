@@ -284,7 +284,8 @@ namespace CH3
                 currentShader = graphics.simpleEdgeShader;
             if (renderMode == RenderMode.MODEL)
                 currentShader = graphics.modelShader;
-        
+            if (renderMode == RenderMode.FXAA)
+                currentShader = graphics.fxAAShader;
 
 
             currentShader.useProgram();
