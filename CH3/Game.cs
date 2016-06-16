@@ -60,12 +60,14 @@ namespace CH3
 
         private bool[] activeKeys = new bool[255];
         private RenderMode renderMode;
+        private MSAAMode msaaMode;
 
 
         public Game()
         {
             renderMode = RenderMode.CEL;
             gameWindow = new Window();
+            msaaMode = MSAAMode.MSAA_X2;
 
             if (!gameWindow.createWindow())
             {
@@ -77,7 +79,7 @@ namespace CH3
 
             map = new Map.Map();
             world = new World(map);
-            graphics = new Graphics(world);
+            graphics = new Graphics(world, msaaMode);
 
             Input.Init();
             Input.SubscribeKeyDown(KeyDown);
@@ -93,7 +95,7 @@ namespace CH3
 
         private void KeyDown(byte key, int x, int y)
         {
-            if (key == 27) //esc
+           if (key == 27) //esc
             {
                 Environment.Exit(0);
             }
@@ -107,6 +109,20 @@ namespace CH3
                     renderMode = RenderMode.MODEL;
                 else
                     renderMode = RenderMode.CEL;
+            }
+            if (key == 109) //Toggle multisampled contours
+            {
+                if (msaaMode == MSAAMode.OFF)
+                    msaaMode = MSAAMode.MSAA_X2;
+                else if (msaaMode == MSAAMode.MSAA_X2)
+                    msaaMode = MSAAMode.MSAA_X4;
+                else if (msaaMode == MSAAMode.MSAA_X4)
+                    msaaMode = MSAAMode.MSAA_X8;
+                else
+                    msaaMode = MSAAMode.OFF;
+
+                Console.WriteLine("SWITCHING TO MSAA: " + msaaMode.ToString());
+
             }
         }
 
@@ -126,7 +142,7 @@ namespace CH3
             StaticObject farmHouse4 = new FarmHouse(new Vector3(0, -200, 0), new Vector3(1, 1, 1), 0f, graphics);
             StaticObject farmHouse5 = new FarmHouse(new Vector3(100, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
 
-            player = new Player(new Vector3(100, 100, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, graphics);
+            player = new Player(new Vector3(50, 50, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, graphics);
 
             // player.SetUpdateCamera(graphics.aboveCamera.UpdateCamera);
             world.AddObject(house);
@@ -184,7 +200,7 @@ namespace CH3
 
         private void render()
         {
-            graphics.Render(renderMode);
+            graphics.Render(renderMode, msaaMode);
 
 
         }

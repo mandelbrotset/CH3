@@ -153,13 +153,13 @@ vec4 edgeDetect(float stepx, float stepy, vec2 center, vec4 color)
 
 void main()
 {
-	float step = 1.0;
+	float step = 0.01;
 	float width = 1280;
 	float height = 720;
 	vec2 uv = gl_TexCoord[0].xy;
 
 
-	vec4 texColor = texture2D(tex,gl_TexCoord[0].xy);
+	vec4 texColor = texture(tex,gl_TexCoord[0].xy);
 
 	vec4 color;
  	color = edgeDetect(step/width, step/height, uv, texColor);

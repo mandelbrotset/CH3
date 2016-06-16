@@ -21,6 +21,7 @@ namespace CH3
         public SimpleEdgeShader simpleEdgeShader { get; private set; }
 
 
+
         public World world { get; set; }
 
 
@@ -34,6 +35,11 @@ namespace CH3
             BASIC, NORMAL, CEL, DEPTH, EDGE, SIMPLE_EDGE, MODEL
         }
 
+        public enum MSAAMode
+        {
+            OFF, MSAA_X2, MSAA_X4, MSAA_X8
+        }
+
 
 
         public CameraMode cameraMode { get; set; }
@@ -45,13 +51,15 @@ namespace CH3
         public AboveCamera aboveCamera { get; private set; }
 
 
-        private PostProcessedImage depthTexture;
-
-        private PostProcessedImage normalTexture;
-
         private PostProcessedImage modelTexture;
+        private PostProcessedImage modelMSTexture;
 
-        private PostProcessedImage dynamicObjectTexture;
+        private PostProcessedImage multiSampledFinalImage;
+        private PostProcessedImage finalImage;
+
+        private MSAAMode msaaMode;
+
+
 
 
 
@@ -63,7 +71,7 @@ namespace CH3
 
 
 
-        public Graphics(World world)
+        public Graphics(World world, MSAAMode msaaMode)
         {
             this.world = world;
 
@@ -72,19 +80,19 @@ namespace CH3
             initLight();
             initCameras();
 
-            
+            this.msaaMode = msaaMode;
 
-            initDepthTexture();
-            initNormalTexture();
+            initFinalImage();
+            initMultiSampledFinalImage();
             initModelTexture();
-            initDynamicObjectTexture();
+            initMultiSampledModelTexture();
 
 
         }
 
 
 
-        public  void Render(RenderMode renderMode) {
+        public  void Render(RenderMode renderMode, MSAAMode msaaMode) {
 
             frame++;
             int time = Glut.glutGet(Glut.GLUT_ELAPSED_TIME);
@@ -100,7 +108,16 @@ namespace CH3
 
             }
 
+
+            if (msaaMode != this.msaaMode) {
+                this.msaaMode = msaaMode;
+                initMultiSampledFinalImage();
+                initMultiSampledModelTexture();
+            }
+
+
             Gl.Enable(EnableCap.Blend);
+            Gl.Enable(EnableCap.Multisample);
             Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             Gl.Enable(EnableCap.DepthTest);
             Gl.Enable(EnableCap.CullFace);
@@ -109,15 +126,12 @@ namespace CH3
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderModelTexture(time, world.allObjects);
 
-            renderSky(time);
-            renderStaticObjects(time, renderMode);
+            renderFinalImage(time, RenderMode.CEL);
 
-
-            renderDynamicObjects(time, renderMode);
             renderSimpleContours(time);
 
 
-            renderHUD(time);
+         //   renderHUD(time);
 
             Glut.glutSwapBuffers();
 
@@ -134,13 +148,14 @@ namespace CH3
         }
 
         private void renderSimpleContours(int time) {
+
             this.modelTexture.Render(RenderMode.SIMPLE_EDGE);
 
         }
-        private void renderContours(int time) {
-            this.normalTexture.Render(RenderMode.EDGE);
 
-        }
+
+
+
 
         private void renderHUD(int time) {
 
@@ -175,7 +190,7 @@ namespace CH3
 
                 if (obj != null)
                 {
-                    obj.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap);
+                    obj.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap, false);
                 }
             
         }
@@ -202,72 +217,74 @@ namespace CH3
             foreach (Drawable d in objects)
             {
                 if (d != null) {
-                    d.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap);
+                    d.Render(time, projectionMatrix, viewMatrix, light, renderMode, mipmap, false);
 
                 }
             }
 
         }
 
-        private void renderDynamicObjectTexture(int time, List<GameObject> objects)
-        {
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, dynamicObjectTexture.FBO);
-
-            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-
-            renderDynamicObjects(time, RenderMode.CEL);
-
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-
-        }
-
-
-
-        private void renderNormalTexture(int time, List<GameObject> objects)
-        {
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, normalTexture.FBO);
-
-            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-
-            renderObjects(time, RenderMode.NORMAL, objects, false);
-
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-
-        }
 
         private void renderModelTexture(int time, List<GameObject> objects)
         {
+            if (msaaMode != MSAAMode.OFF)
+            {
+                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, modelMSTexture.FBO);
+                Gl.Enable(EnableCap.Multisample);
+                Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, modelTexture.FBO);
-            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+                renderObjects(time, RenderMode.MODEL, objects, false);
 
 
-            renderObjects(time, RenderMode.MODEL, objects, false);
+                Gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, this.modelMSTexture.FBO);
+                Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, this.modelTexture.FBO);
+
+                Gl.BlitFramebuffer(0, 0, Window.WIDTH, Window.HEIGHT, 0, 0, Window.WIDTH, Window.HEIGHT, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+
+
+            }
+            else
+            {
+                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, modelTexture.FBO);
+                Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                renderObjects(time, RenderMode.MODEL, objects, false);
+
+            }
+
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
         }
 
-        private void renderDepthTexture(int time, List<GameObject> objects)
+
+        
+        private void renderFinalImage(int time, RenderMode renderMode)
         {
-
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, depthTexture.FBO);
-
-            Gl.DrawBuffer(DrawBufferMode.None);
-            Gl.ReadBuffer(ReadBufferMode.None);
+            uint fbo = finalImage.FBO;
+            if (msaaMode != MSAAMode.OFF)
+                fbo = multiSampledFinalImage.FBO;
+            
+            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, multiSampledFinalImage.FBO);
+            Gl.Enable(EnableCap.Multisample);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            renderObjects(time, RenderMode.BASIC, objects, false);
+
+            renderSky(time);
+            renderStaticObjects(time, renderMode);
+            renderDynamicObjects(time, renderMode);
+
+
+            Gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, this.multiSampledFinalImage.FBO);
+            Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+
+            Gl.BlitFramebuffer(0, 0, Window.WIDTH, Window.HEIGHT, 0, 0, Window.WIDTH, Window.HEIGHT, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            Gl.DrawBuffer(DrawBufferMode.Back);
-            Gl.ReadBuffer(ReadBufferMode.Back);
 
         }
+
 
 
         private void initLight()
@@ -311,145 +328,325 @@ namespace CH3
 
         }
 
-
-        private bool initDepthTexture()
+        private bool initFinalImage()
         {
 
-            uint depthTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2D, depthTex);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, TextureParameter.CompareRefToTexture);
-
-            Gl.DepthFunc(DepthFunction.Lequal);
-
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.DepthComponent, PixelType.UnsignedInt, IntPtr.Zero);
-
-
-            uint depthFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, depthFBO);
-
-            Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, depthTex, 0);
-
-            Gl.DrawBuffer(DrawBufferMode.None);
-            Gl.ReadBuffer(ReadBufferMode.None);
-
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                return false;
-
-
-
-            this.depthTexture =  new PostProcessedImage(Window.WIDTH, Window.HEIGHT, depthTex, depthFBO, new Vector3(0, 0, 0), this);
-
-            return true;
-
-        }
-
-        private bool initDynamicObjectTexture()
-        {
-
-            uint dynamicObjectTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2D, dynamicObjectTex);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, TextureParameter.CompareRefToTexture);
-
-            Gl.DepthFunc(DepthFunction.Lequal);
-
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.DepthComponent, PixelType.UnsignedInt, IntPtr.Zero);
-
-
-            uint dynamicObjectFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, dynamicObjectFBO);
-
-            Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, dynamicObjectFBO, 0);
-
-            Gl.DrawBuffer(DrawBufferMode.None);
-            Gl.ReadBuffer(ReadBufferMode.None);
-
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                return false;
-
-
-
-            this.dynamicObjectTexture = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, dynamicObjectTex, dynamicObjectFBO, new Vector3(0, 0, 0), this);
-
-            return true;
-
-        }
-
-        private bool initNormalTexture()
-        {
-
-            uint normalTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2D, normalTex);
+            
+            uint modelTex = Gl.GenTexture();
+            Gl.BindTexture(TextureTarget.Texture2D, modelTex);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
+            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
 
 
 
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
 
-            uint normalFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, normalFBO);
-            Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, normalTex, 0);
-
+            uint modelFBO = Gl.GenFramebuffer();
+            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
+            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, modelTex, 0);
 
 
             // The depth buffer
             uint depthrenderbuffer = Gl.GenRenderbuffer();
             Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthrenderbuffer);
-            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent24, Window.WIDTH, Window.HEIGHT);
+            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
             Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthrenderbuffer);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthrenderbuffer);
 
+
+
+
+            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete) {
+                Console.WriteLine("FAILED");
+                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                return false;
+            }
+
+            this.finalImage = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            return true;
+
+        }
+
+        private bool initMultiSampledFinalImage()
+        {
+
+            if (this.multiSampledFinalImage != null) {
+                uint[] list = { this.multiSampledFinalImage.FBO };
+                Gl.DeleteFramebuffers(1, list);
+            }
+
+            bool multiSampling = false;
+            int numberOfSamples = 0;
+
+            if (msaaMode == MSAAMode.MSAA_X2)
+            {
+                multiSampling = true;
+                numberOfSamples = 2;
+            }
+            else if (msaaMode == MSAAMode.MSAA_X4)
+            {
+                multiSampling = true;
+                numberOfSamples = 4;
+            }
+            else if (msaaMode == MSAAMode.MSAA_X8)
+            {
+                multiSampling = true;
+                numberOfSamples = 8;
+            }
+
+            if (!multiSampling)
                 return false;
 
-            this.normalTexture = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, normalTex, normalFBO, new Vector3(0, 0, 0), this);
+            // Create multisample texture
 
+            Gl.Enable(EnableCap.Multisample);
+
+            uint modelTex = Gl.GenTexture();
+
+            uint modelMultiSampledTex = Gl.GenTexture();
+            Gl.BindTexture(TextureTarget.Texture2DMultisample, modelMultiSampledTex);
+
+            Gl.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, numberOfSamples, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, true);
+
+            // Create and bind the FBO
+            uint modelFBO = Gl.GenFramebuffer();
+            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
+
+            // Create color render buffer
+            uint colorBuffer = Gl.GenRenderbuffer();
+            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, colorBuffer);
+            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Rgba8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, RenderbufferTarget.RenderbufferExt, colorBuffer);
+
+
+
+            uint depthBuffer = Gl.GenRenderbuffer();
+            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
+
+
+            // Bind Texture assuming we have created a texture
+            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, modelTex, 0);
+
+
+            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            {
+
+                Console.WriteLine("FAILED TO CREATE FRAME BUFFER");
+
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUndefined)
+                {
+                    Console.WriteLine("UNDEFINED");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUnsupported)
+                {
+                    Console.WriteLine("UNSUPPORTED");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteReadBuffer)
+                {
+                    Console.WriteLine("INCOMPLETE READ BUFFER");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMultisample)
+                {
+                    Console.WriteLine("INCOMPLETE MULTISAMPLE");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMissingAttachment)
+                {
+                    Console.WriteLine("INCOMPLETE MISSING ATTACHMENT");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteAttachment)
+                {
+                    Console.WriteLine("INCOMPLETE ATTACHMENT");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteDrawBuffer)
+                {
+                    Console.WriteLine("INCOMPLETE DRAW BUFFER");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerCount)
+                {
+                    Console.WriteLine("INCOMPLETE LAYER  COUNT");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerTargets)
+                {
+                    Console.WriteLine("INCOMPLETE LAYER TARGETS");
+                }
+
+
+
+                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                return false;
+            }
+
+            Console.WriteLine("SUCCESS TO CREATE FRAME BUFFER");
+
+            this.multiSampledFinalImage = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
 
             return true;
+
+        }
+
+        private bool initMultiSampledModelTexture()
+        {
+
+
+            if (this.modelMSTexture != null)
+            {
+                uint[] list = { this.modelMSTexture.FBO };
+                Gl.DeleteFramebuffers(1, list);
+            }
+
+            bool multiSampling = false;
+            int numberOfSamples = 0;
+
+            if (msaaMode == MSAAMode.MSAA_X2)
+            {
+                multiSampling = true;
+                numberOfSamples = 2;
+            }
+            else if (msaaMode == MSAAMode.MSAA_X4)
+            {
+                multiSampling = true;
+                numberOfSamples = 4;
+            }
+            else if (msaaMode == MSAAMode.MSAA_X8)
+            {
+                multiSampling = true;
+                numberOfSamples = 8;
+            }
+
+            if (!multiSampling)
+                return false;
+
+            // Create multisample texture
+
+            Gl.Enable(EnableCap.Multisample);
+
+            uint modelTex = Gl.GenTexture();
+
+            uint modelMultiSampledTex = Gl.GenTexture();
+            Gl.BindTexture(TextureTarget.Texture2DMultisample, modelMultiSampledTex);
+
+            Gl.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, numberOfSamples, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, true);
+
+            // Create and bind the FBO
+            uint modelFBO = Gl.GenFramebuffer();
+            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
+
+            // Create color render buffer
+            uint colorBuffer = Gl.GenRenderbuffer();
+            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, colorBuffer);
+            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Rgba8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, RenderbufferTarget.RenderbufferExt, colorBuffer);
+
+
+
+            uint depthBuffer = Gl.GenRenderbuffer();
+            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
+
+
+            // Bind Texture assuming we have created a texture
+            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, modelTex, 0);
+
+
+            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            {
+
+                Console.WriteLine("FAILED TO CREATE FRAME BUFFER");
+
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUndefined)
+                {
+                    Console.WriteLine("UNDEFINED");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUnsupported)
+                {
+                    Console.WriteLine("UNSUPPORTED");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteReadBuffer)
+                {
+                    Console.WriteLine("INCOMPLETE READ BUFFER");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMultisample)
+                {
+                    Console.WriteLine("INCOMPLETE MULTISAMPLE");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMissingAttachment)
+                {
+                    Console.WriteLine("INCOMPLETE MISSING ATTACHMENT");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteAttachment)
+                {
+                    Console.WriteLine("INCOMPLETE ATTACHMENT");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteDrawBuffer)
+                {
+                    Console.WriteLine("INCOMPLETE DRAW BUFFER");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerCount)
+                {
+                    Console.WriteLine("INCOMPLETE LAYER  COUNT");
+                }
+                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerTargets)
+                {
+                    Console.WriteLine("INCOMPLETE LAYER TARGETS");
+                }
+
+
+
+                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                return false;
+            }
+
+            Console.WriteLine("SUCCESS TO CREATE FRAME BUFFER");
+
+            this.modelMSTexture = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
+
+            return true;
+
+
         }
 
         private bool initModelTexture()
         {
 
+
             uint modelTex = Gl.GenTexture();
             Gl.BindTexture(TextureTarget.Texture2D, modelTex);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
+            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
 
 
 
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
 
             uint modelFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, modelFBO);
-            Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, modelTex, 0);
-
+            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
+            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, modelTex, 0);
 
 
             // The depth buffer
             uint depthrenderbuffer = Gl.GenRenderbuffer();
             Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthrenderbuffer);
-            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent24, Window.WIDTH, Window.HEIGHT);
+            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
             Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthrenderbuffer);
+            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthrenderbuffer);
+
+
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
 
@@ -457,8 +654,9 @@ namespace CH3
                 return false;
 
             this.modelTexture = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
-
             return true;
+              
+
         }
 
 

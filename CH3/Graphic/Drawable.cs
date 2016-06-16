@@ -258,7 +258,7 @@ namespace CH3
 
 
 
-        public void Render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, RenderMode renderMode, bool mipmap) {
+        public void Render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, RenderMode renderMode, bool mipmap, bool multiSampledTexture) {
 
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
             Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
@@ -310,13 +310,17 @@ namespace CH3
 
 
             Gl.Enable(EnableCap.Texture2D);
+
             Gl.BindTexture(TextureTarget.Texture2D, texture);
 
-            if (mipmap) { 
+            if (mipmap)
+            {
                 Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-              //  Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapNearest);
+                //  Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapNearest);
                 Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
             }
+
+          
 
 
 
