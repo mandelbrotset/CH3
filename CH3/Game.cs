@@ -61,6 +61,8 @@ namespace CH3
         private bool[] activeKeys = new bool[255];
         private RenderMode renderMode;
         private MSAAMode msaaMode;
+        private ContourMode contourMode;
+
 
 
         public Game()
@@ -68,6 +70,7 @@ namespace CH3
             renderMode = RenderMode.CEL;
             gameWindow = new Window();
             msaaMode = MSAAMode.MSAA_X2;
+            contourMode = ContourMode.ON;
 
             if (!gameWindow.createWindow())
             {
@@ -79,7 +82,7 @@ namespace CH3
 
             map = new Map.Map();
             world = new World(map);
-            graphics = new Graphics(world, msaaMode);
+            graphics = new Graphics(world, msaaMode, contourMode);
 
             Input.Init();
             Input.SubscribeKeyDown(KeyDown);
@@ -95,22 +98,24 @@ namespace CH3
 
         private void KeyDown(byte key, int x, int y)
         {
-           if (key == 27) //esc
+
+            if (key == 27) //esc
             {
                 Environment.Exit(0);
             }
-            if (key == 110) //Toggle cel, normal and depth shading
+            if (key == 110) //N - Toggle cel, normal and depth shading
             {
                 if (renderMode == RenderMode.CEL)
                     renderMode = RenderMode.NORMAL;
                 else if (renderMode == RenderMode.NORMAL)
-                    renderMode = RenderMode.DEPTH;
-                else if (renderMode == RenderMode.DEPTH)
                     renderMode = RenderMode.MODEL;
                 else
                     renderMode = RenderMode.CEL;
+
+                Console.WriteLine("SWITCHING TO RENDER MODE: " + renderMode.ToString());
+
             }
-            if (key == 109) //Toggle multisampled contours
+            if (key == 109) //M - Toggle multisampling
             {
                 if (msaaMode == MSAAMode.OFF)
                     msaaMode = MSAAMode.MSAA_X2;
@@ -122,6 +127,19 @@ namespace CH3
                     msaaMode = MSAAMode.OFF;
 
                 Console.WriteLine("SWITCHING TO MSAA: " + msaaMode.ToString());
+
+            }
+            if (key == 98) //B - Toggle multisampled contours
+            {
+                if (contourMode == ContourMode.OFF)
+                    contourMode = ContourMode.ON;
+                else if (contourMode == ContourMode.ON)
+                    contourMode = ContourMode.MSAA;
+                else 
+                    contourMode = ContourMode.OFF;
+
+
+                Console.WriteLine("SWITCHING TO CONTOUR MODE: " + contourMode.ToString());
 
             }
         }
@@ -200,7 +218,7 @@ namespace CH3
 
         private void render()
         {
-            graphics.Render(renderMode, msaaMode);
+            graphics.Render(renderMode, msaaMode, contourMode);
 
 
         }

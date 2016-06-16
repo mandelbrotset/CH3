@@ -48,7 +48,6 @@ namespace CH3
             this.graphics = graphics;
 
             this.modelId = ModelIDGenerator.GetInstance().GetId();
-            Console.WriteLine("CREATED model id. " + this.modelId);
         }
 
 

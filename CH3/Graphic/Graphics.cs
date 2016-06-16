@@ -40,9 +40,19 @@ namespace CH3
             OFF, MSAA_X2, MSAA_X4, MSAA_X8
         }
 
+        public enum ContourMode
+        {
+            OFF, ON, MSAA
+        }
+
+
 
 
         public CameraMode cameraMode { get; set; }
+        private MSAAMode msaaMode;
+        private ContourMode contourMode;
+
+
         public DirectionalLight light { get; private set; }
 
 
@@ -57,7 +67,6 @@ namespace CH3
         private PostProcessedImage multiSampledFinalImage;
         private PostProcessedImage finalImage;
 
-        private MSAAMode msaaMode;
 
 
 
@@ -71,16 +80,18 @@ namespace CH3
 
 
 
-        public Graphics(World world, MSAAMode msaaMode)
+        public Graphics(World world, MSAAMode msaaMode, ContourMode contourMode)
         {
             this.world = world;
+
+            this.msaaMode = msaaMode;
+            this.contourMode = contourMode;
 
             initShaders();
 
             initLight();
             initCameras();
 
-            this.msaaMode = msaaMode;
 
             initFinalImage();
             initMultiSampledFinalImage();
@@ -92,7 +103,7 @@ namespace CH3
 
 
 
-        public  void Render(RenderMode renderMode, MSAAMode msaaMode) {
+        public void Render(RenderMode renderMode, MSAAMode msaaMode, ContourMode contourMode) {
 
             frame++;
             int time = Glut.glutGet(Glut.GLUT_ELAPSED_TIME);
@@ -104,7 +115,9 @@ namespace CH3
                 frame = 0;
                 Console.WriteLine(Gl.GetError());
 
-                Console.WriteLine(fps + "FPS " + time);
+                Console.WriteLine(Math.Round(fps) + "FPS");
+                Console.WriteLine();
+
 
             }
 
@@ -115,6 +128,8 @@ namespace CH3
                 initMultiSampledModelTexture();
             }
 
+            this.contourMode = contourMode;
+
 
             Gl.Enable(EnableCap.Blend);
             Gl.Enable(EnableCap.Multisample);
@@ -124,10 +139,13 @@ namespace CH3
             Gl.CullFace(CullFaceMode.Back);
             Gl.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+
             renderModelTexture(time, world.allObjects);
 
-            renderFinalImage(time, RenderMode.CEL);
-
+            renderFinalImage(time, renderMode);
+            
+ 
             renderSimpleContours(time);
 
 
@@ -149,7 +167,8 @@ namespace CH3
 
         private void renderSimpleContours(int time) {
 
-            this.modelTexture.Render(RenderMode.SIMPLE_EDGE);
+            if(contourMode != ContourMode.OFF)
+                this.modelTexture.Render(RenderMode.SIMPLE_EDGE);
 
         }
 
@@ -227,7 +246,7 @@ namespace CH3
 
         private void renderModelTexture(int time, List<GameObject> objects)
         {
-            if (msaaMode != MSAAMode.OFF)
+            if (msaaMode != MSAAMode.OFF && contourMode == ContourMode.MSAA)
             {
                 Gl.BindFramebuffer(FramebufferTarget.Framebuffer, modelMSTexture.FBO);
                 Gl.Enable(EnableCap.Multisample);
@@ -244,7 +263,7 @@ namespace CH3
 
 
             }
-            else
+            else if(contourMode == ContourMode.ON)
             {
                 Gl.BindFramebuffer(FramebufferTarget.Framebuffer, modelTexture.FBO);
                 Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -486,8 +505,6 @@ namespace CH3
                 return false;
             }
 
-            Console.WriteLine("SUCCESS TO CREATE FRAME BUFFER");
-
             this.multiSampledFinalImage = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
 
             return true;
@@ -608,8 +625,6 @@ namespace CH3
 
                 return false;
             }
-
-            Console.WriteLine("SUCCESS TO CREATE FRAME BUFFER");
 
             this.modelMSTexture = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
 
