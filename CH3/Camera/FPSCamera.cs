@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tao.FreeGlut;
 using OpenGL;
 
 namespace CH3.Camera
@@ -24,14 +23,12 @@ namespace CH3.Camera
             Input.SubscribeMouseMovement(MouseMovement);
             Input.SubscribeKeyDown(KeyDown);
             Input.SubscribeKeyUp(KeyUp);
-            Glut.glutTimerFunc(1, MoveCamera, 0);
         }
 
         public void MoveCamera(int i)
         {
             Update();
             handleMovement();
-            Glut.glutTimerFunc(1, MoveCamera, 0);
         }
 
         private void KeyDown(byte key, int x, int y)

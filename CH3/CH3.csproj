@@ -57,6 +57,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\OpenGL.dll</HintPath>
     </Reference>
+    <Reference Include="Pencil.Gaming, Version=1.0.5895.28250, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pencil.GLFW3.1.0.7\lib\net451\Pencil.Gaming.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -122,6 +126,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="diagram.cd" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

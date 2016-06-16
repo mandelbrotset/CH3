@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tao.FreeGlut;
 using CH3.Camera;
-
+using Pencil.Gaming;
+using Pencil.Gaming.Graphics;
 using OpenGL;
+
+
 using static CH3.Graphics;
 
 namespace CH3
@@ -69,12 +71,12 @@ namespace CH3
         {
             renderMode = RenderMode.CEL;
             gameWindow = new Window();
-            aaMode = AAMode.OFF;
+            aaMode = AAMode.FXAA;
             contourMode = ContourMode.ON;
 
             if (!gameWindow.createWindow())
             {
-                Console.WriteLine("ERROR: Could not initialize GLUT");
+                Console.WriteLine("ERROR: Could not initialize GLFW");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 Environment.Exit(1);
@@ -82,68 +84,16 @@ namespace CH3
 
             map = new Map.Map();
             world = new World(map);
-            graphics = new Graphics(world, aaMode, contourMode);
+            graphics = new Graphics(world, aaMode, contourMode, gameWindow);
 
-            Input.Init();
-            Input.SubscribeKeyDown(KeyDown);
+          //  Input.Init();
+          //  Input.SubscribeKeyDown(KeyDown);
 
             CreateObjects();
             graphics.aboveCamera.follow = player;
 
-            SetGlutMethods();
 
 
-
-        }
-
-        private void KeyDown(byte key, int x, int y)
-        {
-
-            if (key == 27) //esc
-            {
-                Environment.Exit(0);
-            }
-            if (key == 110) //N - Toggle cel, normal and depth shading
-            {
-                if (renderMode == RenderMode.CEL)
-                    renderMode = RenderMode.NORMAL;
-                else if (renderMode == RenderMode.NORMAL)
-                    renderMode = RenderMode.MODEL;
-                else
-                    renderMode = RenderMode.CEL;
-
-                Console.WriteLine(renderMode.ToString());
-
-            }
-            if (key == 109) //M - Toggle multisampling
-            {
-                if (aaMode == AAMode.OFF)
-                    aaMode = AAMode.MSAA_X2;
-                else if (aaMode == AAMode.MSAA_X2)
-                    aaMode = AAMode.MSAA_X4;
-                else if (aaMode == AAMode.MSAA_X4)
-                    aaMode = AAMode.MSAA_X8;
-                else if (aaMode == AAMode.MSAA_X8)
-                    aaMode = AAMode.FXAA;
-                else
-                    aaMode = AAMode.OFF;
-
-                Console.WriteLine(aaMode.ToString());
-
-            }
-            if (key == 98) //B - Toggle multisampled contours
-            {
-                if (contourMode == ContourMode.OFF)
-                    contourMode = ContourMode.ON;
-                else if (contourMode == ContourMode.ON)
-                    contourMode = ContourMode.MSAA;
-                else
-                    contourMode = ContourMode.OFF;
-
-
-                Console.WriteLine(contourMode.ToString());
-
-            }
         }
 
 
@@ -184,38 +134,95 @@ namespace CH3
             
             sky = new Sky(new Vector3(0, 0, -1000), new Vector3(0.01, 0.01, 0.01), (float)-Math.PI/2, 0f, 0f, graphics);
             world.sky = sky;
+            
         }
 
         private void CreateSoil()
         {
+            
             float scale = 10.0f;
             soil = new Soil(new Vector3(0, 0, 0), new Vector3(scale, scale, scale), 0f, scale, graphics);
             world.AddObject(soil);
-
-        }
-        private void SetGlutMethods()
-        {
-            Glut.glutIdleFunc(render);
-            //   Glut.glutTimerFunc(1, GameLoop, 0);         
+            
         }
 
-        public void GameLoop(int i)
-        {
-            //  player.Move();
 
-        }
 
 
         public void run(int fps)
         {
-            Glut.glutMainLoop();
+            GameLoop(fps);
 
         }
 
+
+        private void GameLoop(int fps)
+        {
+            //  player.Move();
+
+            while (!Glfw.WindowShouldClose(gameWindow.window))
+            {
+
+                handleEvents();
+                // update();
+                  render();
+            }
+
+        }
+
+
         private void handleEvents()
         {
+            Glfw.PollEvents();
+
+            if (Glfw.GetKey(gameWindow.window, Key.Escape))
+                Glfw.SetWindowShouldClose(gameWindow.window, true);
+
+            if (Glfw.GetKey(gameWindow.window, Key.N))
+            {
+                if (renderMode == RenderMode.CEL)
+                    renderMode = RenderMode.NORMAL;
+                else if (renderMode == RenderMode.NORMAL)
+                    renderMode = RenderMode.MODEL;
+                else
+                    renderMode = RenderMode.CEL;
+
+                Console.WriteLine(renderMode.ToString());
+            }
+
+            if (Glfw.GetKey(gameWindow.window, Key.M))
+            {
+                if (aaMode == AAMode.OFF)
+                    aaMode = AAMode.MSAA_X2;
+                else if (aaMode == AAMode.MSAA_X2)
+                    aaMode = AAMode.MSAA_X4;
+                else if (aaMode == AAMode.MSAA_X4)
+                    aaMode = AAMode.MSAA_X8;
+                else if (aaMode == AAMode.MSAA_X8)
+                    aaMode = AAMode.FXAA;
+                else
+                    aaMode = AAMode.OFF;
+
+                Console.WriteLine(aaMode.ToString());
+            }
+            if (Glfw.GetKey(gameWindow.window, Key.B))
+            {
+                if (contourMode == ContourMode.OFF)
+                    contourMode = ContourMode.ON;
+                else if (contourMode == ContourMode.ON)
+                    contourMode = ContourMode.MSAA;
+                else
+                    contourMode = ContourMode.OFF;
 
 
+                Console.WriteLine(contourMode.ToString());
+            }
+
+        }
+
+        private void update()
+        {
+            world.Tick();
         }
 
         private void render()
@@ -224,13 +231,6 @@ namespace CH3
 
 
         }
-
-        private void update()
-        {
-        }
-
-
-
 
 
     }

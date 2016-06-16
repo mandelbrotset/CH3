@@ -153,7 +153,7 @@ vec4 edgeDetect(float stepx, float stepy, vec2 center, vec4 color)
 
 void main()
 {
-	float step = 0.01;
+	float step = 2.0;
 	float width = 1280;
 	float height = 720;
 	vec2 uv = gl_TexCoord[0].xy;

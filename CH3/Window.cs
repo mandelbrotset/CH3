@@ -1,6 +1,8 @@
 ﻿using System;
-using Tao.FreeGlut;
 using OpenGL;
+using Pencil.Gaming;
+using Pencil.Gaming.Graphics;
+
 
 namespace CH3
 {
@@ -12,28 +14,28 @@ namespace CH3
         public static readonly string VERSION = "V0.01a";
 
 
+        public GlfwWindowPtr window { get; private set; }
 
-        public int window
-        {
-            get; private set;
 
-        }
-
+       
 
         public void destroyWindow()
         {
-            Glut.glutDestroyWindow(window);
+            Glfw.DestroyWindow(window);
         }
 
         public bool createWindow()
         {
 
-            Glut.glutInit();
-            Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH | Glut.GLUT_RGBA);
-            Glut.glutInitWindowSize(WIDTH, HEIGHT);
-            window = Glut.glutCreateWindow(TITLE);
-            Glut.glutSetCursor(Glut.GLUT_CURSOR_NONE);
+            if(!Glfw.Init())
+            {
+                return false;
+            }
+            
+            window = Glfw.CreateWindow(Window.WIDTH, Window.HEIGHT, TITLE + " - " + VERSION, GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
 
+            Glfw.MakeContextCurrent(window);
+            
             return true;
         }
 

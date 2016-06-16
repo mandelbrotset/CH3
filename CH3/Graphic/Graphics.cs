@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenGL;
-using Tao.FreeGlut;
-
+using Pencil.Gaming;
+using Pencil.Gaming.Graphics;
 using CH3.Camera;
 
 namespace CH3
@@ -11,7 +11,7 @@ namespace CH3
     {
 
 
-
+        
         public BasicShaderProgram basicShader { get; private set; }
         public CelShader celShader { get; private set; }
         public NormalShader normalShader { get; private set; }
@@ -61,6 +61,8 @@ namespace CH3
         public FPSCamera fpsCamera { get; private set; }
         public AboveCamera aboveCamera { get; private set; }
 
+        private Window window;
+
 
         private PostProcessedImage contourTexture;
         private PostProcessedImage MSAAContourTexture;
@@ -74,20 +76,22 @@ namespace CH3
 
 
 
-        private double fps;
-        private int frame = 0, timebase = 0;
+        private double fps, timebase = 0;
+        private int frame = 0;
 
 
 
 
 
 
-        public Graphics(World world, AAMode aaMode, ContourMode contourMode)
+        public Graphics(World world, AAMode aaMode, ContourMode contourMode, Window window)
         {
             this.world = world;
 
             this.aaMode = aaMode;
             this.contourMode = contourMode;
+
+            this.window = window;
 
             initShaders();
 
@@ -108,7 +112,7 @@ namespace CH3
         public void Render(RenderMode renderMode, AAMode aaMode, ContourMode contourMode) {
 
             frame++;
-            int time = Glut.glutGet(Glut.GLUT_ELAPSED_TIME);
+            double time = Glfw.GetTime();
 
             if (time - timebase > 1000)
             {
@@ -135,29 +139,28 @@ namespace CH3
             this.contourMode = contourMode;
 
 
-            Gl.Enable(EnableCap.Blend);
-            Gl.Enable(EnableCap.Multisample);
-            Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.Enable(EnableCap.CullFace);
-            Gl.CullFace(CullFaceMode.Back);
+            Gl.Enable(OpenGL.EnableCap.Blend);
+            Gl.Enable(OpenGL.EnableCap.Multisample);
+            Gl.BlendFunc(OpenGL.BlendingFactorSrc.SrcAlpha, OpenGL.BlendingFactorDest.OneMinusSrcAlpha);
+            Gl.Enable(OpenGL.EnableCap.DepthTest);
+            Gl.Enable(OpenGL.EnableCap.CullFace);
+            Gl.CullFace(OpenGL.CullFaceMode.Back);
             Gl.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            Gl.Clear(OpenGL.ClearBufferMask.ColorBufferBit | OpenGL.ClearBufferMask.DepthBufferBit);
 
 
-            renderContourTexture(time, world.allObjects);
+            renderContourTexture((int)time, world.allObjects);
 
 
-            renderFinalImage(time, renderMode);
+            renderFinalImage((int)time, renderMode);
 
-             //   renderSimpleContours(time, 0);
             
  
 
 
          //   renderHUD(time);
 
-            Glut.glutSwapBuffers();
+            Glfw.SwapBuffers(window.window);
 
         }
 
@@ -191,9 +194,9 @@ namespace CH3
         }
 
         private void renderSky(int time) {
-            Gl.Disable(EnableCap.CullFace);
+            Gl.Disable(OpenGL.EnableCap.CullFace);
             renderObject(time, RenderMode.BASIC, world.sky, true);
-            Gl.Enable(EnableCap.CullFace);
+            Gl.Enable(OpenGL.EnableCap.CullFace);
 
         }
 
@@ -258,31 +261,31 @@ namespace CH3
         {
             if (aaMode != AAMode.OFF && aaMode != AAMode.FXAA && contourMode == ContourMode.MSAA)
             {
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, MSAAContourTexture.FBO);
-                Gl.Enable(EnableCap.Multisample);
-                Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, MSAAContourTexture.FBO);
+                Gl.Enable(OpenGL.EnableCap.Multisample);
+                Gl.Clear(OpenGL.ClearBufferMask.ColorBufferBit | OpenGL.ClearBufferMask.DepthBufferBit);
 
 
                 renderObjects(time, RenderMode.MODEL, objects, false);
 
 
-                Gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, this.MSAAContourTexture.FBO);
-                Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, this.contourTexture.FBO);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.ReadFramebuffer, this.MSAAContourTexture.FBO);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.DrawFramebuffer, this.contourTexture.FBO);
 
-                Gl.BlitFramebuffer(0, 0, Window.WIDTH, Window.HEIGHT, 0, 0, Window.WIDTH, Window.HEIGHT, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+                Gl.BlitFramebuffer(0, 0, Window.WIDTH, Window.HEIGHT, 0, 0, Window.WIDTH, Window.HEIGHT, OpenGL.ClearBufferMask.ColorBufferBit | OpenGL.ClearBufferMask.DepthBufferBit, OpenGL.BlitFramebufferFilter.Nearest);
 
 
             }
             else if(contourMode == ContourMode.ON)
             {
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, contourTexture.FBO);
-                Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, contourTexture.FBO);
+                Gl.Clear(OpenGL.ClearBufferMask.ColorBufferBit | OpenGL.ClearBufferMask.DepthBufferBit);
                 renderObjects(time, RenderMode.MODEL, objects, false);
 
             }
 
 
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
         }
 
@@ -293,11 +296,11 @@ namespace CH3
             uint fbo = finalImage.FBO;
             if (aaMode != AAMode.OFF && aaMode != AAMode.FXAA) { 
                 fbo = multiSampledFinalImage.FBO;
-                Gl.Enable(EnableCap.Multisample);
+                Gl.Enable(OpenGL.EnableCap.Multisample);
 
             }
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
-            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, fbo);
+            Gl.Clear(OpenGL.ClearBufferMask.ColorBufferBit | OpenGL.ClearBufferMask.DepthBufferBit);
 
 
             renderSky(time);
@@ -309,16 +312,16 @@ namespace CH3
 
 
             if (aaMode == AAMode.FXAA) {
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
                 finalImage.Render(RenderMode.FXAA);
 
             } else { 
-                Gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, fbo);
-                Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.ReadFramebuffer, fbo);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.DrawFramebuffer, 0);
 
-                Gl.BlitFramebuffer(0, 0, Window.WIDTH, Window.HEIGHT, 0, 0, Window.WIDTH, Window.HEIGHT, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                Gl.BlitFramebuffer(0, 0, Window.WIDTH, Window.HEIGHT, 0, 0, Window.WIDTH, Window.HEIGHT, OpenGL.ClearBufferMask.ColorBufferBit | OpenGL.ClearBufferMask.DepthBufferBit, OpenGL.BlitFramebufferFilter.Nearest);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
             }
 
@@ -367,7 +370,7 @@ namespace CH3
             cameraMode = CameraMode.FPS;
 
 
-            fpsCamera = new FPSCamera(new Vector3(0, 0, 10), new Vector3(0, 0, 0));
+            fpsCamera = new FPSCamera(new Vector3(0, 0, 100), new Vector3(0, 0, 0));
             aboveCamera = new AboveCamera();
             aboveCamera.height = 100;
 
@@ -378,41 +381,41 @@ namespace CH3
 
             
             uint modelTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2D, modelTex);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+            Gl.BindTexture(OpenGL.TextureTarget.Texture2D, modelTex);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureWrapS, TextureParameter.Repeat);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureWrapT, TextureParameter.Repeat);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureMagFilter, TextureParameter.Linear);
 
 
 
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            Gl.TexImage2D(OpenGL.TextureTarget.Texture2D, 0, OpenGL.PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, 0, OpenGL.PixelFormat.Rgba, OpenGL.PixelType.UnsignedByte, IntPtr.Zero);
 
 
             uint modelFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
-            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, modelTex, 0);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.FramebufferExt, modelFBO);
+            Gl.FramebufferTexture2D(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.ColorAttachment0, OpenGL.TextureTarget.Texture2D, modelTex, 0);
 
 
             // The depth buffer
             uint depthrenderbuffer = Gl.GenRenderbuffer();
-            Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthrenderbuffer);
-            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthrenderbuffer);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthrenderbuffer);
+            Gl.BindRenderbuffer(OpenGL.RenderbufferTarget.Renderbuffer, depthrenderbuffer);
+            Gl.RenderbufferStorage(OpenGL.RenderbufferTarget.Renderbuffer, OpenGL.RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.Framebuffer, OpenGL.FramebufferAttachment.DepthAttachment, OpenGL.RenderbufferTarget.Renderbuffer, depthrenderbuffer);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.StencilAttachmentExt, OpenGL.RenderbufferTarget.RenderbufferExt, depthrenderbuffer);
 
 
 
 
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete) {
+            if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) != OpenGL.FramebufferErrorCode.FramebufferComplete) {
                 Console.WriteLine("FAILED");
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
                 return false;
             }
 
             this.finalImage = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
             return true;
 
@@ -450,83 +453,83 @@ namespace CH3
 
             // Create multisample texture
 
-            Gl.Enable(EnableCap.Multisample);
+            Gl.Enable(OpenGL.EnableCap.Multisample);
 
             uint modelTex = Gl.GenTexture();
 
             uint modelMultiSampledTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2DMultisample, modelMultiSampledTex);
+            Gl.BindTexture(OpenGL.TextureTarget.Texture2DMultisample, modelMultiSampledTex);
 
-            Gl.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, numberOfSamples, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, true);
+            Gl.TexImage2DMultisample(OpenGL.TextureTargetMultisample.Texture2DMultisample, numberOfSamples, OpenGL.PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, true);
 
             // Create and bind the FBO
             uint modelFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.FramebufferExt, modelFBO);
 
             // Create color render buffer
             uint colorBuffer = Gl.GenRenderbuffer();
-            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, colorBuffer);
-            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Rgba8, Window.WIDTH, Window.HEIGHT);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, RenderbufferTarget.RenderbufferExt, colorBuffer);
+            Gl.BindRenderbuffer(OpenGL.RenderbufferTarget.RenderbufferExt, colorBuffer);
+            Gl.RenderbufferStorageMultisample(OpenGL.RenderbufferTarget.RenderbufferExt, numberOfSamples, OpenGL.RenderbufferStorage.Rgba8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.ColorAttachment0Ext, OpenGL.RenderbufferTarget.RenderbufferExt, colorBuffer);
 
 
 
             uint depthBuffer = Gl.GenRenderbuffer();
-            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
-            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.BindRenderbuffer(OpenGL.RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.RenderbufferStorageMultisample(OpenGL.RenderbufferTarget.RenderbufferExt, numberOfSamples, OpenGL.RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.DepthAttachmentExt, OpenGL.RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.StencilAttachmentExt, OpenGL.RenderbufferTarget.RenderbufferExt, depthBuffer);
 
 
             // Bind Texture assuming we have created a texture
-            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, modelTex, 0);
+            Gl.FramebufferTexture2D(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.ColorAttachment0Ext, OpenGL.TextureTarget.Texture2D, modelTex, 0);
 
 
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) != OpenGL.FramebufferErrorCode.FramebufferComplete)
             {
 
                 Console.WriteLine("FAILED TO CREATE FRAME BUFFER");
 
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUndefined)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferUndefined)
                 {
                     Console.WriteLine("UNDEFINED");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUnsupported)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferUnsupported)
                 {
                     Console.WriteLine("UNSUPPORTED");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteReadBuffer)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteReadBuffer)
                 {
                     Console.WriteLine("INCOMPLETE READ BUFFER");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMultisample)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteMultisample)
                 {
                     Console.WriteLine("INCOMPLETE MULTISAMPLE");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMissingAttachment)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteMissingAttachment)
                 {
                     Console.WriteLine("INCOMPLETE MISSING ATTACHMENT");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteAttachment)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteAttachment)
                 {
                     Console.WriteLine("INCOMPLETE ATTACHMENT");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteDrawBuffer)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteDrawBuffer)
                 {
                     Console.WriteLine("INCOMPLETE DRAW BUFFER");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerCount)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteLayerCount)
                 {
                     Console.WriteLine("INCOMPLETE LAYER  COUNT");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerTargets)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteLayerTargets)
                 {
                     Console.WriteLine("INCOMPLETE LAYER TARGETS");
                 }
 
 
 
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
                 return false;
             }
@@ -571,83 +574,83 @@ namespace CH3
 
             // Create multisample texture
 
-            Gl.Enable(EnableCap.Multisample);
+            Gl.Enable(OpenGL.EnableCap.Multisample);
 
             uint modelTex = Gl.GenTexture();
 
             uint modelMultiSampledTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2DMultisample, modelMultiSampledTex);
+            Gl.BindTexture(OpenGL.TextureTarget.Texture2DMultisample, modelMultiSampledTex);
 
-            Gl.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, numberOfSamples, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, true);
+            Gl.TexImage2DMultisample(OpenGL.TextureTargetMultisample.Texture2DMultisample, numberOfSamples, OpenGL.PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, true);
 
             // Create and bind the FBO
             uint modelFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.FramebufferExt, modelFBO);
 
             // Create color render buffer
             uint colorBuffer = Gl.GenRenderbuffer();
-            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, colorBuffer);
-            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Rgba8, Window.WIDTH, Window.HEIGHT);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, RenderbufferTarget.RenderbufferExt, colorBuffer);
+            Gl.BindRenderbuffer(OpenGL.RenderbufferTarget.RenderbufferExt, colorBuffer);
+            Gl.RenderbufferStorageMultisample(OpenGL.RenderbufferTarget.RenderbufferExt, numberOfSamples, OpenGL.RenderbufferStorage.Rgba8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.ColorAttachment0Ext, OpenGL.RenderbufferTarget.RenderbufferExt, colorBuffer);
 
 
 
             uint depthBuffer = Gl.GenRenderbuffer();
-            Gl.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
-            Gl.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, numberOfSamples, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.BindRenderbuffer(OpenGL.RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.RenderbufferStorageMultisample(OpenGL.RenderbufferTarget.RenderbufferExt, numberOfSamples, OpenGL.RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.DepthAttachmentExt, OpenGL.RenderbufferTarget.RenderbufferExt, depthBuffer);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.StencilAttachmentExt, OpenGL.RenderbufferTarget.RenderbufferExt, depthBuffer);
 
 
             // Bind Texture assuming we have created a texture
-            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, modelTex, 0);
+            Gl.FramebufferTexture2D(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.ColorAttachment0Ext, OpenGL.TextureTarget.Texture2D, modelTex, 0);
 
 
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) != OpenGL.FramebufferErrorCode.FramebufferComplete)
             {
 
                 Console.WriteLine("FAILED TO CREATE FRAME BUFFER");
 
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUndefined)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferUndefined)
                 {
                     Console.WriteLine("UNDEFINED");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferUnsupported)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferUnsupported)
                 {
                     Console.WriteLine("UNSUPPORTED");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteReadBuffer)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteReadBuffer)
                 {
                     Console.WriteLine("INCOMPLETE READ BUFFER");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMultisample)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteMultisample)
                 {
                     Console.WriteLine("INCOMPLETE MULTISAMPLE");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteMissingAttachment)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteMissingAttachment)
                 {
                     Console.WriteLine("INCOMPLETE MISSING ATTACHMENT");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteAttachment)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteAttachment)
                 {
                     Console.WriteLine("INCOMPLETE ATTACHMENT");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteDrawBuffer)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteDrawBuffer)
                 {
                     Console.WriteLine("INCOMPLETE DRAW BUFFER");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerCount)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteLayerCount)
                 {
                     Console.WriteLine("INCOMPLETE LAYER  COUNT");
                 }
-                if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferIncompleteLayerTargets)
+                if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) == OpenGL.FramebufferErrorCode.FramebufferIncompleteLayerTargets)
                 {
                     Console.WriteLine("INCOMPLETE LAYER TARGETS");
                 }
 
 
 
-                Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
                 return false;
             }
@@ -665,34 +668,34 @@ namespace CH3
 
 
             uint modelTex = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2D, modelTex);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, TextureParameter.Repeat);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
-            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+            Gl.BindTexture(OpenGL.TextureTarget.Texture2D, modelTex);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureWrapS, TextureParameter.Repeat);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureWrapT, TextureParameter.Repeat);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+            Gl.TexParameteri(OpenGL.TextureTarget.Texture2D, OpenGL.TextureParameterName.TextureMagFilter, TextureParameter.Linear);
 
 
 
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            Gl.TexImage2D(OpenGL.TextureTarget.Texture2D, 0, OpenGL.PixelInternalFormat.Rgba, Window.WIDTH, Window.HEIGHT, 0, OpenGL.PixelFormat.Rgba, OpenGL.PixelType.UnsignedByte, IntPtr.Zero);
 
 
             uint modelFBO = Gl.GenFramebuffer();
-            Gl.BindFramebuffer(FramebufferTarget.FramebufferExt, modelFBO);
-            Gl.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, modelTex, 0);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.FramebufferExt, modelFBO);
+            Gl.FramebufferTexture2D(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.ColorAttachment0, OpenGL.TextureTarget.Texture2D, modelTex, 0);
 
 
             // The depth buffer
             uint depthrenderbuffer = Gl.GenRenderbuffer();
-            Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthrenderbuffer);
-            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthrenderbuffer);
-            Gl.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.StencilAttachmentExt, RenderbufferTarget.RenderbufferExt, depthrenderbuffer);
+            Gl.BindRenderbuffer(OpenGL.RenderbufferTarget.Renderbuffer, depthrenderbuffer);
+            Gl.RenderbufferStorage(OpenGL.RenderbufferTarget.Renderbuffer, OpenGL.RenderbufferStorage.Depth24Stencil8, Window.WIDTH, Window.HEIGHT);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.Framebuffer, OpenGL.FramebufferAttachment.DepthAttachment, OpenGL.RenderbufferTarget.Renderbuffer, depthrenderbuffer);
+            Gl.FramebufferRenderbuffer(OpenGL.FramebufferTarget.FramebufferExt, OpenGL.FramebufferAttachment.StencilAttachmentExt, OpenGL.RenderbufferTarget.RenderbufferExt, depthrenderbuffer);
 
 
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            Gl.BindFramebuffer(OpenGL.FramebufferTarget.Framebuffer, 0);
 
 
-            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            if (Gl.CheckFramebufferStatus(OpenGL.FramebufferTarget.Framebuffer) != OpenGL.FramebufferErrorCode.FramebufferComplete)
                 return false;
 
             this.contourTexture = new PostProcessedImage(Window.WIDTH, Window.HEIGHT, modelTex, modelFBO, new Vector3(0, 0, 0), this);
