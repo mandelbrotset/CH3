@@ -12,12 +12,16 @@ namespace CH3.Map
     public class Map
     {
         public BiDictionary<int, RoadNode> roadNodes { get; private set; }
-        public BiDictionary<int, Road> roads { get; private set; } 
+        public BiDictionary<int, Road> roads { get; private set; }
+        private IDController roadNodeIDs;
+        private IDController roadIDs;
 
         public Map()
         {
             roadNodes = new BiDictionary<int, RoadNode>();
             roads = new BiDictionary<int, Road>();
+            roadIDs = new IDController();
+            roadNodeIDs = new IDController();
         }
 
         public void LoadMap(string path)
@@ -32,6 +36,46 @@ namespace CH3.Map
             {
                 sw.Write(CreateXML());
             }
+        }
+
+        public void AddRoadNode(Vector3 position)
+        {
+            int id = roadNodeIDs.Next();
+            RoadNode roadNode = new RoadNode(id, position);
+            roadNodes.Add(id, roadNode);
+        }
+
+        public void AddRoad(RoadNode fromNode, RoadNode toNode)
+        {
+            int id = roadIDs.Next();
+            Road road = new Road(id, fromNode, toNode);
+            roads.Add(id, road);
+        }
+
+        /// <summary>
+        /// Deletes the road from the roadmap, but not from graphics!
+        /// </summary>
+        /// <param name="road">The road to delete</param>
+        public void DeleteRoad(Road road)
+        {
+            road.fromNode.roads.Remove(road);
+            road.toNode.roads.Remove(road);
+            roads.Remove(road);
+            roadIDs.Remove(road.id);
+        }
+
+        /// <summary>
+        /// Deletes the roadNode and all roads connected to it, but not from graphics!
+        /// </summary>
+        /// <param name="roadNode">The roadNode to remove</param>
+        public void DeleteRoadNode(RoadNode roadNode)
+        {
+            foreach (Road road in roadNode.roads)
+            {
+                DeleteRoad(road);
+            }
+            roadNodes.Remove(roadNode);
+            roadNodeIDs.Remove(roadNode.id);
         }
 
         private string CreateXML()
@@ -87,6 +131,7 @@ namespace CH3.Map
                         {
                             case "node":
                                 id = int.Parse(reader.GetAttribute("id"));
+                                roadNodeIDs.Add(id);
                                 x = float.Parse(reader.GetAttribute("x"));
                                 y = float.Parse(reader.GetAttribute("y"));
                                 z = float.Parse(reader.GetAttribute("z"));
@@ -95,7 +140,7 @@ namespace CH3.Map
                                 break;
                             case "road":
                                 id = int.Parse(reader.GetAttribute("id"));
-                                
+                                roadIDs.Add(id);
                                 iFromNode = int.Parse(reader.GetAttribute("fromnode"));
                                 RoadNode fromNode = this.roadNodes.Get(iFromNode);
                                 iToNode = int.Parse(reader.GetAttribute("tonode"));
