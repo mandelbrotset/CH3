@@ -1,4 +1,5 @@
-﻿using OpenGL;
+﻿using CH3.Utils;
+using OpenGL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,13 +11,13 @@ namespace CH3.Map
 {
     public class Map
     {
-        public Dictionary<int, RoadNode> roadNodes { get; private set; }
-        public Dictionary<int, Road> roads { get; private set; }
+        public BiDictionary<int, RoadNode> roadNodes { get; private set; }
+        public BiDictionary<int, Road> roads { get; private set; } 
 
         public Map()
         {
-            roadNodes = new Dictionary<int, RoadNode>();
-            roads = new Dictionary<int, Road>();
+            roadNodes = new BiDictionary<int, RoadNode>();
+            roads = new BiDictionary<int, Road>();
         }
 
         public void LoadMap(string path)
@@ -41,7 +42,7 @@ namespace CH3.Map
             using (XmlWriter writer = XmlWriter.Create(new StringWriter(sb), xws))
             {
                 writer.WriteStartElement("roadmap");
-                foreach (RoadNode node in roadNodes.Values)
+                foreach (RoadNode node in roadNodes.GetValues<RoadNode>())
                 {
                     writer.WriteStartElement("node");
                     writer.WriteAttributeString("id", node.id.ToString());
@@ -50,7 +51,7 @@ namespace CH3.Map
                     writer.WriteAttributeString("z", node.position.z.ToString());
                     writer.WriteEndElement();
                 }
-                foreach (Road road in roads.Values)
+                foreach (Road road in roads.GetValues<Road>())
                 {
                     writer.WriteStartElement("road");
                     writer.WriteAttributeString("id", road.id.ToString());
@@ -75,7 +76,7 @@ namespace CH3.Map
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(data)))
             {
-                int id = 0, fromnode = 0, tonode = 0;
+                int id = 0, iFromNode = 0, iToNode = 0;
                 float x = 0, y = 0, z = 0;
                 reader.ReadToFollowing("roadmap");
                 while (reader.Read())
@@ -90,13 +91,18 @@ namespace CH3.Map
                                 y = float.Parse(reader.GetAttribute("y"));
                                 z = float.Parse(reader.GetAttribute("z"));
                                 RoadNode node = new RoadNode(id, new Vector3(x, y, z));
-                                roadNodes.Add(id, node);
+                                this.roadNodes.Add(id, node);
                                 break;
                             case "road":
                                 id = int.Parse(reader.GetAttribute("id"));
-                                fromnode = int.Parse(reader.GetAttribute("fromnode"));
-                                tonode = int.Parse(reader.GetAttribute("tonode"));
-                                Road road = new Road(id, roadNodes[fromnode], roadNodes[tonode]);
+                                
+                                iFromNode = int.Parse(reader.GetAttribute("fromnode"));
+                                RoadNode fromNode = this.roadNodes.Get(iFromNode);
+                                iToNode = int.Parse(reader.GetAttribute("tonode"));
+                                RoadNode toNode = this.roadNodes.Get(iToNode);
+                                Road road = new Road(id, fromNode, toNode);
+                                fromNode.roads.Add(road);
+                                toNode.roads.Add(road);
                                 roads.Add(id, road);
                                 break;
                         }

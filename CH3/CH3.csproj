@@ -95,6 +95,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Map\Road.cs" />
     <Compile Include="Map\RoadNode.cs" />
+    <Compile Include="Utils\BiDictionary.cs" />
     <Compile Include="Utils\ModelIdGenerator.cs" />
     <Compile Include="Utils\CollisionHandler.cs" />
     <Compile Include="Graphic\PostProcessedImage.cs" />
