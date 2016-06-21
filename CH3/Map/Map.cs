@@ -58,8 +58,10 @@ namespace CH3.Map
         /// <param name="road">The road to delete</param>
         public void DeleteRoad(Road road)
         {
-            road.fromNode.roads.Remove(road);
-            road.toNode.roads.Remove(road);
+            road.fromNode.inRoads.Remove(road);
+            road.fromNode.outRoads.Remove(road);
+            road.toNode.inRoads.Remove(road);
+            road.toNode.outRoads.Remove(road);
             roads.Remove(road);
             roadIDs.Remove(road.id);
         }
@@ -70,7 +72,11 @@ namespace CH3.Map
         /// <param name="roadNode">The roadNode to remove</param>
         public void DeleteRoadNode(RoadNode roadNode)
         {
-            foreach (Road road in roadNode.roads)
+            foreach (Road road in roadNode.outRoads)
+            {
+                DeleteRoad(road);
+            }
+            foreach (Road road in roadNode.inRoads)
             {
                 DeleteRoad(road);
             }
@@ -146,8 +152,8 @@ namespace CH3.Map
                                 iToNode = int.Parse(reader.GetAttribute("tonode"));
                                 RoadNode toNode = this.roadNodes.Get(iToNode);
                                 Road road = new Road(id, fromNode, toNode);
-                                fromNode.roads.Add(road);
-                                toNode.roads.Add(road);
+                                fromNode.outRoads.Add(road);
+                                toNode.inRoads.Add(road);
                                 roads.Add(id, road);
                                 break;
                         }

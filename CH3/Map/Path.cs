@@ -18,6 +18,55 @@ namespace CH3.Map
             sequence = new LinkedList<Tuple<Road, RoadNode>>();
         }
 
+        public void CreatePath(RoadNode startNode, RoadNode goalNode)
+        {
+            //TODO: Implement Djikstra!
+            CreatePathBreadthFirstSearch(startNode, goalNode);
+        }
+
+        private void CreatePathBreadthFirstSearch(RoadNode startNode, RoadNode goalNode)
+        {
+            HashSet<RoadNode> visited = new HashSet<RoadNode>();
+            Queue<RoadNode> queue = new Queue<RoadNode>();
+            Dictionary<RoadNode, Road> way = new Dictionary<RoadNode, Road>();
+
+            queue.Enqueue(startNode);
+            while (queue.Count > 0)
+            {
+                RoadNode current = queue.Dequeue();
+                foreach (Road road in startNode.outRoads)
+                {
+                    RoadNode node = road.toNode;
+                    if (!visited.Contains(node))
+                    {
+                        visited.Add(node);
+                        way.Add(node, road);
+                        if (node == goalNode)
+                        {
+
+                        }
+                        else {
+                            queue.Enqueue(node);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void StepBackwards(Dictionary<RoadNode, Road> way, RoadNode startNode, RoadNode goalNode)
+        {
+            sequence.Clear();
+            RoadNode currentRoadNode = goalNode;
+            Road currentRoad;
+
+            while (currentRoadNode != startNode)
+            {
+                currentRoad = way[currentRoadNode];
+                sequence.AddFirst(new Tuple<Road, RoadNode>(currentRoad, currentRoadNode));
+                currentRoadNode = currentRoad.fromNode;
+            }
+        }
+
         public void AddLast(Road road, RoadNode roadNode)
         {
             sequence.AddLast(new LinkedListNode<Tuple<Road, RoadNode>>(new Tuple<Road, RoadNode>(road, roadNode)));
