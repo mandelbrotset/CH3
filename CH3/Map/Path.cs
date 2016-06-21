@@ -43,7 +43,8 @@ namespace CH3.Map
                         way.Add(node, road);
                         if (node == goalNode)
                         {
-
+                            StepBackwards(way, startNode, goalNode);
+                            break;
                         }
                         else {
                             queue.Enqueue(node);
