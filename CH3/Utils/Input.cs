@@ -1,72 +1,79 @@
-﻿using System;
+﻿using SFML.Window;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tao.FreeGlut;
 
 namespace CH3
 {
     public class Input
     {
-        public delegate void MouseMovement(float pitch, float yaw);
-        public delegate void KeyDown(byte key, int x, int y);
-        public delegate void KeyUp(byte key, int x, int y);
+        public delegate void MouseMoved(float pitch, float yaw);
+        public delegate void KeyPressed(Keyboard.Key key);
+        public delegate void KeyReleased(Keyboard.Key key);
         public delegate void MouseButton(int button, int state, int x, int y);
 
         private static ArrayList mouseMovements = new ArrayList();
-        private static ArrayList keyDowns = new ArrayList();
-        private static ArrayList keyUps = new ArrayList();
+        private static ArrayList keyPresseds = new ArrayList();
+        private static ArrayList keyReleaseds = new ArrayList();
         private static ArrayList mouseButtons = new ArrayList();
+        
         private static float pitch, yaw;
         private static bool warped;
+        private static Dictionary<Keyboard.Key, bool> activeKeys = new Dictionary<Keyboard.Key, bool>();
 
-        public static void Init()
+        public static bool IsKeyActive(Keyboard.Key key)
         {
-            Glut.PassiveMotionCallback motionFunc = Motion;
-            Glut.glutPassiveMotionFunc(motionFunc);
-            Glut.KeyboardCallback keyDownFunc = KeyDownEvent;
-            Glut.glutKeyboardFunc(keyDownFunc);
-            Glut.KeyboardUpCallback keyUpFunc = KeyUpEvent;
-            Glut.glutKeyboardUpFunc(keyUpFunc);
-            Glut.MouseCallback mouseFunc = MouseButtonEvent;
-            Glut.glutMouseFunc(mouseFunc);
+            if (!activeKeys.ContainsKey(key))
+            {
+                return false;
+            } else
+            {
+                return activeKeys[key];
+            }
         }
 
-        public static void Motion(int x, int y)
+        public static void OnKeyPressed(object sender, KeyEventArgs e)
+        {
+            Console.Write(e.Code);
+            activeKeys[e.Code] = true;
+            foreach (KeyPressed keyPressed in keyPresseds)
+            {
+                keyPressed(e.Code);
+            }
+        }
+
+        public static void OnMouseMoved(object sender, MouseMoveEventArgs e)
         {
             if (warped)
             {
                 warped = false;
                 return;
             }
-
-            float dX = ((float)x - Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2);
-            float dY = ((float)y - Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
+            float centerX = VideoMode.DesktopMode.Width / 2;
+            float centerY = VideoMode.DesktopMode.Height / 2;
+            Console.Write(VideoMode.DesktopMode.Width);
+            float dX = ((float)e.X - centerX);
+            float dY = ((float)e.Y - centerY);
             float sense = 0.001f;
             yaw -= dX * sense;
             pitch += dY * sense;
             warped = true;
-            Glut.glutWarpPointer(Glut.glutGet(Glut.GLUT_WINDOW_WIDTH) / 2, Glut.glutGet(Glut.GLUT_WINDOW_HEIGHT) / 2);
-            foreach (MouseMovement mouseMovement in mouseMovements)
+
+            SFML.Window.Mouse.SetPosition(new SFML.System.Vector2i((int)centerX, (int)centerY));
+            foreach (MouseMoved mouseMoved in mouseMovements)
             {
-                mouseMovement(pitch, yaw);
+                mouseMoved(pitch, yaw);
             }
         }
 
-        public static void KeyUpEvent(byte key, int x, int y)
+        public static void OnKeyReleased(object sender, KeyEventArgs e)
         {
-            foreach (KeyUp keyUp in keyUps)
+            activeKeys[e.Code] = false;
+            foreach (KeyReleased keyReleased in keyReleaseds)
             {
-                keyUp(key, x, y);
-            }
-        }
-
-        public static void KeyDownEvent(byte key, int x, int y)
-        {
-            foreach (KeyDown keyDown in keyDowns)
-            {
-                keyDown(key, x, y);
+                keyReleased(e.Code);
             }
         }
 
@@ -78,12 +85,12 @@ namespace CH3
             }
         }
 
-        public static void SubscribeMouseMovement(MouseMovement mouseMovement)
+        public static void SubscribeMouseMovement(MouseMoved mouseMovement)
         {
             mouseMovements.Add(mouseMovement);
         }
 
-        public static void UnsubscribeMouseMovement(MouseMovement mouseMovement)
+        public static void UnsubscribeMouseMovement(MouseMoved mouseMovement)
         {
             mouseMovements.Remove(mouseMovement);
         }
@@ -98,24 +105,24 @@ namespace CH3
             mouseButtons.Remove(mouseButton);
         }
 
-        public static void SubscribeKeyDown(KeyDown keyDown)
+        public static void SubscribeKeyPressed(KeyPressed keyPressed)
         {
-            keyDowns.Add(keyDown);
+            keyPresseds.Add(keyPressed);
         }
 
-        public static void UnsubscribeKeyDown(KeyDown keyDown)
+        public static void UnsubscribeKeyPressed(KeyPressed PressedDown)
         {
-            keyDowns.Remove(keyDown);
+            keyPresseds.Remove(PressedDown);
         }
 
-        public static void SubscribeKeyUp(KeyUp keyUp)
+        public static void SubscribeKeyUp(KeyReleased keyUp)
         {
-            keyUps.Add(keyUp);
+            keyReleaseds.Add(keyUp);
         }
 
-        public static void UnsubscribeKeyUp(KeyUp keyUp)
+        public static void UnsubscribeKeyUp(KeyReleased keyUp)
         {
-            keyUps.Remove(keyUp);
+            keyReleaseds.Remove(keyUp);
         }
     }
 }

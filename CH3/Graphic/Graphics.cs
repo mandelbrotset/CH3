@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenGL;
-using Pencil.Gaming;
-using Pencil.Gaming.Graphics;
 using CH3.Camera;
 
 namespace CH3
@@ -73,7 +71,7 @@ namespace CH3
 
 
 
-
+        private SFML.System.Clock clock;
 
 
         private double fps, timebase = 0;
@@ -87,7 +85,7 @@ namespace CH3
         public Graphics(World world, AAMode aaMode, ContourMode contourMode, Window window)
         {
             this.world = world;
-
+            clock = new SFML.System.Clock();
             this.aaMode = aaMode;
             this.contourMode = contourMode;
 
@@ -112,8 +110,8 @@ namespace CH3
         public void Render(RenderMode renderMode, AAMode aaMode, ContourMode contourMode) {
 
             frame++;
-            double time = Glfw.GetTime();
-
+            int time = clock.ElapsedTime.AsMilliseconds();// Glfw.GetTime();
+            
             if (time - timebase > 1000)
             {
                 fps = frame * 1000.0 / (time - timebase);
@@ -154,14 +152,9 @@ namespace CH3
 
             renderFinalImage((int)time, renderMode);
 
-            
- 
-
 
          //   renderHUD(time);
-
-            Glfw.SwapBuffers(window.window);
-
+            window.SwapBuffers();
         }
 
 

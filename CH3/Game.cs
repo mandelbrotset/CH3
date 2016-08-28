@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CH3.Camera;
-using Pencil.Gaming;
-using Pencil.Gaming.Graphics;
+using static SFML.Window.Keyboard;
 using OpenGL;
 
 
@@ -86,17 +85,12 @@ namespace CH3
             world = new World(map);
             graphics = new Graphics(world, aaMode, contourMode, gameWindow);
 
-          //  Input.Init();
-          //  Input.SubscribeKeyDown(KeyDown);
-
             CreateObjects();
             graphics.aboveCamera.follow = player;
 
-
-
+            Input.SubscribeKeyPressed(KeyPressed);
         }
-
-
+      
         private void CreateObjects()
         {
             world.staticObjects.Add(null);
@@ -122,116 +116,90 @@ namespace CH3
             world.AddObject(farmHouse3);
             world.AddObject(farmHouse4);
             world.AddObject(farmHouse5);
-
-
-
             world.AddObject(player);
-            
         }
 
         private void CreateSky()
-        {
-            
+        {    
             sky = new Sky(new Vector3(0, 0, -1000), new Vector3(0.01, 0.01, 0.01), (float)-Math.PI/2, 0f, 0f, graphics);
             world.sky = sky;
-            
         }
 
         private void CreateSoil()
-        {
-            
+        {      
             float scale = 10.0f;
             soil = new Soil(new Vector3(0, 0, 0), new Vector3(scale, scale, scale), 0f, scale, graphics);
             world.AddObject(soil);
-            
         }
-
-
-
 
         public void run(int fps)
         {
             GameLoop(fps);
-
         }
-
 
         private void GameLoop(int fps)
         {
             //  player.Move();
-
-            while (!Glfw.WindowShouldClose(gameWindow.window))
+            //while (!Glfw.WindowShouldClose(gameWindow.window))
+            while (true)
             {
-
-                handleEvents();
-                // update();
+                gameWindow.HandleEvents();
+                update();
                   render();
             }
-
         }
 
-
-        private void handleEvents()
+        private void KeyPressed(Key key)
         {
-            Glfw.PollEvents();
-
-            if (Glfw.GetKey(gameWindow.window, Key.Escape))
-                Glfw.SetWindowShouldClose(gameWindow.window, true);
-
-            if (Glfw.GetKey(gameWindow.window, Key.N))
+           switch (key)
             {
-                if (renderMode == RenderMode.CEL)
-                    renderMode = RenderMode.NORMAL;
-                else if (renderMode == RenderMode.NORMAL)
-                    renderMode = RenderMode.MODEL;
-                else
-                    renderMode = RenderMode.CEL;
+                case Key.Escape:
+                    Environment.Exit(0);
+                    break;
+                case Key.N:
+                    if (renderMode == RenderMode.CEL)
+                        renderMode = RenderMode.NORMAL;
+                    else if (renderMode == RenderMode.NORMAL)
+                        renderMode = RenderMode.MODEL;
+                    else
+                        renderMode = RenderMode.CEL;
 
-                Console.WriteLine(renderMode.ToString());
+                    Console.WriteLine(renderMode.ToString());
+                    break;
+                case Key.M:
+                    if (aaMode == AAMode.OFF)
+                        aaMode = AAMode.MSAA_X2;
+                    else if (aaMode == AAMode.MSAA_X2)
+                        aaMode = AAMode.MSAA_X4;
+                    else if (aaMode == AAMode.MSAA_X4)
+                        aaMode = AAMode.MSAA_X8;
+                    else if (aaMode == AAMode.MSAA_X8)
+                        aaMode = AAMode.FXAA;
+                    else
+                        aaMode = AAMode.OFF;
+                    Console.WriteLine(aaMode.ToString());
+                    break;
+                case Key.B:
+                    if (contourMode == ContourMode.OFF)
+                        contourMode = ContourMode.ON;
+                    else if (contourMode == ContourMode.ON)
+                        contourMode = ContourMode.MSAA;
+                    else
+                        contourMode = ContourMode.OFF;
+                    Console.WriteLine(contourMode.ToString());
+                    break;
             }
-
-            if (Glfw.GetKey(gameWindow.window, Key.M))
-            {
-                if (aaMode == AAMode.OFF)
-                    aaMode = AAMode.MSAA_X2;
-                else if (aaMode == AAMode.MSAA_X2)
-                    aaMode = AAMode.MSAA_X4;
-                else if (aaMode == AAMode.MSAA_X4)
-                    aaMode = AAMode.MSAA_X8;
-                else if (aaMode == AAMode.MSAA_X8)
-                    aaMode = AAMode.FXAA;
-                else
-                    aaMode = AAMode.OFF;
-
-                Console.WriteLine(aaMode.ToString());
-            }
-            if (Glfw.GetKey(gameWindow.window, Key.B))
-            {
-                if (contourMode == ContourMode.OFF)
-                    contourMode = ContourMode.ON;
-                else if (contourMode == ContourMode.ON)
-                    contourMode = ContourMode.MSAA;
-                else
-                    contourMode = ContourMode.OFF;
-
-
-                Console.WriteLine(contourMode.ToString());
-            }
-
         }
 
         private void update()
         {
+            graphics.fpsCamera.MoveCamera(0);
             world.Tick();
         }
 
         private void render()
         {
             graphics.Render(renderMode, aaMode, contourMode);
-
-
         }
-
-
     }
 }

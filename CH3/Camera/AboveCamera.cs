@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static SFML.Window.Keyboard;
 
 namespace CH3.Camera
 {
@@ -14,18 +15,18 @@ namespace CH3.Camera
 
         public AboveCamera() : base()
         {
-            Input.SubscribeKeyDown(KeyDown);
+            Input.SubscribeKeyPressed(KeyDown);
             fixedRotation = true;
         }
 
-        private void KeyDown(byte key, int x, int y)
+        private void KeyDown(Key key)
         {
             switch(key)
             {
-                case 32:
+                case Key.Space:
                     height += 5;
                     break;
-                case 99:
+                case Key.C:
                     height -= 5;
                     break;
             }

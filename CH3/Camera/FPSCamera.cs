@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenGL;
+using static SFML.Window.Keyboard;
 
 namespace CH3.Camera
 {
@@ -12,17 +13,13 @@ namespace CH3.Camera
         
         public Vector3 translation { get; set; }
         private float pitch, yaw;
-        private bool[] activeKeys;
 
         public FPSCamera(Vector3 position, Vector3 target)
         {
-            activeKeys = new bool[255];
             this.position = position;
             this.target = target;
             this.up = Vector3.Up;
             Input.SubscribeMouseMovement(MouseMovement);
-            Input.SubscribeKeyDown(KeyDown);
-            Input.SubscribeKeyUp(KeyUp);
         }
 
         public void MoveCamera(int i)
@@ -31,40 +28,30 @@ namespace CH3.Camera
             handleMovement();
         }
 
-        private void KeyDown(byte key, int x, int y)
-        {
-            activeKeys[key] = true;
-        }
-
-        private void KeyUp(byte key, int x, int y)
-        {
-            activeKeys[key] = false;
-        }
-
         private void handleMovement()
         {
             float speed = 0.4f;
-            if (activeKeys[119])//w
+            if (Input.IsKeyActive(Key.W))
             {
                 translation += new Vector3(speed, 0.0f, 0.0f);
             }
-            if (activeKeys[97])//a
+            if (Input.IsKeyActive(Key.A))
             {
                 translation += new Vector3(0.0f, speed, 0.0f);
             }
-            if (activeKeys[115])//s
+            if (Input.IsKeyActive(Key.S))
             {
                 translation += new Vector3(-speed, 0.0f, 0.0f);
             }
-            if (activeKeys[100])//d
+            if (Input.IsKeyActive(Key.D))
             {
                 translation += new Vector3(0.0f, -speed, 0.0f);
             }
-            if (activeKeys[32])
+            if (Input.IsKeyActive(Key.Space))
             {
                 translation += new Vector3(0.0f, 0, speed);
             }
-            if (activeKeys['c'])
+            if (Input.IsKeyActive(Key.C))
             {
                 translation += new Vector3(0.0f, 0, -speed);
             }
