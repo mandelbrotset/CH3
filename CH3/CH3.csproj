@@ -90,7 +90,9 @@
     <Compile Include="Ai.cs" />
     <Compile Include="Camera\AboveCamera.cs" />
     <Compile Include="Camera\Camera.cs" />
+    <Compile Include="collada_schema_1_4.cs" />
     <Compile Include="GameObjects\StaticObjects\Sky.cs" />
+    <Compile Include="Graphic\ColladaLoader.cs" />
     <Compile Include="Map\Path.cs" />
     <Compile Include="ShaderProrgams\DepthShader.cs" />
     <Compile Include="ShaderProrgams\FXAA.cs" />
@@ -156,6 +158,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GameObjects\DynamicObjects\Vehicles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Source\Repos\glTF\loaders\CSharp\glTFLoader\glTFLoader.csproj">
+      <Project>{c2f2e13b-594f-4592-a2d4-f44bbce65f90}</Project>
+      <Name>glTFLoader</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
