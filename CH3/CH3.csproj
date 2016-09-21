@@ -50,28 +50,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CjClutter.ObjLoader.Loader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="CjClutter.ObjLoader.Loader">
       <HintPath>libs\CjClutter.ObjLoader.Loader.dll</HintPath>
     </Reference>
-    <Reference Include="OpenGL, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="OpenGL">
       <HintPath>libs\OpenGL.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK">
       <HintPath>libs\SFML.Net-2.2\extlibs\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-audio-2">
-      <HintPath>libs\SFML.Net-2.2\lib\sfmlnet-audio-2.dll</HintPath>
+      <HintPath>libs\lib\sfmlnet-audio-2.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-graphics-2">
-      <HintPath>libs\SFML.Net-2.2\lib\sfmlnet-graphics-2.dll</HintPath>
+      <HintPath>libs\lib\sfmlnet-graphics-2.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-system-2">
-      <HintPath>libs\SFML.Net-2.2\lib\sfmlnet-system-2.dll</HintPath>
+      <HintPath>libs\lib\sfmlnet-system-2.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-window-2">
-      <HintPath>libs\SFML.Net-2.2\lib\sfmlnet-window-2.dll</HintPath>
+      <HintPath>libs\lib\sfmlnet-window-2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -137,6 +135,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="diagram.cd" />
+    <None Include="Fonts\Anorexia.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,24 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GameObjects\DynamicObjects\Vehicles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="csfml-audio-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="csfml-graphics-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="csfml-system-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="csfml-window-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libsndfile-1.dll" />
+    <Content Include="openal32.dll" />
+    <Content Include="OpenTK.Compatibility.dll" />
+    <Content Include="OpenTK.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
