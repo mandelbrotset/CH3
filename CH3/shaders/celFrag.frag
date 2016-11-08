@@ -5,6 +5,8 @@ uniform float time;
 uniform sampler2D tex;
 uniform vec3 light_direction;
 
+uniform mat4 view_matrix;
+
 float round(float f) {
 	//float i = (floor(f*3)/4)+0.2;
 	return clamp(f,0.0,1.0);
@@ -60,10 +62,10 @@ void main()
 	
 	//texColor = cartoonify(texColor);
 	
-	vec3 color = vec3(1.0);
+	vec3 color = vec3(1.0) ;
 
-	intensity = -dot(light_direction , gl_TexCoord[1].xyz);
-
+	intensity = -dot( normalize((view_matrix * vec4(light_direction,0)).xyz), gl_TexCoord[1].xyz) ;
+	
 	if (intensity > 0.95)
 		color = texColor;
 	else if (intensity > 0.5)
@@ -73,6 +75,7 @@ void main()
 	else 
 		color = 0.3 * texColor;
 
+		
 	gl_FragColor = vec4(color, 1.0);
 
 }

@@ -25,11 +25,13 @@ namespace CH3
 
         private void SetControls()
         {
+            /*
             controls = new Dictionary<SFML.Window.Keyboard.Key, Input>();
             controls.Add(Key.W, GameObject.Input.FORWARD);//w
             controls.Add(Key.S, GameObject.Input.BACKWARD);//s
             controls.Add(Key.A, GameObject.Input.LEFT);//a
             controls.Add(Key.D, GameObject.Input.RIGHT);//d
+            */
         }
 
         private void KeyDown(Key key)

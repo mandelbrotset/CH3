@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CH3.Camera;
+
 using static SFML.Window.Keyboard;
 using OpenGL;
 
 
 using static CH3.Graphics;
+using CH3.Utils;
+using CH3.Physics;
 
 namespace CH3
 {
@@ -57,22 +60,25 @@ namespace CH3
         private Sky sky;
         private Soil soil;
         private Player player;
-
-
+        private Mouse mouse;
+        private WorldPhysics physics;
         private bool[] activeKeys = new bool[255];
         private RenderMode renderMode;
         private AAMode aaMode;
         private ContourMode contourMode;
+        private WorldCuller culler;
+        private int prev_time;
 
-
+        SFML.System.Clock clock;
 
         public Game()
         {
             renderMode = RenderMode.CEL;
             gameWindow = new Window();
             aaMode = AAMode.FXAA;
-            contourMode = ContourMode.ON;
+            contourMode = ContourMode.MSAA;
 
+            mouse = new Mouse();
             if (!gameWindow.createWindow())
             {
                 Console.WriteLine("ERROR: Could not initialize GLFW");
@@ -83,46 +89,64 @@ namespace CH3
 
             map = new Map.Map();
             world = new World(map);
-            graphics = new Graphics(world, aaMode, contourMode, gameWindow);
+            graphics = new GraphicsForward(world, aaMode, contourMode, gameWindow);
+            
+            culler = new WorldCuller(world, graphics);
+            clock = new SFML.System.Clock();
+
+            physics = new WorldPhysics();
 
             CreateObjects();
             graphics.aboveCamera.follow = player;
-
             Input.SubscribeKeyPressed(KeyPressed);
         }
-      
+
         private void CreateObjects()
         {
             world.staticObjects.Add(null);
 
-            CreateSky();
-            CreateSoil();
-       
+
+
             StaticObject house = new House(new Vector3(-120, -120, 0), new Vector3(1, 1, 1), 0f, graphics);
-            StaticObject farmHouse = new FarmHouse(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, graphics);
+            StaticObject farmHouse = new FarmHouse(new Vector3(100, 0, 0), new Vector3(1, 1, 1), 0f, graphics);
             StaticObject farmHouse1 = new FarmHouse(new Vector3(0, 100, 0), new Vector3(1, 1, 1), 0f, graphics);
-            StaticObject farmHouse2 = new FarmHouse(new Vector3(0, 200, 0), new Vector3(1, 1, 1), 0f, graphics);
-            StaticObject farmHouse3 = new FarmHouse(new Vector3(0, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
-            StaticObject farmHouse4 = new FarmHouse(new Vector3(0, -200, 0), new Vector3(1, 1, 1), 0f, graphics);
-            StaticObject farmHouse5 = new FarmHouse(new Vector3(100, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
+            StaticObject farmHouse2 = new FarmHouse(new Vector3(100, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
 
-            player = new Player(new Vector3(50, 50, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, graphics);
+            DynamicFarmHouse farmHouse3 = new DynamicFarmHouse(new Vector3(0, -100, 100), new Vector3(1, 1, 1), 0f, graphics);
+            DynamicFarmHouse farmHouse4 = new DynamicFarmHouse(new Vector3(0, -200, 500), new Vector3(1, 1, 1), 0f, graphics);
+            DynamicFarmHouse farmHouse5 = new DynamicFarmHouse(new Vector3(0, 200, 100), new Vector3(1, 1, 1), 0f, graphics);
 
-            // player.SetUpdateCamera(graphics.aboveCamera.UpdateCamera);
-            world.AddObject(house);
+            player = new Player(new Vector3(0, 0, 0), new Vector3(0.3f, 0.3f, 0.3f), 0, graphics);
+
+            //player.SetUpdateCamera(graphics.aboveCamera.UpdateCamera);
+
             world.AddObject(farmHouse);
             world.AddObject(farmHouse1);
             world.AddObject(farmHouse2);
             world.AddObject(farmHouse3);
             world.AddObject(farmHouse4);
             world.AddObject(farmHouse5);
+            world.AddObject(house);
+            foreach (GameObject o in world.allObjects) {
+                o.has_physics = true;
+                physics.AddRigidBody(o);
+            }
+
+            
+            CreateSky();
+            CreateSoil();
+
             world.AddObject(player);
+            
+            
+            culler.Init();
         }
 
         private void CreateSky()
         {    
             sky = new Sky(new Vector3(0, 0, -1000), new Vector3(0.01, 0.01, 0.01), (float)-Math.PI/2, 0f, 0f, graphics);
             world.sky = sky;
+            world.AddObject(sky);
         }
 
         private void CreateSoil()
@@ -132,20 +156,22 @@ namespace CH3
             world.AddObject(soil);
         }
 
-        public void run(int fps)
+        public void run(uint fps)
         {
             GameLoop(fps);
         }
 
-        private void GameLoop(int fps)
+        private void GameLoop(uint fps)
         {
             //  player.Move();
             //while (!Glfw.WindowShouldClose(gameWindow.window))
+            gameWindow.window.SetFramerateLimit(fps);
             while (true)
             {
                 gameWindow.HandleEvents();
                 update();
-                  render();
+                render();
+                culler.CullWorld();
             }
         }
 
@@ -154,6 +180,7 @@ namespace CH3
            switch (key)
             {
                 case Key.Escape:
+                    physics.Exit();
                     Environment.Exit(0);
                     break;
                 case Key.N:
@@ -188,13 +215,40 @@ namespace CH3
                         contourMode = ContourMode.OFF;
                     Console.WriteLine(contourMode.ToString());
                     break;
+                case Key.P:
+                    mouse.ToogleCaptured();
+                    break;
+                case Key.E:
+                    switch(graphics.cameraMode)
+                    {
+                        case CameraMode.FPS:
+                            graphics.cameraMode = CameraMode.PLAYER;
+                            graphics.activeCamera = graphics.aboveCamera;
+                            break;
+                        case CameraMode.PLAYER:
+                            graphics.cameraMode = CameraMode.FPS;
+                            graphics.activeCamera = graphics.fpsCamera;
+                            break;
+                    }
+                    break;
             }
         }
 
         private void update()
         {
-            graphics.fpsCamera.MoveCamera(0);
+
+            int time = clock.ElapsedTime.AsMilliseconds();
+            float dt = (time - prev_time) * 0.001f;
+            prev_time = time;
+            //Console.WriteLine(dt);
+
+            Vector2 mouse_movement = mouse.Update();
+            if(graphics.cameraMode == CameraMode.PLAYER)
+                player.HandleInput(mouse_movement);
+
+            graphics.activeCamera.Update(mouse_movement);
             world.Tick();
+            physics.Update(dt);
         }
 
         private void render()

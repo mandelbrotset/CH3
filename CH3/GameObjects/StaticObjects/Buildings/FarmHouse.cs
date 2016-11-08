@@ -9,7 +9,7 @@ namespace CH3
 {
     public class FarmHouse : Building
     {
-        public FarmHouse(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position, 1*scale, -((float)Math.PI/2), 0, rotation, graphics)
+        public FarmHouse(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position, scale, -((float)Math.PI / 2), 0, rotation, graphics)
         {
             LoadModel("../../models/farmhouse.obj", "../../textures/farmhouse.jpg", 1);
         }

@@ -12,8 +12,10 @@ namespace CH3
         public List<GameObject> staticObjects { get; private set; }
         public List<GameObject> dynamicObjects { get; private set; }
         public List<GameObject> allObjects { get; private set; }
-        public Sky sky { get; set; }
+        public List<GameObject> visibleObjects { get; private set; }
 
+
+        public Sky sky { get; set; }
 
         public World(Map.Map map)
         {
@@ -22,8 +24,7 @@ namespace CH3
             staticObjects = new List<GameObject>();
             dynamicObjects = new List<GameObject>();
             allObjects = new List<GameObject>();
-
-
+            visibleObjects = new List<GameObject>();
         }
 
         public void Tick() {
@@ -38,7 +39,7 @@ namespace CH3
 
             if (obj is StaticObject)
             {
-                Console.WriteLine("ADding static object");
+                Console.WriteLine("Adding static object");
                 staticObjects.Add(obj);
             }
             else if (obj is DynamicObject) {

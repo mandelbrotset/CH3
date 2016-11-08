@@ -46,6 +46,12 @@ namespace CH3
 
         public static void OnMouseMoved(object sender, MouseMoveEventArgs e)
         {
+
+            /*
+            SFML.Window.Mouse.SetPosition(new SFML.System.Vector2i((int)VideoMode.DesktopMode.Width / 2, (int)VideoMode.DesktopMode.Height / 2));
+
+
+
             if (warped)
             {
                 warped = false;
@@ -56,16 +62,17 @@ namespace CH3
             Console.Write(VideoMode.DesktopMode.Width);
             float dX = ((float)e.X - centerX);
             float dY = ((float)e.Y - centerY);
-            float sense = 0.001f;
+            float sense = 0.01f;
             yaw -= dX * sense;
             pitch += dY * sense;
             warped = true;
 
-            SFML.Window.Mouse.SetPosition(new SFML.System.Vector2i((int)centerX, (int)centerY));
+            
             foreach (MouseMoved mouseMoved in mouseMovements)
             {
                 mouseMoved(pitch, yaw);
             }
+            */
         }
 
         public static void OnKeyReleased(object sender, KeyEventArgs e)

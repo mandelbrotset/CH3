@@ -20,7 +20,7 @@ namespace CH3
 
         private int width;
         private int height;
-
+        Vector3 position;
 
 
         public PostProcessedImage(int width, int height, uint texture, uint fbo, Vector3 position, Graphics graphics) : base(position, new Vector3(1,1,1), 0, 0, 0, graphics)
@@ -29,7 +29,7 @@ namespace CH3
             this.FBO = fbo;
             this.width = width;
             this.height = height;
-
+            this.position = position;
             float halfWidth = width / 2;
             float halfHeight = height / 2;
 
@@ -46,7 +46,7 @@ namespace CH3
         public void Render(RenderMode renderMode)
         {
             Matrix4 ortho = Matrix4.CreateOrthographic(Window.WIDTH, Window.HEIGHT, -1, 1);
-            base.Render(0, ortho, Matrix4.Identity, new DirectionalLight(Vector3.Zero), renderMode, false, false);
+            base.Render(0, ortho, Matrix4.Identity, new DirectionalLight(Vector3.Zero), renderMode, false, false, position);
         }
 
     }

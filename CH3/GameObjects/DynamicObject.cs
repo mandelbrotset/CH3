@@ -14,6 +14,7 @@ namespace CH3
 
         public DynamicObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, Graphics graphics) : base(position, scale,rotationX,rotationY, rotationZ, graphics)
         {
+            mass = 1;
         }
 
         public void SetUpdateCamera(UpdateCamera updCam)
@@ -23,7 +24,7 @@ namespace CH3
 
         public void Tick()
         {
-            position += velocity;
+            //position += velocity;
             if (updateCamera != null)
             {
                 updateCamera();

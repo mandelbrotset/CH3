@@ -18,3 +18,11 @@ void main(){
 	gl_Position = projection_matrix * view_matrix * model_matrix * vec4(vertexPosition, 1);
 
 }
+/*in vec2 position;
+
+
+void main() 
+{
+	gl_Position = vec4(position, 0.0, 1.0);
+}
+*/

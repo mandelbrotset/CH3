@@ -10,6 +10,5 @@ namespace CH3.Camera
     public abstract class ThirdPersonCamera : Camera
     {
         public GameObject follow { get; set; }
-        public abstract void UpdateCamera();
     }
 }

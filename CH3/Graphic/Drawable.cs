@@ -14,10 +14,6 @@ namespace CH3
 {
     public abstract class Drawable
     {
-
-
-
-
         protected VBO<Vector3> vertices;
         protected VBO<Vector3> normals;
         protected VBO<Vector2> texCoords;
@@ -27,16 +23,18 @@ namespace CH3
         protected Graphics graphics;
 
         public uint texture { get; protected set; }
-
         public Vector3 position { get; set; }
+        //public Vector3 position { get; set; }
         public Vector3 scale { get; set; }
         public float rotationX { get; set; }
         public float rotationY { get; set; }
         public float rotationZ { get; set; }
 
+        public Vector3 offset;
+
+        public OpenTK.Vector3 hext { get; private set; }
+
         private int modelId;
-
-
 
         public Drawable(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, Graphics graphics) {
             this.position = position;
@@ -66,7 +64,10 @@ namespace CH3
 
             texture = new OpenGL.Texture(textureFile).TextureID;
 
-
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+            Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+            Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
 
         }
 
@@ -81,7 +82,8 @@ namespace CH3
 
         }
 
-        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns, float texCoordsMultiplier) {
+        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns, float texCoordsMultiplier)
+        {
 
             Dictionary<string, int> elementMapping = new Dictionary<string, int>();
             List<Vector3> pos = new List<Vector3>();
@@ -119,14 +121,17 @@ namespace CH3
             int texCount = 0;
             int normalCount = 0;
 
-            foreach (Group g in groups) {
-                foreach (Face f in g.Faces) {
+            foreach (Group g in groups)
+            {
+                foreach (Face f in g.Faces)
+                {
                     texCount += f.Count;
                     normalCount += f.Count;
                     FaceVertex v1 = f[0];
 
-                    
-                    for (int i = 1; i < (f.Count-1); i++) {
+
+                    for (int i = 1; i < (f.Count - 1); i++)
+                    {
                         FaceVertex v2 = f[i];
                         FaceVertex v3 = f[i + 1];
 
@@ -176,7 +181,7 @@ namespace CH3
 
                         if (v1.NormalIndex < 0)
                         {
-                  
+
                             normal1 = normalArray[normalCount + v1.NormalIndex];
                             normal2 = normalArray[normalCount + v2.NormalIndex];
                             normal3 = normalArray[normalCount + v3.NormalIndex];
@@ -239,38 +244,146 @@ namespace CH3
                         }
 
                         inds.Add(index);
-
-       
-
                     }
                 }
             }
 
-            vertices = new VBO<Vector3>(pos.ToArray());
-            texCoords=  new VBO<Vector2>(uvs.ToArray());
+            
+            texCoords = new VBO<Vector2>(uvs.ToArray());
             normals = new VBO<Vector3>(nss.ToArray());
 
             indices = new VBO<int>(inds.ToArray(), BufferTarget.ElementArrayBuffer);
+
+            Vector3 v_max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 v_min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+
+            foreach (Vector3 v in pos) {
+                if (v.x < v_min.x) v_min.x = v.x;
+                if (v.y < v_min.y) v_min.y = v.y;
+                if (v.z < v_min.z) v_min.z = v.z;
+                if (v.x > v_max.x) v_max.x = v.x;
+                if (v.y > v_max.y) v_max.y = v.y;
+                if (v.z > v_max.z) v_max.z = v.z;
+            }
+
+            offset = (v_max + v_min) * 0.5f;
+            for (int i=0;i<pos.Count;++i)
+            {
+                pos[i] -= offset;
+                pos[i] *= scale;
+            }
+            offset *= scale;
+
+            // Flip y/z
+            offset = new Vector3(offset.x, offset.z, offset.y);
+
+            vertices = new VBO<Vector3>(pos.ToArray());
+
+            hext = new OpenTK.Vector3((v_max.x - v_min.x) * 0.5f, (v_max.y - v_min.y) * 0.5f, (v_max.z - v_min.z) * 0.5f) * 
+                new OpenTK.Vector3(scale.x, scale.y, scale.z);
+
         }
 
 
+        public void Render(BasicShaderProgram shader, bool mipmap, bool multiSampledTexture, GameObject obj) {
 
-
-
-        public void Render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, RenderMode renderMode, bool mipmap, bool multiSampledTexture) {
-
+            /*
             Matrix4 scale = Matrix4.CreateScaling(this.scale);
             Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
             Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
             Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
 
-            Matrix4 translation = Matrix4.CreateTranslation(this.position);
+            Matrix4 translation = Matrix4.CreateTranslation(position);
+            */
+            //(rotationX * rotationY * rotationZ) * scale * translation;
 
-            Matrix4 modelMatrix = (rotationX * rotationY * rotationZ) * scale * translation;
+          
+
+            if (obj.has_physics)
+            {
+                OpenTK.Matrix4 modelMatrix;
+
+                obj.body.GetWorldTransform(out modelMatrix);
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
+
+                OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "rotation_matrix"), false, ref m);
+
+            }
+            else
+            {
+                Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
+                Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
+                Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+
+                Matrix4 modelMatrix =  (rotationX * rotationY * rotationZ) * Matrix4.CreateTranslation(obj.position + offset);
+                shader.setModelMatrix(modelMatrix);
+
+                Matrix4 normalMatrix = modelMatrix * graphics.activeCamera.viewMatrix;
+                normalMatrix = normalMatrix.Inverse();
+                normalMatrix = normalMatrix.Transpose();
+                shader.setRotationMatrix(normalMatrix);
+
+                //shader.setRotationMatrix(rotationX * rotationY * rotationZ);
+                /*
+                OpenTK.Matrix4 rotation =
+                    OpenTK.Matrix4.CreateRotationX(this.rotationX) *
+                    OpenTK.Matrix4.CreateRotationZ(this.rotationZ) *
+                    OpenTK.Matrix4.CreateRotationY(this.rotationY);
 
 
+                OpenTK.Matrix4 modelMatrix =
+                    rotation * OpenTK.Matrix4.CreateTranslation(obj.position.x + obj.offset.x, obj.position.y + obj.offset.y, obj.position.z + obj.offset.z);
+
+
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
+
+                OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "rotation_matrix"), false, ref m);
+                */
+                
+            }
+
+            Gl.BindBuffer(vertices);
+            Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+
+            Gl.BindBuffer(normals);
+            Gl.VertexAttribPointer(shader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+
+            Gl.Enable(EnableCap.Texture2D);
+
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+
+            if (mipmap)
+            {
+                Gl.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                //  Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.LinearMipMapNearest);
+                Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
+            }
+
+            Gl.BindBuffer(texCoords);
+            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
 
             
+
+            Gl.BindBuffer(indices);
+
+            Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+
+ 
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
+
+        }
+
+
+        public void Render(int time, Matrix4 projectionMatrix, Matrix4 viewMatrix, DirectionalLight light, RenderMode renderMode, bool mipmap, bool multiSampledTexture, Vector3 position)
+        {
+            
+            Matrix4 scale = Matrix4.CreateScaling(this.scale);
+            Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
+            Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
+            Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+
             BasicShaderProgram currentShader = graphics.celShader;
             if (renderMode == RenderMode.NORMAL)
                 currentShader = graphics.normalShader;
@@ -286,15 +399,17 @@ namespace CH3
                 currentShader = graphics.modelShader;
             if (renderMode == RenderMode.FXAA)
                 currentShader = graphics.fxAAShader;
-
+            if (renderMode == RenderMode.GBuffer)
+                currentShader = graphics.gbufferShader;
 
             currentShader.useProgram();
             currentShader.setProjectionMatrix(projectionMatrix);
             currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
             currentShader.setViewMatrix(viewMatrix);
-            currentShader.setModelMatrix(modelMatrix);
+            currentShader.setModelMatrix(Matrix4.Identity);
 
-            if (renderMode == RenderMode.MODEL) {
+            if (renderMode == RenderMode.MODEL)
+            {
                 float id = ((float)modelId / 255);
                 graphics.modelShader.setModelId(id);
             }
@@ -320,22 +435,53 @@ namespace CH3
                 Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
             }
 
-          
-
-
-
             Gl.BindBuffer(texCoords);
             Gl.VertexAttribPointer(currentShader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
 
-            
+
 
             Gl.BindBuffer(indices);
 
             Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
 
- 
+
             Gl.BindTexture(TextureTarget.Texture2D, 0);
 
+        }
+
+        public void Render(GBufferShader currentShader, Matrix4 VPMatrix, Vector3 position)
+        {
+            Matrix4 scale = Matrix4.CreateScaling(this.scale);
+            Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
+            Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
+            Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+
+            Matrix4 translation = Matrix4.CreateTranslation(position);
+
+            Matrix4 modelMatrix =(rotationX * rotationY * rotationZ) * scale * translation;
+
+            currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
+            currentShader.setMVP(VPMatrix);
+            currentShader.setNormal(VPMatrix * modelMatrix);
+            currentShader.setModelMatrix(modelMatrix);
+
+            Gl.BindBuffer(vertices);
+            Gl.VertexAttribPointer(currentShader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+
+            Gl.BindBuffer(normals);
+            Gl.VertexAttribPointer(currentShader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+
+            Gl.ActiveTexture(TextureUnit.Texture0);
+           
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+
+            Gl.BindBuffer(texCoords);
+            Gl.VertexAttribPointer(currentShader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
+
+            Gl.BindBuffer(indices);
+
+            Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            
         }
     }
 }

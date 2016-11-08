@@ -1,4 +1,4 @@
-#version 130
+#version 140
 
 
 in vec2 texCoord;
@@ -15,7 +15,7 @@ uniform float time;
 
 void main(){
 	gl_TexCoord[0] = vec4(texCoord,0,0);
-	gl_TexCoord[1] = rotation_matrix * vec4(vertexNormal, 1);
+	gl_TexCoord[1] = rotation_matrix * vec4(vertexNormal,0);
 	gl_Position = projection_matrix * view_matrix * model_matrix * vec4(vertexPosition, 1);
 
 }

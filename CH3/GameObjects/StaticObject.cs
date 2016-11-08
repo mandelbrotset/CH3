@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenGL;
+using BulletSharp;
 
 namespace CH3
 {
@@ -11,6 +12,5 @@ namespace CH3
         public StaticObject(Vector3 position, Vector3 scale, float rotationX, float rotationY, float rotationZ, Graphics graphics) : base(position, scale, rotationX, rotationY, rotationZ, graphics)
         {
         }
-
     }
 }
