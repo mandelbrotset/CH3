@@ -30,5 +30,7 @@ namespace CH3
                 updateCamera();
             }
         }
+
+        public virtual void HandleInput(Vector2 mouse, float dt) { }
     }
 }

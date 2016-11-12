@@ -59,7 +59,7 @@ namespace CH3
             HandleDeactivate(input);
         }
 
-        public void HandleInput(Vector2 mouse)
+        public override void HandleInput(Vector2 mouse, float dt)
         {
             float sense = 0.005f;
             float speed = 0.5f;

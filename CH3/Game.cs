@@ -11,6 +11,7 @@ using OpenGL;
 using static CH3.Graphics;
 using CH3.Utils;
 using CH3.Physics;
+using CH3.GameObjects.DynamicObjects.Vehicles;
 
 namespace CH3
 {
@@ -68,7 +69,8 @@ namespace CH3
         private ContourMode contourMode;
         private WorldCuller culler;
         private int prev_time;
-
+        private Car car;
+        DynamicObject active_object;
         SFML.System.Clock clock;
 
         public Game()
@@ -97,7 +99,7 @@ namespace CH3
             physics = new WorldPhysics();
 
             CreateObjects();
-            graphics.aboveCamera.follow = player;
+            graphics.aboveCamera.follow = car;
             Input.SubscribeKeyPressed(KeyPressed);
         }
 
@@ -112,6 +114,7 @@ namespace CH3
             StaticObject farmHouse1 = new FarmHouse(new Vector3(0, 100, 0), new Vector3(1, 1, 1), 0f, graphics);
             StaticObject farmHouse2 = new FarmHouse(new Vector3(100, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
 
+            car = new Car(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, graphics);
             DynamicFarmHouse farmHouse3 = new DynamicFarmHouse(new Vector3(0, -100, 100), new Vector3(1, 1, 1), 0f, graphics);
             DynamicFarmHouse farmHouse4 = new DynamicFarmHouse(new Vector3(0, -200, 500), new Vector3(1, 1, 1), 0f, graphics);
             DynamicFarmHouse farmHouse5 = new DynamicFarmHouse(new Vector3(0, 200, 100), new Vector3(1, 1, 1), 0f, graphics);
@@ -127,12 +130,17 @@ namespace CH3
             world.AddObject(farmHouse4);
             world.AddObject(farmHouse5);
             world.AddObject(house);
+            
+
             foreach (GameObject o in world.allObjects) {
                 o.has_physics = true;
                 physics.AddRigidBody(o);
             }
 
-            
+            world.AddObject(car);
+            car.has_physics = true;
+            physics.AddVehicle(car);
+
             CreateSky();
             CreateSoil();
 
@@ -140,6 +148,10 @@ namespace CH3
             
             
             culler.Init();
+
+            active_object = car;
+
+            world.visibleObjects.AddRange(world.allObjects);
         }
 
         private void CreateSky()
@@ -161,17 +173,32 @@ namespace CH3
             GameLoop(fps);
         }
 
-        private void GameLoop(uint fps)
+        private void GameLoop(uint fps_target)
         {
             //  player.Move();
             //while (!Glfw.WindowShouldClose(gameWindow.window))
-            gameWindow.window.SetFramerateLimit(fps);
+            //gameWindow.window.SetFramerateLimit(fps_target);
+
+            uint fps = 0;
+            float fps_timer = 0;
             while (true)
             {
+                int time = clock.ElapsedTime.AsMilliseconds();
+                float dt = (time - prev_time) * 0.001f;
+                fps_timer += dt;
+                prev_time = time;
+                fps++;
+                if(fps_timer > 1)
+                {
+                    Console.WriteLine(fps);
+                    fps_timer = 0;
+                    fps = 0;
+                }
+
+
                 gameWindow.HandleEvents();
-                update();
+                update(dt);
                 render();
-                culler.CullWorld();
             }
         }
 
@@ -234,21 +261,16 @@ namespace CH3
             }
         }
 
-        private void update()
+        private void update(float dt)
         {
-
-            int time = clock.ElapsedTime.AsMilliseconds();
-            float dt = (time - prev_time) * 0.001f;
-            prev_time = time;
-            //Console.WriteLine(dt);
-
+            physics.Update(dt);
             Vector2 mouse_movement = mouse.Update();
             if(graphics.cameraMode == CameraMode.PLAYER)
-                player.HandleInput(mouse_movement);
+                active_object.HandleInput(mouse_movement, dt);
 
             graphics.activeCamera.Update(mouse_movement);
             world.Tick();
-            physics.Update(dt);
+            
         }
 
         private void render()

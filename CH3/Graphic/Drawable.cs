@@ -50,8 +50,8 @@ namespace CH3
 
 
 
-        protected void LoadModel(string modelFile, string textureFile, float texCoordsMultiplier) {
-
+        protected void LoadModel(string modelFile, string textureFile, float texCoordsMultiplier, bool b_offset)
+        {
             var objLoaderFactory = new ObjLoaderFactory();
             var objLoader = objLoaderFactory.Create();
             var fileStream = new FileStream(modelFile, FileMode.Open);
@@ -60,7 +60,7 @@ namespace CH3
 
             fileStream.Close();
 
-            this.setFaces(result.Groups, result.Vertices, result.Textures, result.Normals, texCoordsMultiplier);
+            this.setFaces(result.Groups, result.Vertices, result.Textures, result.Normals, texCoordsMultiplier, b_offset);
 
             texture = new OpenGL.Texture(textureFile).TextureID;
 
@@ -69,6 +69,9 @@ namespace CH3
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.LinearMipMapLinear);
 
+        }
+        protected void LoadModel(string modelFile, string textureFile, float texCoordsMultiplier) {
+            LoadModel(modelFile, textureFile, texCoordsMultiplier, true);
         }
 
         protected void LoadModel(Vector3[] vertices, Vector3[] normals, Vector2[] texCoords, int[] indices)
@@ -82,7 +85,7 @@ namespace CH3
 
         }
 
-        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns, float texCoordsMultiplier)
+        private void setFaces(IList<Group> groups, IList<Vertex> vs, IList<ObjLoader.Loader.Data.VertexData.Texture> tex, IList<Normal> ns, float texCoordsMultiplier, bool b_offset)
         {
 
             Dictionary<string, int> elementMapping = new Dictionary<string, int>();
@@ -257,6 +260,7 @@ namespace CH3
             Vector3 v_max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
             Vector3 v_min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 
+           
             foreach (Vector3 v in pos) {
                 if (v.x < v_min.x) v_min.x = v.x;
                 if (v.y < v_min.y) v_min.y = v.y;
@@ -265,18 +269,23 @@ namespace CH3
                 if (v.y > v_max.y) v_max.y = v.y;
                 if (v.z > v_max.z) v_max.z = v.z;
             }
-
+            
             offset = (v_max + v_min) * 0.5f;
             for (int i=0;i<pos.Count;++i)
             {
-                pos[i] -= offset;
+                if (b_offset)
+                    pos[i] -= offset;
                 pos[i] *= scale;
             }
             offset *= scale;
-
-            // Flip y/z
-            offset = new Vector3(offset.x, offset.z, offset.y);
-
+            if (b_offset)
+            {
+                // Flip y/z
+                offset = new Vector3(offset.x, offset.z, offset.y);
+            } else
+            {
+                offset = new Vector3(0, 0, 0);
+            }
             vertices = new VBO<Vector3>(pos.ToArray());
 
             hext = new OpenTK.Vector3((v_max.x - v_min.x) * 0.5f, (v_max.y - v_min.y) * 0.5f, (v_max.z - v_min.z) * 0.5f) * 
@@ -297,13 +306,14 @@ namespace CH3
             */
             //(rotationX * rotationY * rotationZ) * scale * translation;
 
-          
+
 
             if (obj.has_physics)
             {
-                OpenTK.Matrix4 modelMatrix;
+                OpenTK.Matrix4 modelMatrix = obj.body.WorldTransform;
 
-                obj.body.GetWorldTransform(out modelMatrix);
+               // obj.body.GetWorldTransform(out modelMatrix);
+
                 OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
 
                 OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));

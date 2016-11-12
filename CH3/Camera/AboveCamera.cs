@@ -52,8 +52,15 @@ namespace CH3.Camera
             if (CH3.Input.IsKeyActive(Key.PageUp)) height += 5;
             if (CH3.Input.IsKeyActive(Key.PageDown)) height -= 5;
 
-            position = new Vector3(follow.position.x, follow.position.y, height);
-            target = follow.position;
+            if(follow.has_physics) {
+                OpenTK.Vector3 _pos = follow.body.WorldTransform.ExtractTranslation();
+                target = new Vector3(_pos.X, _pos.Y, _pos.Z);
+                position = new Vector3(_pos.X, _pos.Y, height); 
+            } else { 
+                position = new Vector3(follow.position.x, follow.position.y, height);
+                target = follow.position;
+            }
+            
             up = Vector3.Up;
             if (!fixedRotation)
             {

@@ -24,8 +24,8 @@ namespace CH3
         public void CullWorld()
         {
 
-            world.visibleObjects.Clear();
-            world.visibleObjects.AddRange(world.allObjects);
+//            world.visibleObjects.Clear();
+ //           world.visibleObjects.AddRange(world.allObjects);
 /*
             if (graphics.cameraMode == Graphics.CameraMode.PLAYER) { 
                 world.visibleObjects.Clear();
