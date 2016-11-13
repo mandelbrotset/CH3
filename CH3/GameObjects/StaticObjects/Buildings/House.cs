@@ -9,9 +9,9 @@ namespace CH3
 {
     public class House : Building
     {
-        public House(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position,  5 * scale, -((float)Math.PI / 2), 0, rotation, graphics)
+        public House(Vector3 position, Vector3 scale, float rotation, Graphics graphics) : base(position, 10 * scale, -((float)Math.PI / 2), 0, rotation, graphics)
         {
-            LoadModel("../../models/house-modern.obj", "../../textures/buildings-houses_v1.jpg", 1);
+            LoadModel("../../models/house.obj", "../../textures/house.png", 1);
         }
     }
 }
