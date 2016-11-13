@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenGL;
 using CH3.Camera;
+using CH3.GameObjects.DynamicObjects.Vehicles;
 
 namespace CH3
 {
@@ -209,7 +210,17 @@ namespace CH3
             foreach (GameObject d in objects)
             {
                 if (d != null) {
-                    d.Render(currentShader, mipmap, false, d);
+                    if (d is Car) {
+                        Car car = (Car)d;
+                        car.Render(currentShader, mipmap, false, car);
+                        car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(0));
+                        car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(1));
+                        car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(2));
+                        car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(3));
+                    }
+                    else {
+                        d.Render(currentShader, mipmap, false, d);
+                    }
                 }
             }
 
@@ -221,7 +232,9 @@ namespace CH3
             {
                 if (d != null && d.has_physics)
                 {
-                    if (d.body.IsActive)
+                    if(d is Car)
+                        primitiveShader.setColor(new Vector3(1, 1, 0));
+                    else if (d.body.IsActive)
                         primitiveShader.setColor(new Vector3(0, 1, 0));
                     else
                         primitiveShader.setColor(new Vector3(1, 0, 0));

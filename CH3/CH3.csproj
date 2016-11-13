@@ -95,6 +95,7 @@
     <Compile Include="collada_schema_1_4.cs" />
     <Compile Include="GameObjects\DynamicObjects\DynamicFarmHouse.cs" />
     <Compile Include="GameObjects\DynamicObjects\Vehicles\Car.cs" />
+    <Compile Include="GameObjects\DynamicObjects\Vehicles\Wheel.cs" />
     <Compile Include="GameObjects\StaticObjects\Sky.cs" />
     <Compile Include="Graphic\ColladaLoader.cs" />
     <Compile Include="Graphic\GraphicsForward.cs" />

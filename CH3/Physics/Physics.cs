@@ -91,7 +91,7 @@ namespace CH3.Physics
             collisionShapes.Add(compound);
 
             //localTrans effectively shifts the center of mass with respect to the chassis
-            Matrix4 localTrans = Matrix4.CreateTranslation(Vector3.UnitZ);
+            Matrix4 localTrans = Matrix4.CreateTranslation(Vector3.UnitZ * 2f);
             compound.AddChildShape(localTrans, chassisShape);
 
             RigidBody carChassis = LocalCreateRigidBody(car.mass, Matrix4.Identity, compound);
@@ -103,7 +103,7 @@ namespace CH3.Physics
             car.vehicle = new RaycastVehicle(tuning, carChassis, vehicleRayCaster);
             World.AddAction(car.vehicle);
 
-            const float connectionHeight = 1.2f;
+            const float connectionHeight = 1.5f;
             bool isFrontWheel = true;
 
             const int rightIndex = 0;
@@ -116,41 +116,44 @@ namespace CH3.Physics
             const float wheelWidth = 0.4f;
             const float wheelFriction = 20f;//BT_LARGE_FLOAT;
             const float suspensionStiffness = 10.0f;
-            const float suspensionDamping = 2.3f;
+            const float suspensionDamping = 0.1f;
             const float suspensionCompression = 4.4f;
-            const float rollInfluence = 2.0f;//1.0f;
-            const float suspensionRestLength = 0.6f;
+            const float rollInfluence = 0.1f;//1.0f;
+            const float suspensionRestLength = 1.3f;
 
             car.vehicle.SetCoordinateSystem(rightIndex, upIndex, forwardIndex);
-            /*    
-                      Vector3 connectionPointCS0 = new Vector3(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
-
-                      car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-
-                      connectionPointCS0 = new Vector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
-                      car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-
-                      isFrontWheel = false;
-                      connectionPointCS0 = new Vector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-                      car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-
-                      connectionPointCS0 = new Vector3(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-                      car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-            */
+            /*
             Vector3 connectionPointCS0 = new Vector3(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 
             car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
 
-            connectionPointCS0 = new Vector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth),  2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
+            connectionPointCS0 = new Vector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
             car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
 
             isFrontWheel = false;
-            connectionPointCS0 = new Vector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth),  -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
+            connectionPointCS0 = new Vector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
             car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
 
             connectionPointCS0 = new Vector3(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
             car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
+            */
+            
+            Vector3 connectionPointCS0 = new Vector3(car.hext.X - (0.3f * wheelWidth), 0.70f * car.hext.Y - wheelRadius, connectionHeight);
 
+            car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
+
+            connectionPointCS0 = new Vector3(-car.hext.X + (0.3f * wheelWidth),  0.70f * car.hext.Y - wheelRadius, connectionHeight);
+            car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
+
+            isFrontWheel = false;
+            connectionPointCS0 = new Vector3(-car.hext.X + (0.3f * wheelWidth),  -0.80f * car.hext.Y + wheelRadius, connectionHeight);
+            car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
+
+            connectionPointCS0 = new Vector3(car.hext.X - (0.3f * wheelWidth), -0.80f * car.hext.Y + wheelRadius, connectionHeight);
+            car.vehicle.AddWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
+
+
+            Matrix4 m = Matrix4.CreateRotationX(-((float)Math.PI / 2));
             for (int i = 0; i < car.vehicle.NumWheels; i++)
             {
                 WheelInfo wheel = car.vehicle.GetWheelInfo(i);
@@ -161,7 +164,7 @@ namespace CH3.Physics
                 wheel.RollInfluence = rollInfluence;
             }
             /*
-            Matrix4 m = Matrix4.CreateRotationX(-((float)Math.PI / 2));
+            
             m = m * Matrix4.CreateRotationY(-((float)Math.PI));
 
             m = m * Matrix4.CreateTranslation()

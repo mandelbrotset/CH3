@@ -66,6 +66,8 @@ void main()
 
 	intensity = -dot( normalize((view_matrix * vec4(light_direction,0)).xyz), gl_TexCoord[1].xyz) ;
 	
+	color = texColor * clamp(intensity, 0.25, 1.0);
+	/*
 	if (intensity > 0.95)
 		color = texColor;
 	else if (intensity > 0.5)
@@ -74,6 +76,7 @@ void main()
 		color = 0.5*texColor;
 	else 
 		color = 0.3 * texColor;
+		*/
 
 		
 	gl_FragColor = vec4(color, 1.0);

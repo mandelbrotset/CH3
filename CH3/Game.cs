@@ -69,9 +69,11 @@ namespace CH3
         private ContourMode contourMode;
         private WorldCuller culler;
         private int prev_time;
-        private Car car;
         DynamicObject active_object;
         SFML.System.Clock clock;
+
+
+        public Car car;
 
         public Game()
         {
@@ -97,9 +99,9 @@ namespace CH3
             clock = new SFML.System.Clock();
 
             physics = new WorldPhysics();
-
+            graphics.aboveCamera.follow = player;
             CreateObjects();
-            graphics.aboveCamera.follow = car;
+            
             Input.SubscribeKeyPressed(KeyPressed);
         }
 
@@ -114,7 +116,8 @@ namespace CH3
             StaticObject farmHouse1 = new FarmHouse(new Vector3(0, 100, 0), new Vector3(1, 1, 1), 0f, graphics);
             StaticObject farmHouse2 = new FarmHouse(new Vector3(100, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
 
-            car = new Car(new Vector3(0, 0, 0), new Vector3(1, 1, 1), 0f, graphics);
+            car = new Car(new Vector3(0, 0, 0), new Vector3(2, 2, 2), 0f, graphics);
+            graphics.aboveCamera.follow = car;
             DynamicFarmHouse farmHouse3 = new DynamicFarmHouse(new Vector3(0, -100, 100), new Vector3(1, 1, 1), 0f, graphics);
             DynamicFarmHouse farmHouse4 = new DynamicFarmHouse(new Vector3(0, -200, 500), new Vector3(1, 1, 1), 0f, graphics);
             DynamicFarmHouse farmHouse5 = new DynamicFarmHouse(new Vector3(0, 200, 100), new Vector3(1, 1, 1), 0f, graphics);
@@ -177,7 +180,7 @@ namespace CH3
         {
             //  player.Move();
             //while (!Glfw.WindowShouldClose(gameWindow.window))
-            //gameWindow.window.SetFramerateLimit(fps_target);
+            gameWindow.window.SetFramerateLimit(fps_target);
 
             uint fps = 0;
             float fps_timer = 0;

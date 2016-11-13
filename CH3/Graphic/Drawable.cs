@@ -9,6 +9,7 @@ using ObjLoader.Loader.Loaders;
 using System.IO;
 using static CH3.Graphics;
 using CH3.Utils;
+using CH3.GameObjects.DynamicObjects.Vehicles;
 
 namespace CH3
 {
@@ -286,6 +287,7 @@ namespace CH3
             {
                 offset = new Vector3(0, 0, 0);
             }
+
             vertices = new VBO<Vector3>(pos.ToArray());
 
             hext = new OpenTK.Vector3((v_max.x - v_min.x) * 0.5f, (v_max.y - v_min.y) * 0.5f, (v_max.z - v_min.z) * 0.5f) * 
@@ -294,34 +296,35 @@ namespace CH3
         }
 
 
+        public void Render(BasicShaderProgram shader, OpenTK.Matrix4 modelMatrix) {
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
+            OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "rotation_matrix"), false, ref m);
+
+            Gl.BindBuffer(vertices);
+            Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+            Gl.BindBuffer(normals);
+            Gl.VertexAttribPointer(shader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+            Gl.Enable(EnableCap.Texture2D);
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+            Gl.BindBuffer(texCoords);
+            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
+            Gl.BindBuffer(indices);
+            Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+ 
+
         public void Render(BasicShaderProgram shader, bool mipmap, bool multiSampledTexture, GameObject obj) {
-
-            /*
-            Matrix4 scale = Matrix4.CreateScaling(this.scale);
-            Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
-            Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
-            Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
-
-            Matrix4 translation = Matrix4.CreateTranslation(position);
-            */
-            //(rotationX * rotationY * rotationZ) * scale * translation;
-
-
-
             if (obj.has_physics)
             {
                 OpenTK.Matrix4 modelMatrix = obj.body.WorldTransform;
-
-               // obj.body.GetWorldTransform(out modelMatrix);
-
                 OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
 
                 OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
                 OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "rotation_matrix"), false, ref m);
-
-            }
-            else
-            {
+            } else  {
                 Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
                 Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
                 Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
