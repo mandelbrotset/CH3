@@ -13,6 +13,7 @@ using CH3.Utils;
 using CH3.Physics;
 using CH3.GameObjects.DynamicObjects.Vehicles;
 
+
 namespace CH3
 {
     public class Game
@@ -77,9 +78,11 @@ namespace CH3
 
         public Game()
         {
+            
+            
             renderMode = RenderMode.CEL;
             gameWindow = new Window();
-            aaMode = AAMode.FXAA;
+            aaMode = AAMode.MSAA_X4;
             contourMode = ContourMode.MSAA;
 
             mouse = new Mouse();
@@ -93,8 +96,10 @@ namespace CH3
 
             map = new Map.Map();
             world = new World(map);
-            graphics = new GraphicsForward(world, aaMode, contourMode, gameWindow);
+            graphics = new GraphicsTiledForward(world, aaMode, contourMode, gameWindow);
             
+
+
             culler = new WorldCuller(world, graphics);
             clock = new SFML.System.Clock();
 
@@ -117,6 +122,12 @@ namespace CH3
             StaticObject farmHouse2 = new FarmHouse(new Vector3(100, -100, 0), new Vector3(1, 1, 1), 0f, graphics);
 
             car = new Car(new Vector3(0, 0, 0), new Vector3(2, 2, 2), 0f, graphics);
+            graphics.AddLight(car.break_light0);
+            graphics.AddLight(car.break_light1);
+            graphics.AddLight(car.head_light0);
+            graphics.AddLight(car.head_light1);
+
+
             graphics.aboveCamera.follow = car;
             DynamicFarmHouse farmHouse3 = new DynamicFarmHouse(new Vector3(0, -100, 100), new Vector3(1, 1, 1), 0f, graphics);
             DynamicFarmHouse farmHouse4 = new DynamicFarmHouse(new Vector3(0, -200, 500), new Vector3(1, 1, 1), 0f, graphics);
@@ -180,7 +191,7 @@ namespace CH3
         {
             //  player.Move();
             //while (!Glfw.WindowShouldClose(gameWindow.window))
-            gameWindow.window.SetFramerateLimit(fps_target);
+            //gameWindow.window.SetFramerateLimit(fps_target);
 
             uint fps = 0;
             float fps_timer = 0;
@@ -193,11 +204,10 @@ namespace CH3
                 fps++;
                 if(fps_timer > 1)
                 {
-                    Console.WriteLine(fps);
+                   Console.WriteLine(fps);
                     fps_timer = 0;
                     fps = 0;
                 }
-
 
                 gameWindow.HandleEvents();
                 update(dt);
@@ -231,7 +241,7 @@ namespace CH3
                     else if (aaMode == AAMode.MSAA_X4)
                         aaMode = AAMode.MSAA_X8;
                     else if (aaMode == AAMode.MSAA_X8)
-                        aaMode = AAMode.FXAA;
+                        aaMode = AAMode.OFF; //AAMode.FXAA;
                     else
                         aaMode = AAMode.OFF;
                     Console.WriteLine(aaMode.ToString());
@@ -267,13 +277,18 @@ namespace CH3
         private void update(float dt)
         {
             physics.Update(dt);
+
             Vector2 mouse_movement = mouse.Update();
-            if(graphics.cameraMode == CameraMode.PLAYER)
+            if (graphics.cameraMode == CameraMode.PLAYER)
                 active_object.HandleInput(mouse_movement, dt);
 
             graphics.activeCamera.Update(mouse_movement);
             world.Tick();
-            
+
+
+            foreach (DynamicObject obj in world.dynamicObjects) {
+                obj.UpdateLights();
+            }
         }
 
         private void render()

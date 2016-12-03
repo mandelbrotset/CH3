@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CH3.Camera;
 using OpenGL;
+using CH3.Lights;
 
 namespace CH3
 {
@@ -22,10 +23,12 @@ namespace CH3
         public GBufferShader gbufferShader { get; private set; }
         public FloorShaderProgram floorShader { get; private set; }
         public PrimitiveShader primitiveShader { get; private set; }
+        public PointLightShader pointlightShader { get; private set; }
 
         public CameraMode cameraMode { get; set; }
         protected AAMode aaMode;
         protected ContourMode contourMode;
+        protected DebugMode debugMode;
 
         public enum CameraMode
         {
@@ -45,6 +48,11 @@ namespace CH3
         public enum ContourMode
         {
             OFF, ON, MSAA
+        }
+
+        public enum DebugMode
+        {
+            OFF, LightGrid, PhysicsAABB
         }
 
         public FPSCamera fpsCamera { get; protected set; }
@@ -86,6 +94,9 @@ namespace CH3
 
             primitiveShader = new PrimitiveShader();
             primitiveShader.initShader();
+
+            pointlightShader = new PointLightShader();
+            pointlightShader.initShader();
         }
 
         protected void initCameras()
@@ -97,6 +108,9 @@ namespace CH3
             aboveCamera.height = 100;
 
         }
+
+
+        public virtual void AddLight(Light l) { }
 
         internal abstract void Render(RenderMode renderMode, AAMode aaMode, ContourMode contourMode);
     }

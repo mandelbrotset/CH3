@@ -14,16 +14,9 @@ namespace CH3
         public uint vertexTexCoordIndex { get; protected set; }
         public uint vertexNormalIndex { get; protected set; }
 
-
-
-
-
         public BasicShaderProgram()
         {
-
            // initShader();
-
-
         }
 
         public void initShader() {
@@ -44,9 +37,6 @@ namespace CH3
             Gl.EnableVertexAttribArray(vertexPositionIndex);
             Gl.EnableVertexAttribArray(vertexTexCoordIndex);
             Gl.EnableVertexAttribArray(vertexNormalIndex);
-
-
-
         }
 
 
@@ -84,16 +74,5 @@ namespace CH3
             program["model_matrix"].SetValue(matrix);
 
         }
-
-
-
-
-
-
-
-
-
-
-
     }
 }

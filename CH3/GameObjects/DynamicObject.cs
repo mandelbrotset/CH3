@@ -31,6 +31,8 @@ namespace CH3
             }
         }
 
+        public virtual void UpdateLights() { }
+
         public virtual void HandleInput(Vector2 mouse, float dt) { }
     }
 }

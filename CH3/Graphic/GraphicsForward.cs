@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenGL;
 using CH3.Camera;
 using CH3.GameObjects.DynamicObjects.Vehicles;
+using CH3.Lights;
 
 namespace CH3
 {
@@ -157,9 +158,9 @@ namespace CH3
                 currentShader = gbufferShader;
 
             currentShader.useProgram();
-            currentShader.setProjectionMatrix(activeCamera.perspectiveMatrix);
+            currentShader.setProjectionMatrix(activeCamera.projection);
             currentShader.setViewMatrix(activeCamera.viewMatrix);
-            currentShader.setLightDirection(light.direction);
+            currentShader.setLightDirection(new Vector3(light.direction.X, light.direction.Y, light.direction.Z));
             currentShader.setTime(time);
 
             //Render drawable
@@ -193,9 +194,9 @@ namespace CH3
                 currentShader = gbufferShader;
 
             currentShader.useProgram();
-            currentShader.setProjectionMatrix(activeCamera.perspectiveMatrix);
+            currentShader.setProjectionMatrix(activeCamera.projection);
             currentShader.setViewMatrix(activeCamera.viewMatrix);
-            currentShader.setLightDirection(light.direction);
+            currentShader.setLightDirection(new Vector3(light.direction.X, light.direction.Y, light.direction.Z));
             currentShader.setTime(time);
 
             /*
@@ -213,10 +214,12 @@ namespace CH3
                     if (d is Car) {
                         Car car = (Car)d;
                         car.Render(currentShader, mipmap, false, car);
+                        /* FIxa Render i Drawable
                         car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(0));
                         car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(1));
                         car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(2));
                         car.wheel.Render(currentShader, car.vehicle.GetWheelTransformWS(3));
+                        */
                     }
                     else {
                         d.Render(currentShader, mipmap, false, d);
@@ -226,18 +229,18 @@ namespace CH3
 
             //Render AABB
             primitiveShader.useProgram();
-            primitiveShader.setProjectionMatrix(activeCamera.perspectiveMatrix);
+            primitiveShader.setProjectionMatrix(activeCamera.projection);
             primitiveShader.setViewMatrix(activeCamera.viewMatrix);
             foreach (GameObject d in objects)
             {
                 if (d != null && d.has_physics)
                 {
                     if(d is Car)
-                        primitiveShader.setColor(new Vector3(1, 1, 0));
+                        primitiveShader.setColor(new Vector4(1, 1, 0, 1));
                     else if (d.body.IsActive)
-                        primitiveShader.setColor(new Vector3(0, 1, 0));
+                        primitiveShader.setColor(new Vector4(0, 1, 0, 1));
                     else
-                        primitiveShader.setColor(new Vector3(1, 0, 0));
+                        primitiveShader.setColor(new Vector4(1, 0, 0, 1));
 
                     OpenTK.Vector3 min, max;
                     d.body.GetAabb(out min, out max);
@@ -321,7 +324,7 @@ namespace CH3
 
         private void initLight()
         {
-            light = new DirectionalLight(new Vector3(0, 1, -1).Normalize());
+            light = new DirectionalLight(new OpenTK.Vector3(1, 1, 1), new OpenTK.Vector3(0, 1, -1));
 
         }
 

@@ -1,35 +1,39 @@
-﻿using System;
+﻿using OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenGL;
-using OpenTK.Graphics.OpenGL;
 
 namespace CH3
 {
-    public class PrimitiveShader : BasicShaderProgram
+    public class PointLightShader : BasicShaderProgram
     {
-        public PrimitiveShader() {}
+        public PointLightShader() { }
 
         public new void initShader()
         {
 
-            Console.WriteLine("INIT Primitive");
-            loadVertShader("../../shaders/primitiveVert.vert");
-            loadFragShader("../../shaders/primitiveFrag.frag");
+            Console.WriteLine("INIT PointLight");
+            loadVertShader("../../shaders/pointlight.vert");
+            loadFragShader("../../shaders/pointlight.frag");
             loadProgram();
+
 
             vertexTexCoordIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "texCoord");
             vertexPositionIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexPosition");
             vertexNormalIndex = (uint)Gl.GetAttribLocation(program.ProgramID, "vertexNormal");
-
         }
 
-
-        public void setColor(Vector4 color)
+        public void setMVP(Matrix4 matrix)
         {
-            program["color"].SetValue(color);
+            program["MVP_matrix"].SetValue(matrix);
         }
+
+        public void setNormal(Matrix4 matrix)
+        {
+            program["N_matrix"].SetValue(matrix);
+        }
+
     }
 }

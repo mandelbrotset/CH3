@@ -9,6 +9,7 @@ using ObjLoader.Loader.Loaders;
 using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.Data.VertexData;
 using static CH3.Graphics;
+using CH3.Lights;
 
 namespace CH3
 {
@@ -17,11 +18,8 @@ namespace CH3
 
         public uint FBO { get; private set; }
 
-
         private int width;
         private int height;
-        Vector3 position;
-
 
         public PostProcessedImage(int width, int height, uint texture, uint fbo, Vector3 position, Graphics graphics) : base(position, new Vector3(1,1,1), 0, 0, 0, graphics)
         {
@@ -46,7 +44,7 @@ namespace CH3
         public void Render(RenderMode renderMode)
         {
             Matrix4 ortho = Matrix4.CreateOrthographic(Window.WIDTH, Window.HEIGHT, -1, 1);
-            base.Render(0, ortho, Matrix4.Identity, new DirectionalLight(Vector3.Zero), renderMode, false, false, position);
+            base.Render(0, ortho, Matrix4.Identity, new DirectionalLight(new OpenTK.Vector3(0), new OpenTK.Vector3(0)), renderMode, false, false, position);
         }
 
     }

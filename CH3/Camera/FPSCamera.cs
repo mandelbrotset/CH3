@@ -24,7 +24,10 @@ namespace CH3.Camera
 
             y_fov = CalcFovY(60.0f, 16.0f, 9.0f);
             x_fov = CalcFovX(y_fov, (float)Window.WIDTH, (float)Window.HEIGHT);
-            perspectiveMatrix = Matrix4.CreatePerspectiveFieldOfView(y_fov * (float)(Math.PI / 180.0),
+            projection = Matrix4.CreatePerspectiveFieldOfView(y_fov * (float)(Math.PI / 180.0),
+                ((float)Window.WIDTH / (float)Window.HEIGHT), (float)z_near, (float)z_far);
+
+            projection_opentk = OpenTK.Matrix4.CreatePerspectiveFieldOfView(y_fov * (float)(Math.PI / 180.0),
                 ((float)Window.WIDTH / (float)Window.HEIGHT), (float)z_near, (float)z_far);
         }
 
@@ -90,6 +93,8 @@ namespace CH3.Camera
             up *= pitchR;
             up *= yawR;
             this.target = this.position + forward;
+
+            UpdateMatrices();
         }
     }
 }

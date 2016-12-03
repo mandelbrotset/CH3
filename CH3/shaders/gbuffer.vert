@@ -1,6 +1,5 @@
 #version 130
 
-
 in vec2 texCoord;
 in vec3 vertexPosition;
 in vec3 vertexNormal;
@@ -10,18 +9,15 @@ uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 uniform mat4 rotation_matrix;
 
-uniform mat4 MVP_matrix;
-uniform mat4 N_matrix;
+uniform mat4 modelViewProjectionMatrix;
+uniform mat4 normalMatrix;
 
-uniform float time;
-
-
+out vec2 tex_Coord;
 out vec3 normal;
 
-
 void main() {
-	gl_TexCoord[0] = vec4(texCoord,0,0);
-	gl_TexCoord[1] = rotation_matrix * vec4(vertexNormal, 1);
-	gl_Position = projection_matrix *  view_matrix * model_matrix *  vec4(vertexPosition, 1.0);
+	gl_Position = modelViewProjectionMatrix *  vec4(vertexPosition, 1.0);
+	normal 		= normalize(normalMatrix * vec4(vertexNormal,0)).xyz;
+	tex_Coord = texCoord;
 }
  

@@ -6,18 +6,19 @@ uniform sampler2D tex;
 uniform vec3 light_direction;
 uniform float time;
 
+uniform float material_shininess;
 in vec3 normal;
 
+in vec2 tex_Coord;
 void main() {
-	float ambience = 0.1;
-	float sun_intensity = 1.0;
-	vec3 sun = vec3(1.0, 0.98, 0.9) * sun_intensity;
-	vec3 color = texture2D(tex,gl_TexCoord[0].xy).rgb;
-
-	gl_FragData[0] 	=  vec4(
-	clamp(color * sun *
-	clamp(-dot(light_direction , gl_TexCoord[1].xyz), 0.2, 1.0) + ambience * color,0.0,1.0), 1.0);
-
-
-    gl_FragData[1]	=  vec4(0.5*(gl_TexCoord[1].xyz + 1), 1.0);
+	gl_FragData[0] 			=  vec4(texture(tex, tex_Coord).xyz * 0.25, 1);
+	gl_FragData[1].xyz 	=  normalize(normal) * 0.5 + 0.5;
+	
+	gl_FragData[1].w = 1.0;
+	gl_FragData[2] = vec4(material_shininess);
+	
+	/*gl_FragData[1].xyz =
+			(has_normal_map == 1) ?
+					(mat3(normalize(tangent), normalize(bitangent), normalize(normal)) * normalize(texture(normal_map, texCoord).xyz)) * 0.5 + 0.5 :
+					normalize(normal) * 0.5 + 0.5;*/
 }

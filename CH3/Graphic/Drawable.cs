@@ -10,6 +10,8 @@ using System.IO;
 using static CH3.Graphics;
 using CH3.Utils;
 using CH3.GameObjects.DynamicObjects.Vehicles;
+using CH3.Shaders;
+using CH3.Lights;
 
 namespace CH3
 {
@@ -296,10 +298,19 @@ namespace CH3
         }
 
 
-        public void Render(BasicShaderProgram shader, OpenTK.Matrix4 modelMatrix) {
-            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
-            OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
-            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "rotation_matrix"), false, ref m);
+        public void Render(ShaderLoader shader, OpenTK.Matrix4 VPMatrix, OpenTK.Matrix4 ModelMatrix) {
+
+            OpenTK.Matrix4 modelViewProjectionMatrix = ModelMatrix * VPMatrix ;
+
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program_id, "modelViewProjectionMatrix"), false, ref modelViewProjectionMatrix);
+            OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(ModelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program_id, "normalMatrix"), false, ref m);
+
+            OpenTK.Matrix4 m2 = OpenTK.Matrix4.Mult(ModelMatrix, graphics.activeCamera.viewMatrix_opentk);
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program_id, "modelviewMatrix"), false, ref m2);
+
+
+
 
             Gl.BindBuffer(vertices);
             Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
@@ -319,11 +330,12 @@ namespace CH3
         public void Render(BasicShaderProgram shader, bool mipmap, bool multiSampledTexture, GameObject obj) {
             if (obj.has_physics)
             {
-                OpenTK.Matrix4 modelMatrix = obj.body.WorldTransform;
-                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "model_matrix"), false, ref modelMatrix);
+                OpenTK.Matrix4 modelMatrix;
+                obj.body.GetWorldTransform(out modelMatrix);
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "modelViewProjectionMatrix"), false, ref modelMatrix);
 
                 OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
-                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "rotation_matrix"), false, ref m);
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "normalMatrix"), false, ref m);
             } else  {
                 Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
                 Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
@@ -426,14 +438,19 @@ namespace CH3
                 float id = ((float)modelId / 255);
                 graphics.modelShader.setModelId(id);
             }
+            else if (renderMode == RenderMode.FXAA)
+            {
+                OpenTK.Graphics.OpenGL.GL.Uniform1(Gl.GetUniformLocation(currentShader.program.ProgramID, "tex"), 0);
+                OpenTK.Graphics.OpenGL.GL.Uniform2(Gl.GetUniformLocation(currentShader.program.ProgramID, "screenSize"), (float)Window.WIDTH, (float)Window.HEIGHT);
+            }
 
-            Gl.BindBuffer(vertices);
+                Gl.BindBuffer(vertices);
             Gl.VertexAttribPointer(currentShader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
 
             Gl.BindBuffer(normals);
             Gl.VertexAttribPointer(currentShader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
 
-            currentShader.setLightDirection(light.direction);
+            currentShader.setLightDirection(new Vector3(light.direction.X, light.direction.Y, light.direction.Z));
             currentShader.setTime(time);
 
 
@@ -462,21 +479,129 @@ namespace CH3
 
         }
 
-        public void Render(GBufferShader currentShader, Matrix4 VPMatrix, Vector3 position)
+
+
+        public void Render(GBufferShader shader, OpenTK.Matrix4 modelMatrix)
         {
-            Matrix4 scale = Matrix4.CreateScaling(this.scale);
-            Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
-            Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
-            Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+            OpenTK.Matrix4 MVP_matrix = modelMatrix * graphics.activeCamera.viewMatrix_opentk * graphics.activeCamera.projection_opentk;
 
-            Matrix4 translation = Matrix4.CreateTranslation(position);
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "modelViewProjectionMatrix"), false, ref MVP_matrix);
 
-            Matrix4 modelMatrix =(rotationX * rotationY * rotationZ) * scale * translation;
+            OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+            OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(shader.program.ProgramID, "normalMatrix"), false, ref m);
 
-            currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
-            currentShader.setMVP(VPMatrix);
-            currentShader.setNormal(VPMatrix * modelMatrix);
-            currentShader.setModelMatrix(modelMatrix);
+            Gl.BindBuffer(vertices);
+            Gl.VertexAttribPointer(shader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+            Gl.BindBuffer(normals);
+            Gl.VertexAttribPointer(shader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+            Gl.Enable(EnableCap.Texture2D);
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+            Gl.BindBuffer(texCoords);
+            Gl.VertexAttribPointer(shader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
+            Gl.BindBuffer(indices);
+            Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+
+
+        public void Render(GBufferShader currentShader, Matrix4 VPMatrix, Matrix4 VMatrix, GameObject obj)
+        {
+            if (obj.has_physics)
+            {
+                OpenTK.Matrix4 modelMatrix;
+                    obj.body.GetWorldTransform(out modelMatrix);
+                OpenTK.Matrix4 MVP_matrix = modelMatrix * graphics.activeCamera.viewMatrix_opentk*  graphics.activeCamera.projection_opentk;
+
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program.ProgramID, "modelViewProjectionMatrix"), false, ref MVP_matrix);
+
+                OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program.ProgramID, "normalMatrix"), false, ref m);
+                
+            } else {
+                Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
+                Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
+                Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+
+                Matrix4 translation = Matrix4.CreateTranslation(position);
+
+                Matrix4 modelMatrix = (rotationX * rotationY * rotationZ)  * translation;
+
+                currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
+
+                currentShader.setNormal(modelMatrix * VMatrix);
+                currentShader.setMVP(modelMatrix * VPMatrix);
+            }
+
+
+
+            Gl.BindBuffer(vertices);
+            Gl.VertexAttribPointer(currentShader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
+
+            Gl.BindBuffer(normals);
+            Gl.VertexAttribPointer(currentShader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
+           
+            Gl.ActiveTexture(TextureUnit.Texture0);
+           
+            Gl.BindTexture(TextureTarget.Texture2D, texture);
+           
+            Gl.BindBuffer(texCoords);
+            Gl.VertexAttribPointer(currentShader.vertexTexCoordIndex, 2, vertices.PointerType, true, 8, IntPtr.Zero);
+            
+            Gl.BindBuffer(indices);
+
+            Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+        }
+
+
+        public void Render(ShaderLoader currentShader, Matrix4 VPMatrix, Matrix4 VMatrix, GameObject obj)
+        {
+            if (obj.has_physics)
+            {
+                OpenTK.Matrix4 modelMatrix;
+                obj.body.GetWorldTransform(out modelMatrix);
+                OpenTK.Matrix4 MVP_matrix = modelMatrix * graphics.activeCamera.viewMatrix_opentk * graphics.activeCamera.projection_opentk;
+
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program_id, "modelViewProjectionMatrix"), false, ref MVP_matrix);
+
+                OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program_id, "normalMatrix"), false, ref m);
+
+                OpenTK.Matrix4 m2 = OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk);
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program_id, "modelviewMatrix"), false, ref m2);
+
+
+            }
+            else {
+                // FEL
+                /*
+                Matrix4 rotationZ = Matrix4.CreateRotation(Vector3.UnitZ, this.rotationZ);
+                Matrix4 rotationX = Matrix4.CreateRotation(Vector3.UnitX, this.rotationX);
+                Matrix4 rotationY = Matrix4.CreateRotation(Vector3.UnitY, this.rotationY);
+
+                Matrix4 translation = Matrix4.CreateTranslation(position);
+
+                Matrix4 modelMatrix = (rotationX * rotationY * rotationZ) * translation;
+                */
+                /*
+                currentShader.setRotationMatrix(rotationX * rotationY * rotationZ);
+
+                currentShader.setNormal(modelMatrix * VMatrix);
+                currentShader.setMVP(modelMatrix * VPMatrix);
+                */
+
+
+                OpenTK.Matrix4 modelMatrix = OpenTK.Matrix4.CreateTranslation(position.x, position.y, position.z);
+                OpenTK.Matrix4 MVP_matrix = modelMatrix * graphics.activeCamera.viewMatrix_opentk * graphics.activeCamera.projection_opentk;
+
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program_id, "modelViewProjectionMatrix"), false, ref MVP_matrix);
+
+                OpenTK.Matrix4 m = OpenTK.Matrix4.Transpose(OpenTK.Matrix4.Invert(OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk)));
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program_id, "normalMatrix"), false, ref m);
+
+                OpenTK.Matrix4 m2 = OpenTK.Matrix4.Mult(modelMatrix, graphics.activeCamera.viewMatrix_opentk);
+                OpenTK.Graphics.OpenGL.GL.UniformMatrix4(Gl.GetUniformLocation(currentShader.program_id, "modelviewMatrix"), false, ref m2);
+            }
 
             Gl.BindBuffer(vertices);
             Gl.VertexAttribPointer(currentShader.vertexPositionIndex, 3, vertices.PointerType, false, 12, IntPtr.Zero);
@@ -485,7 +610,7 @@ namespace CH3
             Gl.VertexAttribPointer(currentShader.vertexNormalIndex, 3, vertices.PointerType, true, 12, IntPtr.Zero);
 
             Gl.ActiveTexture(TextureUnit.Texture0);
-           
+
             Gl.BindTexture(TextureTarget.Texture2D, texture);
 
             Gl.BindBuffer(texCoords);
@@ -494,7 +619,6 @@ namespace CH3
             Gl.BindBuffer(indices);
 
             Gl.DrawElements(BeginMode.Triangles, indices.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            
         }
     }
 }

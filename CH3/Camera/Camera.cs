@@ -12,34 +12,37 @@ namespace CH3.Camera
         public Vector3 target { get; set; }
         public Vector3 up { get; set; }
         public Vector3 position { get; set; }
-        public Matrix4 perspectiveMatrix { get; protected set; }
+        public Matrix4 projection { get; protected set; }
+        public OpenTK.Matrix4 projection_opentk { get; protected set; }
 
-        public Matrix4 viewMatrix
-        {
-            get
-            {
-                return Matrix4.LookAt(position, target, up);
-            }
-        }
+        public Matrix4 viewProjection { get; protected set; }
+        public OpenTK.Matrix4 viewProjection_opentk { get; protected set; }
 
-        public OpenTK.Matrix4 viewMatrix_opentk
-        {
-            get
-            {
-                return OpenTK.Matrix4.LookAt(
-                    new OpenTK.Vector3(position.x, position.y, position.z),
-                    new OpenTK.Vector3(target.x, target.y, target.z),
-                    new OpenTK.Vector3(up.x, up.y, up.z));
-            }
-        }
+        public Matrix4 viewMatrix { get; protected set; }
+        public OpenTK.Matrix4 viewMatrix_opentk { get; protected set; }
 
         protected bool captured;
-        protected float z_far = 500000.0f;
-        protected float z_near = 0.1f;
+
+        public float z_far = 4000.0f;
+        public float z_near = 0.5f;
+
+
         protected float x_fov;
         protected float y_fov = 60.0f;
 
+
         public abstract void Update(Vector2 mouse);
+
+        protected void UpdateMatrices()
+        {
+            viewMatrix = Matrix4.LookAt(position, target, up);
+            viewMatrix_opentk = OpenTK.Matrix4.LookAt(
+                    new OpenTK.Vector3(position.x, position.y, position.z),
+                    new OpenTK.Vector3(target.x, target.y, target.z),
+                    new OpenTK.Vector3(up.x, up.y, up.z));
+            viewProjection = viewMatrix * projection;
+            viewProjection_opentk = viewMatrix_opentk * projection_opentk;
+        }
 
         protected float CalcFovX(float fov_y, float width, float height) {
             float a;

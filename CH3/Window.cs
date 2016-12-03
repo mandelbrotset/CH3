@@ -7,6 +7,7 @@ using SFML.Window;
 using SFML.System;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTKUtilities = OpenTK.Platform.Utilities;
 
 namespace CH3
 {
@@ -19,11 +20,10 @@ namespace CH3
         private ContextSettings contextSettings;
         public SFML.Window.Window window { get; private set; }
 
-       // public void destroyWindow()
+        // public void destroyWindow()
         //{
-            //Glfw.DestroyWindow(window);
+        //Glfw.DestroyWindow(window);
         //}
-
 
         public bool createWindow()
         {
@@ -31,16 +31,23 @@ namespace CH3
             contextSettings.DepthBits = 32;
 
             window = new SFML.Window.Window(new VideoMode((uint)WIDTH, (uint)HEIGHT), TITLE, Styles.None, contextSettings);
-            //window = new SFML.Window.Window(new VideoMode((uint)1280, (uint)720), TITLE, Styles.None, contextSettings);
-
+ 
+            window.SetActive();
 
             Toolkit.Init();
-            GraphicsContext context = new GraphicsContext(new ContextHandle(IntPtr.Zero), null);
+
+            OpenTK.Platform.IWindowInfo windowinfo = OpenTK.Platform.Utilities.CreateWindowsWindowInfo(window.SystemHandle);
+
+            GraphicsMode graphicsMode = new GraphicsMode(32, (int)contextSettings.DepthBits, (int)contextSettings.StencilBits, (int)contextSettings.AntialiasingLevel);
+
+            GraphicsContext context = new GraphicsContext(graphicsMode, windowinfo);
+            context.MakeCurrent(windowinfo);
+            context.LoadAll();
 
             SetupEventHandlers();
             window.SetKeyRepeatEnabled(false);
             window.SetMouseCursorVisible(true);
-            window.SetActive();
+            
             window.RequestFocus();
 
             return true;
